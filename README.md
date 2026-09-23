@@ -2,5 +2,7 @@
 
 
 
-Team project for our hackathon
+Frontend development is handled in the frontend branch
+
+
 
