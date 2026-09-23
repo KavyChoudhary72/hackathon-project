@@ -2,7 +2,7 @@
 
 
 
-frontend development is handled in the frontend branch
+Frontend development is handled in the frontend branch
 
 
 
