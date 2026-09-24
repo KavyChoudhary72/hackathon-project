@@ -45,7 +45,7 @@ export const AboutSection: React.FC = () => {
   ];
 
   return (
-    <section id="about" className="w-full min-h-[140vh] flex flex-col justify-center py-28 sm:py-36 relative z-10">
+    <section id="about" className="w-full min-h-[120vh] flex flex-col justify-center py-28 sm:py-36 relative z-10">
       <div className="max-w-[1340px] px-6 sm:px-8 mx-auto">
         {/* Header */}
         <div className="mb-12 text-center max-w-3xl mx-auto">

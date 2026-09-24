@@ -4,7 +4,7 @@ import React from "react";
 
 export const HowItWorks: React.FC = () => {
   return (
-    <section id="how-it-works" className="relative z-10 w-full min-h-[135vh] flex flex-col justify-center py-28 sm:py-36">
+    <section id="how-it-works" className="relative z-10 w-full min-h-[110vh] flex flex-col justify-center py-28 sm:py-36">
       <div className="max-w-[1340px] px-6 sm:px-8 mx-auto">
         {/* Section Header */}
         <div className="mb-10 sm:mb-12">

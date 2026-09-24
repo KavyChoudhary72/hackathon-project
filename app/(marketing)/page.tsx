@@ -16,20 +16,20 @@ export default function HomePage() {
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
-      const impact = document.getElementById("impact");
       const howItWorks = document.getElementById("how-it-works");
+      const impact = document.getElementById("impact");
       const about = document.getElementById("about");
 
-      const impactTop = impact ? impact.offsetTop - 300 : 1000;
-      const howItWorksTop = howItWorks ? howItWorks.offsetTop - 300 : 2000;
-      const aboutTop = about ? about.offsetTop - 300 : 3200;
+      const howItWorksTop = howItWorks ? howItWorks.offsetTop - 300 : 800;
+      const impactTop = impact ? impact.offsetTop - 300 : 1600;
+      const aboutTop = about ? about.offsetTop - 300 : 2400;
 
-      if (scrollY < impactTop) {
+      if (scrollY < howItWorksTop) {
         setActiveChapter("home");
-      } else if (scrollY >= impactTop && scrollY < howItWorksTop) {
-        setActiveChapter("impact");
-      } else if (scrollY >= howItWorksTop && scrollY < aboutTop) {
+      } else if (scrollY >= howItWorksTop && scrollY < impactTop) {
         setActiveChapter("how-it-works");
+      } else if (scrollY >= impactTop && scrollY < aboutTop) {
+        setActiveChapter("impact");
       } else {
         setActiveChapter("about");
       }
