@@ -30,21 +30,21 @@ export const Navbar: React.FC = () => {
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
-            {/* Top-left Leaf Petal (Green) */}
+            {/* Left Leaf Petal (Coral Orange) */}
             <path
               d="M16 6C13.2 2.8 8.8 2.8 6 5.6C3.2 8.4 3.2 12.8 6.5 15.5L16 23.5V6Z"
-              fill="#16A34A"
+              fill="#F9683A"
             />
-            {/* Top-right Leaf Petal (Coral Orange) */}
+            {/* Right Leaf Petal (Green) */}
             <path
               d="M16 6C18.8 2.8 23.2 2.8 26 5.6C28.8 8.4 28.8 12.8 25.5 15.5L16 23.5V6Z"
-              fill="#F9683A"
+              fill="#16A34A"
             />
             {/* Bottom Accent Circle (Amber) */}
             <circle cx="16" cy="20.5" r="4" fill="#F5A623" />
           </svg>
-          <span className="text-[22px] font-extrabold tracking-tight text-[#142921]">
-            Food<span className="text-[#16A34A]">Link</span>
+          <span className="text-[22px] font-black tracking-tight text-[#142921]">
+            FoodLink
           </span>
         </Link>
 

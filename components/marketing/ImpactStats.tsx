@@ -8,10 +8,10 @@ export const ImpactStats: React.FC = () => {
       <div className="max-w-[1340px] px-6 sm:px-8 mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {/* CARD 1: Meals Rescued */}
-          <div className="bg-white rounded-[24px] px-6 py-5 shadow-[0_8px_30px_rgba(0,0,0,0.03)] border border-neutral-100/90 flex items-center justify-between transition-all hover:-translate-y-0.5">
+          <div className="bg-white rounded-[22px] px-6 py-5 shadow-[0_6px_28px_rgba(0,0,0,0.035)] border border-neutral-100/90 flex items-center justify-between transition-all hover:-translate-y-0.5">
             <div className="flex items-center gap-4">
               {/* Coral Icon Badge */}
-              <div className="w-13 h-13 rounded-full bg-[#FFEAE8] flex items-center justify-center text-[#F9683A] flex-shrink-0">
+              <div className="w-13 h-13 rounded-full bg-[#FFEFEA] flex items-center justify-center text-[#F9683A] flex-shrink-0">
                 <svg
                   className="w-6 h-6"
                   viewBox="0 0 24 24"
@@ -37,13 +37,13 @@ export const ImpactStats: React.FC = () => {
               fill="none"
             >
               <path
-                d="M 2 21 C 12 21 16 14 24 14 C 30 14 34 6 42 3"
+                d="M 3 20 C 13 20 17 14 25 14 C 31 14 35 6 42 4"
                 stroke="currentColor"
                 strokeWidth="2.5"
                 strokeLinecap="round"
               />
               <path
-                d="M 35 3 H 42 V 10"
+                d="M 35 4 H 42 V 11"
                 stroke="currentColor"
                 strokeWidth="2.5"
                 strokeLinecap="round"
@@ -53,10 +53,10 @@ export const ImpactStats: React.FC = () => {
           </div>
 
           {/* CARD 2: Food Donors */}
-          <div className="bg-white rounded-[24px] px-6 py-5 shadow-[0_8px_30px_rgba(0,0,0,0.03)] border border-neutral-100/90 flex items-center justify-between transition-all hover:-translate-y-0.5">
+          <div className="bg-white rounded-[22px] px-6 py-5 shadow-[0_6px_28px_rgba(0,0,0,0.035)] border border-neutral-100/90 flex items-center justify-between transition-all hover:-translate-y-0.5">
             <div className="flex items-center gap-4">
               {/* Mint Icon Badge */}
-              <div className="w-13 h-13 rounded-full bg-[#E3F7EC] flex items-center justify-center text-[#10B981] flex-shrink-0">
+              <div className="w-13 h-13 rounded-full bg-[#E5F7EB] flex items-center justify-center text-[#10B981] flex-shrink-0">
                 <svg
                   className="w-6 h-6"
                   viewBox="0 0 24 24"
@@ -75,20 +75,20 @@ export const ImpactStats: React.FC = () => {
               </div>
             </div>
 
-            {/* Emerald Upward Trend Wave */}
+            {/* Mint Upward Trend Wave */}
             <svg
               className="w-11 h-6 text-[#10B981] flex-shrink-0"
               viewBox="0 0 44 24"
               fill="none"
             >
               <path
-                d="M 2 21 C 12 21 16 14 24 14 C 30 14 34 6 42 3"
+                d="M 3 20 C 13 20 17 14 25 14 C 31 14 35 6 42 4"
                 stroke="currentColor"
                 strokeWidth="2.5"
                 strokeLinecap="round"
               />
               <path
-                d="M 35 3 H 42 V 10"
+                d="M 35 4 H 42 V 11"
                 stroke="currentColor"
                 strokeWidth="2.5"
                 strokeLinecap="round"
@@ -98,7 +98,7 @@ export const ImpactStats: React.FC = () => {
           </div>
 
           {/* CARD 3: Shelters Connected */}
-          <div className="bg-white rounded-[24px] px-6 py-5 shadow-[0_8px_30px_rgba(0,0,0,0.03)] border border-neutral-100/90 flex items-center justify-between transition-all hover:-translate-y-0.5">
+          <div className="bg-white rounded-[22px] px-6 py-5 shadow-[0_6px_28px_rgba(0,0,0,0.035)] border border-neutral-100/90 flex items-center justify-between transition-all hover:-translate-y-0.5">
             <div className="flex items-center gap-4">
               {/* Amber Icon Badge */}
               <div className="w-13 h-13 rounded-full bg-[#FEF4E2] flex items-center justify-center text-[#F59E0B] flex-shrink-0">
@@ -127,13 +127,13 @@ export const ImpactStats: React.FC = () => {
               fill="none"
             >
               <path
-                d="M 2 21 C 12 21 16 14 24 14 C 30 14 34 6 42 3"
+                d="M 3 20 C 13 20 17 14 25 14 C 31 14 35 6 42 4"
                 stroke="currentColor"
                 strokeWidth="2.5"
                 strokeLinecap="round"
               />
               <path
-                d="M 35 3 H 42 V 10"
+                d="M 35 4 H 42 V 11"
                 stroke="currentColor"
                 strokeWidth="2.5"
                 strokeLinecap="round"
@@ -143,7 +143,7 @@ export const ImpactStats: React.FC = () => {
           </div>
 
           {/* CARD 4: Food Waste Prevented */}
-          <div className="bg-white rounded-[24px] px-6 py-5 shadow-[0_8px_30px_rgba(0,0,0,0.03)] border border-neutral-100/90 flex items-center justify-between transition-all hover:-translate-y-0.5">
+          <div className="bg-white rounded-[22px] px-6 py-5 shadow-[0_6px_28px_rgba(0,0,0,0.035)] border border-neutral-100/90 flex items-center justify-between transition-all hover:-translate-y-0.5">
             <div className="flex items-center gap-4">
               {/* Green Icon Badge */}
               <div className="w-13 h-13 rounded-full bg-[#E8F8EE] flex items-center justify-center text-[#16A34A] flex-shrink-0">
@@ -172,13 +172,13 @@ export const ImpactStats: React.FC = () => {
               fill="none"
             >
               <path
-                d="M 2 21 C 12 21 16 14 24 14 C 30 14 34 6 42 3"
+                d="M 3 20 C 13 20 17 14 25 14 C 31 14 35 6 42 4"
                 stroke="currentColor"
                 strokeWidth="2.5"
                 strokeLinecap="round"
               />
               <path
-                d="M 35 3 H 42 V 10"
+                d="M 35 4 H 42 V 11"
                 stroke="currentColor"
                 strokeWidth="2.5"
                 strokeLinecap="round"

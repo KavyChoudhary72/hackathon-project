@@ -2,19 +2,15 @@
 
 import React from "react";
 import Link from "next/link";
-import { Heart, Play, ArrowRight } from "lucide-react";
-import { HeroVideoLayer } from "./HeroVideoLayer";
+import { Heart, ArrowRight } from "lucide-react";
 
 export const HeroSection: React.FC = () => {
   return (
-    <section id="hero" className="relative w-full overflow-hidden pt-36 sm:pt-40 lg:pt-44 pb-14 sm:pb-16">
-      {/* Background layer prepared for future video */}
-      <HeroVideoLayer />
-
+    <section id="hero" className="relative w-full pt-36 sm:pt-40 lg:pt-44 pb-14 sm:pb-16">
       <div className="max-w-[1340px] px-6 sm:px-8 mx-auto">
         <div className="max-w-2xl text-left">
           {/* Pill Tag */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#EEF2EF] text-[#52605B] text-[12px] font-semibold tracking-tight mb-7 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#EDF2EE] text-[#52605B] text-[12px] font-semibold tracking-tight mb-7 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
             <span className="text-emerald-700">🌱</span>
             <span>Rescue Food  •  Support Communities  •  Create Impact</span>
           </div>
@@ -25,30 +21,33 @@ export const HeroSection: React.FC = () => {
             Into{" "}
             <span className="text-[#F9683A] relative inline-block">
               Real Impact.
-              {/* Three orange radiant sparks */}
-              <span className="absolute -top-3.5 -right-8 text-[#F9683A] select-none pointer-events-none">
+              {/* Three orange radiant sparks matching Reference Image 2 */}
+              <span className="absolute -top-1 -right-8 text-[#F9683A] select-none pointer-events-none">
                 <svg
-                  className="w-7 h-7"
-                  viewBox="0 0 24 24"
+                  className="w-8 h-8"
+                  viewBox="0 0 28 28"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                 >
+                  {/* Top ray angled ~55 deg */}
                   <path
-                    d="M5 19L11 13"
+                    d="M 6 15 L 14 4"
                     stroke="#F9683A"
-                    strokeWidth="2.8"
+                    strokeWidth="3"
                     strokeLinecap="round"
                   />
+                  {/* Middle ray angled ~25 deg */}
                   <path
-                    d="M13 7L13 1"
+                    d="M 10 19 L 25 13"
                     stroke="#F9683A"
-                    strokeWidth="2.8"
+                    strokeWidth="3"
                     strokeLinecap="round"
                   />
+                  {/* Bottom ray angled ~8 deg */}
                   <path
-                    d="M18 13L24 13"
+                    d="M 9 24 L 23 26"
                     stroke="#F9683A"
-                    strokeWidth="2.8"
+                    strokeWidth="3"
                     strokeLinecap="round"
                   />
                 </svg>
@@ -76,8 +75,10 @@ export const HeroSection: React.FC = () => {
               href="#how-it-works"
               className="bg-white hover:bg-neutral-50 text-[#142921] px-7 py-3.5 rounded-full font-bold text-[15px] flex items-center gap-2.5 border border-neutral-200/90 shadow-[0_2px_10px_rgba(0,0,0,0.03)] transition-all hover:-translate-y-0.5 active:scale-[0.98]"
             >
-              <span className="w-5 h-5 rounded-full bg-[#142921] flex items-center justify-center text-white text-[10px]">
-                ▶
+              <span className="w-5 h-5 rounded-full bg-[#142921] flex items-center justify-center flex-shrink-0">
+                <svg className="w-2.5 h-2.5 fill-white translate-x-[0.5px]" viewBox="0 0 10 10">
+                  <polygon points="2,1.5 8.5,5 2,8.5" />
+                </svg>
               </span>
               <span>See How It Works</span>
             </Link>
