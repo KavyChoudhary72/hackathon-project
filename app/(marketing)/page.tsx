@@ -10,7 +10,7 @@ import { Footer } from "@/components/marketing/Footer";
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-[#FAF9F5] text-[#142921] selection:bg-[#E8F5E9] selection:text-[#113A2B] overflow-x-hidden relative font-sans">
+    <main className="min-h-screen bg-[#FAF9F5] text-[#142921] selection:bg-[#E8F5E9] selection:text-[#113A2B] overflow-x-hidden relative font-sans isolate">
       {/* Full-width atmospheric background layer behind Navbar, Hero, and KPI stats */}
       <HeroVideoLayer />
 
