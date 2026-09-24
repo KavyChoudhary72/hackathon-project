@@ -8,15 +8,15 @@ export const HeroSection: React.FC = () => {
   return (
     <section id="hero" className="relative w-full pt-36 sm:pt-40 lg:pt-44 pb-14 sm:pb-16">
       <div className="max-w-[1340px] px-6 sm:px-8 mx-auto">
-        <div className="max-w-2xl text-left">
+        <div className="max-w-3xl mx-auto flex flex-col items-center text-center">
           {/* Pill Tag */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#EDF2EE] text-[#52605B] text-[12px] font-semibold tracking-tight mb-7 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
             <span className="text-emerald-700">🌱</span>
             <span>Rescue Food  •  Support Communities  •  Create Impact</span>
           </div>
 
-          {/* Heading */}
-          <h1 className="text-5xl sm:text-6xl lg:text-[72px] font-black text-[#142921] tracking-[-0.035em] leading-[1.06] mb-6">
+          {/* Heading - Centered */}
+          <h1 className="text-5xl sm:text-6xl lg:text-[72px] font-black text-[#142921] tracking-[-0.035em] leading-[1.06] mb-6 text-center">
             Turn Surplus Food <br />
             Into{" "}
             <span className="text-[#F9683A] relative inline-block">
@@ -56,12 +56,12 @@ export const HeroSection: React.FC = () => {
           </h1>
 
           {/* Description */}
-          <p className="text-[18px] lg:text-[19px] text-[#5F6F67] leading-[1.5] max-w-[500px] mb-8 font-medium">
+          <p className="text-[18px] lg:text-[19px] text-[#5F6F67] leading-[1.5] max-w-[540px] mb-8 font-medium text-center mx-auto">
             Connect surplus food with shelters and communities that need it most.
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-wrap items-center gap-4 mb-9">
+          <div className="flex flex-wrap items-center justify-center gap-4 mb-9">
             <Link
               href="/donor/new"
               className="bg-[#113A2B] hover:bg-[#1B4332] text-white px-7 py-3.5 rounded-full font-bold text-[15px] flex items-center gap-2.5 shadow-[0_4px_16px_rgba(17,58,43,0.18)] transition-all hover:-translate-y-0.5 active:scale-[0.98]"
@@ -85,7 +85,7 @@ export const HeroSection: React.FC = () => {
           </div>
 
           {/* Donor Social Proof */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center gap-3">
             <div className="flex -space-x-2">
               {[
                 "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=90&h=90&fit=crop",
