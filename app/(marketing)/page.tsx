@@ -7,7 +7,6 @@ import { HeroSection } from "@/components/marketing/HeroSection";
 import { ImpactStats } from "@/components/marketing/ImpactStats";
 import { HowItWorks } from "@/components/marketing/HowItWorks";
 import { AboutSection } from "@/components/marketing/AboutSection";
-import { Footer } from "@/components/marketing/Footer";
 
 export default function HomePage() {
   const [activeChapter, setActiveChapter] = useState<string>("home");
@@ -84,8 +83,6 @@ export default function HomePage() {
       {/* Community & About Section */}
       <AboutSection />
 
-      {/* Footer */}
-      <Footer />
     </main>
   );
 }
