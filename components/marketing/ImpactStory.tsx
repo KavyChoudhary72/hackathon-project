@@ -9,7 +9,7 @@ export const ImpactStory: React.FC = () => {
     {
       label: "Meals Rescued",
       val: "25,000+",
-      sub: "Hot nutritious meals served",
+      sub: "Nutritious warm meals served",
       icon: Utensils,
       accent: "text-[#F9683A]",
       bg: "bg-[#F9683A]/15 border-[#F9683A]/30",
@@ -31,9 +31,9 @@ export const ImpactStory: React.FC = () => {
       bg: "bg-teal-500/15 border-teal-500/30",
     },
     {
-      label: "Average Match Time",
+      label: "Avg Match Time",
       val: "42 Mins",
-      sub: "From donation post to delivery",
+      sub: "Donation post to delivery",
       icon: Zap,
       accent: "text-amber-400",
       bg: "bg-amber-500/15 border-amber-500/30",
@@ -41,32 +41,32 @@ export const ImpactStory: React.FC = () => {
   ];
 
   return (
-    <div className="w-full">
+    <div className="w-full max-w-[1340px] mx-auto pt-16 sm:pt-20">
       {/* Header */}
-      <div className="mb-12 text-center max-w-3xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full story-glass-pill text-teal-400 text-[12px] font-bold tracking-tight mb-4">
+      <div className="mb-7 sm:mb-9 text-center max-w-3xl mx-auto">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full story-glass-pill text-teal-400 text-[12px] font-bold tracking-tight mb-3">
           <span>📊</span>
           <span>Verified Transparency & Telemetry</span>
         </div>
-        <h2 className="text-4xl sm:text-5xl font-black text-white tracking-[-0.03em] leading-tight mb-4 drop-shadow-md">
+        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-[-0.03em] leading-tight mb-3 drop-shadow-md">
           Measurable Real Impact
         </h2>
-        <p className="text-[17px] text-neutral-300 leading-relaxed font-normal">
+        <p className="text-[15px] sm:text-[16px] text-neutral-300 leading-relaxed font-normal max-w-2xl mx-auto">
           Every rescued portion directly feeds a human life while protecting our planet. Audited in real-time.
         </p>
       </div>
 
       {/* 4 Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8">
         {stats.map((s, idx) => {
           const Icon = s.icon;
           return (
             <div
               key={idx}
-              className="story-glass-card rounded-[24px] p-7 flex flex-col justify-between"
+              className="story-glass-card rounded-[22px] p-6 sm:p-7 flex flex-col justify-between"
             >
-              <div className="flex items-center justify-between mb-5">
-                <span className="text-[13px] font-bold text-neutral-400 tracking-wide uppercase">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[12px] font-bold text-neutral-400 tracking-wide uppercase">
                   {s.label}
                 </span>
                 <div
@@ -77,15 +77,15 @@ export const ImpactStory: React.FC = () => {
               </div>
 
               <div>
-                <div className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-2">
+                <div className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-1.5">
                   {s.val}
                 </div>
-                <div className="text-[13px] text-neutral-300 font-medium">
+                <div className="text-[12.5px] text-neutral-300 font-medium">
                   {s.sub}
                 </div>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-emerald-400">
+              <div className="mt-5 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-emerald-400">
                 <span>Verified Metric</span>
                 <span>100% Live</span>
               </div>

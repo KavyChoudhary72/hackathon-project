@@ -8,6 +8,7 @@ export interface StoryChapter {
   id: 'home' | 'how-it-works' | 'impact' | 'about';
   label: string;
   startProgress: number;
+  targetProgress: number;
   endProgress: number;
   frameIndexStart: number;
   frameIndexEnd: number;
@@ -266,32 +267,36 @@ export const STORY_CHAPTERS: StoryChapter[] = [
     id: 'home',
     label: 'Home',
     startProgress: 0.0,
-    endProgress: 0.25,
+    targetProgress: 0.0,
+    endProgress: 0.24,
     frameIndexStart: 0,
-    frameIndexEnd: Math.round(TOTAL_FRAMES * 0.25),
+    frameIndexEnd: 58,
   },
   {
     id: 'how-it-works',
     label: 'How it Works',
-    startProgress: 0.25,
-    endProgress: 0.55,
-    frameIndexStart: Math.round(TOTAL_FRAMES * 0.25),
-    frameIndexEnd: Math.round(TOTAL_FRAMES * 0.55),
+    startProgress: 0.24,
+    targetProgress: 0.36,
+    endProgress: 0.54,
+    frameIndexStart: 59,
+    frameIndexEnd: 130,
   },
   {
     id: 'impact',
     label: 'Impact',
-    startProgress: 0.55,
-    endProgress: 0.80,
-    frameIndexStart: Math.round(TOTAL_FRAMES * 0.55),
-    frameIndexEnd: Math.round(TOTAL_FRAMES * 0.80),
+    startProgress: 0.54,
+    targetProgress: 0.65,
+    endProgress: 0.78,
+    frameIndexStart: 131,
+    frameIndexEnd: 188,
   },
   {
     id: 'about',
     label: 'About',
-    startProgress: 0.80,
+    startProgress: 0.78,
+    targetProgress: 0.88,
     endProgress: 1.0,
-    frameIndexStart: Math.round(TOTAL_FRAMES * 0.80),
+    frameIndexStart: 189,
     frameIndexEnd: TOTAL_FRAMES - 1,
   },
 ];

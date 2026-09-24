@@ -1,12 +1,16 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import { Navbar } from "@/components/marketing/Navbar";
-import { StoryScroller } from "@/components/StoryScroller/StoryScroller";
+import {
+  StoryScroller,
+  StoryScrollerHandle,
+} from "@/components/StoryScroller/StoryScroller";
 import { Footer } from "@/components/marketing/Footer";
 
 export default function HomePage() {
   const [activeChapter, setActiveChapter] = useState<string>("home");
+  const storyScrollerRef = useRef<StoryScrollerHandle>(null);
 
   const handleChapterChange = useCallback((chapterId: string) => {
     setActiveChapter(chapterId);
@@ -14,10 +18,7 @@ export default function HomePage() {
 
   const handleNavigateChapter = useCallback((chapterId: string) => {
     setActiveChapter(chapterId);
-    const elem = document.getElementById(chapterId);
-    if (elem) {
-      elem.scrollIntoView({ behavior: "smooth" });
-    }
+    storyScrollerRef.current?.scrollToChapter(chapterId);
   }, []);
 
   return (
@@ -30,6 +31,7 @@ export default function HomePage() {
 
       {/* Apple-style Cinematic Scroll-Driven Visual Story */}
       <StoryScroller
+        ref={storyScrollerRef}
         activeChapter={activeChapter}
         onChapterChange={handleChapterChange}
       />
