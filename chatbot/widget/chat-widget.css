@@ -1,0 +1,630 @@
+/*!
+ * FoodLink Chat Widget — chat-widget.css
+ * Matches the FoodLink Brand & Dashboard UI System.
+ */
+
+:root {
+  --fl-primary:        #144234;
+  --fl-primary-dark:   #0d2b22;
+  --fl-primary-light:  #1d5c49;
+  --fl-accent-green:   #22c55e;
+  --fl-accent-orange:  #f97316;
+  --fl-accent-yellow:  #fbbf24;
+  --fl-bg-subtle:      #f8faf9;
+  --fl-surface:        #ffffff;
+  --fl-border:         #e5e7eb;
+  --fl-border-subtle:  #f3f4f6;
+  --fl-text:           #111827;
+  --fl-text-secondary: #4b5563;
+  --fl-text-muted:     #6b7280;
+  --fl-text-light:     #9ca3af;
+  --fl-radius-panel:   20px;
+  --fl-radius-bubble:  18px;
+  --fl-radius-pill:    9999px;
+  --fl-shadow-panel:   0 20px 48px -8px rgba(20, 66, 52, 0.18), 0 8px 24px -4px rgba(0, 0, 0, 0.08);
+  --fl-shadow-fab:     0 8px 24px rgba(20, 66, 52, 0.32);
+  --fl-font:           'Inter', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --fl-z:              999999;
+  --fl-widget-w:       384px;
+  --fl-widget-h:       600px;
+}
+
+#annasetuchat-root * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: var(--fl-font);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══════════════════════════════════════
+   FLOATING ACTION BUTTON (FAB)
+═══════════════════════════════════════ */
+#annasetuchat-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: var(--fl-z);
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--fl-primary);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--fl-shadow-fab);
+  transition: transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background 0.2s ease,
+              box-shadow 0.24s ease;
+  outline: none;
+}
+
+#annasetuchat-fab:hover {
+  background: var(--fl-primary-dark);
+  transform: scale(1.07);
+  box-shadow: 0 12px 28px rgba(20, 66, 52, 0.42);
+}
+
+#annasetuchat-fab:active {
+  transform: scale(0.94);
+}
+
+#annasetuchat-fab svg.as-fab-icon-chat {
+  position: absolute;
+  transition: opacity 0.2s, transform 0.2s;
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+#annasetuchat-fab svg.as-fab-icon-close {
+  position: absolute;
+  opacity: 0;
+  transform: scale(0.5) rotate(-90deg);
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+#annasetuchat-fab.as-open svg.as-fab-icon-chat  { opacity: 0; transform: scale(0.5) rotate(90deg); }
+#annasetuchat-fab.as-open svg.as-fab-icon-close { opacity: 1; transform: scale(1) rotate(0deg); }
+
+/* Pulse animation */
+#annasetuchat-fab .as-fab-pulse {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid rgba(20, 66, 52, 0.35);
+  animation: flPulse 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes flPulse {
+  0%   { transform: scale(1);   opacity: 0.8; }
+  50%  { transform: scale(1.28); opacity: 0; }
+  100% { transform: scale(1);   opacity: 0; }
+}
+
+/* Badge (matching FoodLink coral heart icon) */
+#annasetuchat-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--fl-accent-orange);
+  border: 2.5px solid #fff;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0);
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+#annasetuchat-badge.as-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ═══════════════════════════════════════
+   WIDGET PANEL
+═══════════════════════════════════════ */
+#annasetuchat-panel {
+  position: fixed;
+  bottom: 96px;
+  right: 24px;
+  z-index: var(--fl-z);
+  width: var(--fl-widget-w);
+  height: var(--fl-widget-h);
+  max-height: calc(100vh - 120px);
+  background: var(--fl-bg-subtle);
+  border-radius: var(--fl-radius-panel);
+  box-shadow: var(--fl-shadow-panel);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(18px) scale(0.95);
+  pointer-events: none;
+  transition: opacity 0.26s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(229, 231, 235, 0.95);
+}
+
+#annasetuchat-panel.as-open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: all;
+}
+
+/* ═══════════════════════════════════════
+   HEADER (Deep Forest Green #144234)
+═══════════════════════════════════════ */
+#as-header {
+  background: var(--fl-primary);
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.as-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.as-header-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.as-header-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.as-header-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+.as-header-subtitle {
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.as-online-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--fl-accent-green);
+  box-shadow: 0 0 6px var(--fl-accent-green);
+  animation: flDotBlink 2.2s ease-in-out infinite;
+}
+
+@keyframes flDotBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+
+#as-header-close {
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  border-radius: 10px;
+  width: 34px;
+  height: 34px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s, transform 0.18s;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+#as-header-close:hover {
+  background: rgba(255, 255, 255, 0.22);
+  transform: scale(1.05);
+}
+
+/* ═══════════════════════════════════════
+   ROLE SWITCHER (Matching Dashboard Tabs)
+═══════════════════════════════════════ */
+#as-role-bar {
+  display: flex;
+  gap: 6px;
+  padding: 10px 14px;
+  background: var(--fl-surface);
+  border-bottom: 1px solid var(--fl-border);
+  flex-shrink: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+#as-role-bar::-webkit-scrollbar { display: none; }
+
+.as-role-btn {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border-radius: var(--fl-radius-pill);
+  border: 1px solid var(--fl-border);
+  background: var(--fl-surface);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--fl-text-secondary);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.as-role-btn:hover {
+  border-color: var(--fl-primary-light);
+  color: var(--fl-primary);
+  background: rgba(20, 66, 52, 0.04);
+}
+
+.as-role-btn.as-active {
+  background: var(--fl-primary);
+  border-color: var(--fl-primary);
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(20, 66, 52, 0.2);
+}
+
+/* ═══════════════════════════════════════
+   MESSAGES CONTAINER
+═══════════════════════════════════════ */
+#as-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--fl-bg-subtle);
+  scroll-behavior: smooth;
+}
+
+#as-messages::-webkit-scrollbar { width: 5px; }
+#as-messages::-webkit-scrollbar-track { background: transparent; }
+#as-messages::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+
+/* ═══════════════════════════════════════
+   MESSAGE ROWS & BUBBLES
+   (Completely prevents text wrapping flaws)
+═══════════════════════════════════════ */
+.as-msg {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  animation: flMsgIn 0.26s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes flMsgIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.as-msg.as-user {
+  flex-direction: row-reverse;
+}
+
+.as-msg.as-bot {
+  flex-direction: row;
+}
+
+.as-msg-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.as-msg.as-bot .as-msg-avatar {
+  background: #dcfce7;
+  border: 1px solid #bbf7d0;
+}
+
+.as-msg.as-user .as-msg-avatar {
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+}
+
+.as-msg-content {
+  max-width: 82%;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* Prevents flex children from overflowing */
+}
+
+.as-msg.as-user .as-msg-content {
+  align-items: flex-end;
+}
+
+.as-msg.as-bot .as-msg-content {
+  align-items: flex-start;
+}
+
+.as-bubble {
+  padding: 11px 15px;
+  border-radius: var(--fl-radius-bubble);
+  font-size: 13.5px;
+  line-height: 1.55;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+  word-break: normal;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.as-msg.as-bot .as-bubble {
+  background: var(--fl-surface);
+  color: var(--fl-text);
+  border: 1px solid var(--fl-border);
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 1.5px 5px rgba(0, 0, 0, 0.04);
+}
+
+.as-msg.as-user .as-bubble {
+  background: var(--fl-primary);
+  color: #ffffff;
+  border-bottom-right-radius: 4px;
+  box-shadow: 0 3px 10px rgba(20, 66, 52, 0.22);
+}
+
+.as-bubble strong {
+  font-weight: 700;
+}
+
+.as-bubble em {
+  font-style: italic;
+}
+
+.as-bubble code {
+  background: rgba(0, 0, 0, 0.07);
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.as-msg.as-user .as-bubble code {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.as-bubble .as-list {
+  margin: 6px 0;
+  padding-left: 20px;
+}
+
+.as-bubble .as-list li {
+  margin-bottom: 3px;
+}
+
+.as-bubble .as-spacer {
+  height: 6px;
+}
+
+.as-bubble .as-line {
+  margin-bottom: 2px;
+}
+
+.as-bubble-time {
+  font-size: 10.5px;
+  color: var(--fl-text-light);
+  margin-top: 4px;
+}
+
+.as-msg.as-bot .as-bubble-time {
+  text-align: left;
+  padding-left: 4px;
+}
+
+.as-msg.as-user .as-bubble-time {
+  text-align: right;
+  padding-right: 4px;
+}
+
+/* ═══════════════════════════════════════
+   TYPING INDICATOR
+═══════════════════════════════════════ */
+.as-typing {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.as-typing-dots {
+  background: var(--fl-surface);
+  border-radius: var(--fl-radius-bubble);
+  border-bottom-left-radius: 4px;
+  padding: 12px 16px;
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  border: 1px solid var(--fl-border);
+  box-shadow: 0 1.5px 5px rgba(0, 0, 0, 0.04);
+}
+
+.as-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--fl-primary-light);
+  animation: flDotWave 1.3s ease-in-out infinite;
+}
+
+.as-dot:nth-child(2) { animation-delay: 0.18s; }
+.as-dot:nth-child(3) { animation-delay: 0.36s; }
+
+@keyframes flDotWave {
+  0%, 60%, 100% { transform: translateY(0);   opacity: 0.5; }
+  30%            { transform: translateY(-5px); opacity: 1; }
+}
+
+/* ═══════════════════════════════════════
+   QUICK REPLIES (Pill tags like FoodLink Rewards)
+═══════════════════════════════════════ */
+#as-quick-replies {
+  padding: 8px 14px 6px;
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex-shrink: 0;
+  background: var(--fl-bg-subtle);
+}
+
+#as-quick-replies::-webkit-scrollbar { display: none; }
+
+.as-qr-btn {
+  flex-shrink: 0;
+  padding: 7px 15px;
+  border-radius: var(--fl-radius-pill);
+  border: 1.5px solid var(--fl-primary);
+  background: var(--fl-surface);
+  color: var(--fl-primary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+  box-shadow: 0 1.5px 4px rgba(0, 0, 0, 0.03);
+}
+
+.as-qr-btn:hover {
+  background: var(--fl-primary);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(20, 66, 52, 0.22);
+}
+
+/* ═══════════════════════════════════════
+   INPUT BAR (Search bar aesthetic)
+═══════════════════════════════════════ */
+#as-input-bar {
+  padding: 12px 14px;
+  background: var(--fl-surface);
+  border-top: 1px solid var(--fl-border);
+  display: flex;
+  align-items: flex-end;
+  gap: 9px;
+  flex-shrink: 0;
+}
+
+#as-input {
+  flex: 1;
+  border: 1.5px solid var(--fl-border);
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-size: 13.5px;
+  color: var(--fl-text);
+  background: #fdfefe;
+  resize: none;
+  outline: none;
+  max-height: 90px;
+  line-height: 1.45;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  scrollbar-width: none;
+}
+
+#as-input::-webkit-scrollbar { display: none; }
+
+#as-input:focus {
+  border-color: var(--fl-primary);
+  box-shadow: 0 0 0 3px rgba(20, 66, 52, 0.1);
+  background: #ffffff;
+}
+
+#as-input::placeholder {
+  color: var(--fl-text-light);
+}
+
+#as-send-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--fl-primary);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba(20, 66, 52, 0.25);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background 0.2s,
+              opacity 0.2s;
+}
+
+#as-send-btn:hover {
+  background: var(--fl-primary-dark);
+  transform: scale(1.06);
+}
+
+#as-send-btn:active {
+  transform: scale(0.94);
+}
+
+#as-send-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ═══════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════ */
+#as-footer {
+  text-align: center;
+  padding: 6px 0 10px;
+  font-size: 10.5px;
+  color: var(--fl-text-light);
+  background: var(--fl-surface);
+  flex-shrink: 0;
+  border-top: 1px solid var(--fl-border-subtle);
+}
+
+#as-footer .as-foot-brand {
+  color: var(--fl-primary);
+  font-weight: 700;
+}
+
+/* ═══════════════════════════════════════
+   MOBILE RESPONSIVENESS
+═══════════════════════════════════════ */
+@media (max-width: 440px) {
+  #annasetuchat-panel {
+    bottom: 0;
+    right: 0;
+    width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+}
