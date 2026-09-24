@@ -4,16 +4,38 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Search, ArrowRight } from "lucide-react";
 
-export const Navbar: React.FC = () => {
+interface NavbarProps {
+  activeChapter?: string;
+  onNavigateChapter?: (chapterId: string) => void;
+}
+
+export const Navbar: React.FC<NavbarProps> = ({
+  activeChapter = "home",
+  onNavigateChapter,
+}) => {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleLinkClick = (e: React.MouseEvent, chapterId: string) => {
+    if (onNavigateChapter) {
+      e.preventDefault();
+      onNavigateChapter(chapterId);
+    }
+  };
+
+  const navLinks = [
+    { id: "home", label: "Home", href: "#home" },
+    { id: "how-it-works", label: "How it Works", href: "#how-it-works" },
+    { id: "impact", label: "Impact", href: "#impact" },
+    { id: "about", label: "About", href: "#about" },
+  ];
 
   return (
     <div
@@ -21,9 +43,13 @@ export const Navbar: React.FC = () => {
         isScrolled ? "pt-3" : "pt-6"
       }`}
     >
-      <header className="max-w-[1340px] w-full bg-white/95 backdrop-blur-md rounded-full px-6 sm:px-8 py-3.5 flex items-center justify-between shadow-[0_4px_30px_rgba(0,0,0,0.04)] border border-black/[0.04] transition-all">
+      <header className="max-w-[1340px] w-full bg-white/95 backdrop-blur-md rounded-full px-6 sm:px-8 py-3.5 flex items-center justify-between shadow-[0_4px_30px_rgba(0,0,0,0.06)] border border-black/[0.04] transition-all">
         {/* LEFT: FoodLink Logo */}
-        <Link href="/" className="flex items-center gap-2.5 select-none">
+        <Link
+          href="/"
+          onClick={(e) => handleLinkClick(e, "home")}
+          className="flex items-center gap-2.5 select-none"
+        >
           <svg
             className="w-8 h-8 flex-shrink-0"
             viewBox="0 0 32 32"
@@ -50,32 +76,26 @@ export const Navbar: React.FC = () => {
 
         {/* CENTER: Navigation Links */}
         <nav className="hidden md:flex items-center gap-1.5 lg:gap-2">
-          {/* Active Home Pill */}
-          <Link
-            href="/"
-            className="bg-[#E8F5E9] text-[#142921] px-4 py-1.5 rounded-full font-bold text-[14px] flex items-center gap-2 transition-colors"
-          >
-            <span>Home</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A]" />
-          </Link>
-          <Link
-            href="#how-it-works"
-            className="text-[#4A5568] hover:text-[#142921] font-semibold text-[14px] px-4 py-1.5 rounded-full transition-colors"
-          >
-            How it Works
-          </Link>
-          <Link
-            href="/admin/impact"
-            className="text-[#4A5568] hover:text-[#142921] font-semibold text-[14px] px-4 py-1.5 rounded-full transition-colors"
-          >
-            Impact
-          </Link>
-          <Link
-            href="#about"
-            className="text-[#4A5568] hover:text-[#142921] font-semibold text-[14px] px-4 py-1.5 rounded-full transition-colors"
-          >
-            About
-          </Link>
+          {navLinks.map((link) => {
+            const isActive = activeChapter === link.id;
+            return (
+              <a
+                key={link.id}
+                href={link.href}
+                onClick={(e) => handleLinkClick(e, link.id)}
+                className={`transition-all duration-200 px-4 py-1.5 rounded-full font-bold text-[14px] flex items-center gap-2 cursor-pointer ${
+                  isActive
+                    ? "bg-[#E8F5E9] text-[#142921] shadow-sm"
+                    : "text-[#4A5568] hover:text-[#142921] hover:bg-neutral-100/60"
+                }`}
+              >
+                <span>{link.label}</span>
+                {isActive && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A]" />
+                )}
+              </a>
+            );
+          })}
         </nav>
 
         {/* RIGHT: Actions */}
