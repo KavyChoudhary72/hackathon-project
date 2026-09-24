@@ -15,10 +15,10 @@ export const HowItWorks: React.FC = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row items-start sm:items-baseline justify-between gap-4">
-            <h2 className="text-4xl sm:text-[44px] font-black text-[#142921] tracking-[-0.03em] leading-tight">
+            <h2 className="text-4xl sm:text-[44px] font-black text-white tracking-[-0.03em] leading-tight drop-shadow-md">
               How It Works
             </h2>
-            <p className="text-[15px] text-[#5F6F67] leading-snug font-medium max-w-md">
+            <p className="text-[15px] text-neutral-200/90 leading-snug font-medium max-w-md">
               From your extra food to someone's next meal. <br />
               A simple process with a big impact.
             </p>
@@ -28,7 +28,7 @@ export const HowItWorks: React.FC = () => {
         {/* 4 Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* CARD 01: Donate */}
-          <div className="bg-white rounded-[24px] p-7 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.03)] border border-neutral-100/90 flex flex-col justify-between transition-all hover:-translate-y-1">
+          <div className="bg-white/95 backdrop-blur-md rounded-[24px] p-7 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.05)] border border-neutral-100/90 flex flex-col justify-between transition-all hover:-translate-y-1">
             <div className="flex items-start justify-between mb-8">
               {/* Badge */}
               <span className="w-9 h-9 rounded-full bg-[#E8F5E9] text-[#166534] font-extrabold text-[14px] flex items-center justify-center">
@@ -108,7 +108,7 @@ export const HowItWorks: React.FC = () => {
           </div>
 
           {/* CARD 02: Match */}
-          <div className="bg-white rounded-[24px] p-7 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.03)] border border-neutral-100/90 flex flex-col justify-between transition-all hover:-translate-y-1">
+          <div className="bg-white/95 backdrop-blur-md rounded-[24px] p-7 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.05)] border border-neutral-100/90 flex flex-col justify-between transition-all hover:-translate-y-1">
             <div className="flex items-start justify-between mb-8">
               {/* Badge */}
               <span className="w-9 h-9 rounded-full bg-[#FFEAE8] text-[#F9683A] font-extrabold text-[14px] flex items-center justify-center">
@@ -171,7 +171,7 @@ export const HowItWorks: React.FC = () => {
           </div>
 
           {/* CARD 03: Deliver */}
-          <div className="bg-white rounded-[24px] p-7 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.03)] border border-neutral-100/90 flex flex-col justify-between transition-all hover:-translate-y-1">
+          <div className="bg-white/95 backdrop-blur-md rounded-[24px] p-7 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.05)] border border-neutral-100/90 flex flex-col justify-between transition-all hover:-translate-y-1">
             <div className="flex items-start justify-between mb-8">
               {/* Badge */}
               <span className="w-9 h-9 rounded-full bg-[#FEF4E2] text-[#F59E0B] font-extrabold text-[14px] flex items-center justify-center">
@@ -235,7 +235,7 @@ export const HowItWorks: React.FC = () => {
           </div>
 
           {/* CARD 04: Impact */}
-          <div className="bg-white rounded-[24px] p-7 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.03)] border border-neutral-100/90 flex flex-col justify-between transition-all hover:-translate-y-1">
+          <div className="bg-white/95 backdrop-blur-md rounded-[24px] p-7 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.05)] border border-neutral-100/90 flex flex-col justify-between transition-all hover:-translate-y-1">
             <div className="flex items-start justify-between mb-8">
               {/* Badge */}
               <span className="w-9 h-9 rounded-full bg-[#E8F5E9] text-[#166534] font-extrabold text-[14px] flex items-center justify-center">

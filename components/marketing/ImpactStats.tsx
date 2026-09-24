@@ -8,7 +8,7 @@ export const ImpactStats: React.FC = () => {
       <div className="max-w-[1340px] px-6 sm:px-8 mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {/* CARD 1: Meals Rescued */}
-          <div className="bg-white rounded-[22px] px-6 py-5 shadow-[0_6px_28px_rgba(0,0,0,0.035)] border border-neutral-100/90 flex items-center justify-between transition-all hover:-translate-y-0.5">
+          <div className="bg-white/95 backdrop-blur-md rounded-[22px] px-6 py-5 shadow-[0_6px_28px_rgba(0,0,0,0.05)] border border-neutral-100/90 flex items-center justify-between transition-all hover:-translate-y-0.5">
             <div className="flex items-center gap-4">
               {/* Coral Icon Badge */}
               <div className="w-13 h-13 rounded-full bg-[#FFEFEA] flex items-center justify-center text-[#F9683A] flex-shrink-0">
@@ -53,7 +53,7 @@ export const ImpactStats: React.FC = () => {
           </div>
 
           {/* CARD 2: Food Donors */}
-          <div className="bg-white rounded-[22px] px-6 py-5 shadow-[0_6px_28px_rgba(0,0,0,0.035)] border border-neutral-100/90 flex items-center justify-between transition-all hover:-translate-y-0.5">
+          <div className="bg-white/95 backdrop-blur-md rounded-[22px] px-6 py-5 shadow-[0_6px_28px_rgba(0,0,0,0.05)] border border-neutral-100/90 flex items-center justify-between transition-all hover:-translate-y-0.5">
             <div className="flex items-center gap-4">
               {/* Mint Icon Badge */}
               <div className="w-13 h-13 rounded-full bg-[#E5F7EB] flex items-center justify-center text-[#10B981] flex-shrink-0">
@@ -98,7 +98,7 @@ export const ImpactStats: React.FC = () => {
           </div>
 
           {/* CARD 3: Shelters Connected */}
-          <div className="bg-white rounded-[22px] px-6 py-5 shadow-[0_6px_28px_rgba(0,0,0,0.035)] border border-neutral-100/90 flex items-center justify-between transition-all hover:-translate-y-0.5">
+          <div className="bg-white/95 backdrop-blur-md rounded-[22px] px-6 py-5 shadow-[0_6px_28px_rgba(0,0,0,0.05)] border border-neutral-100/90 flex items-center justify-between transition-all hover:-translate-y-0.5">
             <div className="flex items-center gap-4">
               {/* Amber Icon Badge */}
               <div className="w-13 h-13 rounded-full bg-[#FEF4E2] flex items-center justify-center text-[#F59E0B] flex-shrink-0">
@@ -143,7 +143,7 @@ export const ImpactStats: React.FC = () => {
           </div>
 
           {/* CARD 4: Food Waste Prevented */}
-          <div className="bg-white rounded-[22px] px-6 py-5 shadow-[0_6px_28px_rgba(0,0,0,0.035)] border border-neutral-100/90 flex items-center justify-between transition-all hover:-translate-y-0.5">
+          <div className="bg-white/95 backdrop-blur-md rounded-[22px] px-6 py-5 shadow-[0_6px_28px_rgba(0,0,0,0.05)] border border-neutral-100/90 flex items-center justify-between transition-all hover:-translate-y-0.5">
             <div className="flex items-center gap-4">
               {/* Green Icon Badge */}
               <div className="w-13 h-13 rounded-full bg-[#E8F8EE] flex items-center justify-center text-[#16A34A] flex-shrink-0">
