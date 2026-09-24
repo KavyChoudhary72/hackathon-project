@@ -27,7 +27,6 @@ export const BackgroundStoryCanvas: React.FC = () => {
         if (!isMounted) return;
         images[i] = img;
 
-        // Draw initial frame immediately on load
         if (i === 0 && !hasDrawnInitial) {
           hasDrawnInitial = true;
           draw(0);
@@ -67,7 +66,7 @@ export const BackgroundStoryCanvas: React.FC = () => {
       const iw = img.naturalWidth || 1920;
       const ih = img.naturalHeight || 1080;
 
-      // Exact cover-fit math maintaining true 16:9 aspect ratio without stretching
+      // Exact 16:9 aspect-ratio cover crop centered
       const scale = Math.max(cw / iw, ch / ih);
       const dw = Math.round(iw * scale);
       const dh = Math.round(ih * scale);
@@ -99,17 +98,35 @@ export const BackgroundStoryCanvas: React.FC = () => {
 
     resizeCanvas();
 
-    // Gentle, cinematic momentum loop (slowed down for relaxed 8-12s total scroll playback)
+    // DELIBERATE CINEMATIC SLOWED-DOWN RENDER LOOP
+    // Normalized to 60fps baseline so 120Hz/144Hz monitors never run 2x-3x faster
     let rafId: number;
-    const renderLoop = () => {
+    let lastTime = typeof performance !== "undefined" ? performance.now() : 0;
+
+    const renderLoop = (now: number) => {
       if (!isMounted) return;
 
-      const diff = targetProgressRef.current - currentProgressRef.current;
-      if (Math.abs(diff) > 0.00005) {
-        // Slowed down lerp (0.045) creates a calm, deliberate, cinematic motion with 2-3s longer glide
-        currentProgressRef.current += diff * 0.045;
+      const dt = lastTime > 0 ? Math.min(64, Math.max(1, now - lastTime)) : 16.667;
+      lastTime = now;
+      const dtRatio = dt / 16.667; // Normalized to 60fps (16.667ms)
 
-        if (Math.abs(targetProgressRef.current - currentProgressRef.current) < 0.0001) {
+      const diff = targetProgressRef.current - currentProgressRef.current;
+      if (Math.abs(diff) > 0.00003) {
+        // Deliberate cinematic slow pacing:
+        // Capped at 0.14 frames per 60fps tick (~8.4 frames per second maximum playback speed)
+        // Guarantees the animation NEVER rushes or fast-forwards even on aggressive scrolls or fast wheels!
+        const maxFramesPerTick = 0.14 * dtRatio;
+        const maxProgressPerTick = maxFramesPerTick / (TOTAL_FRAMES - 1);
+
+        // Silky, luxurious momentum (gentle 0.016 lerp per 60fps tick)
+        let delta = diff * (0.016 * dtRatio);
+        if (Math.abs(delta) > maxProgressPerTick) {
+          delta = Math.sign(delta) * maxProgressPerTick;
+        }
+
+        currentProgressRef.current += delta;
+
+        if (Math.abs(targetProgressRef.current - currentProgressRef.current) < 0.00008) {
           currentProgressRef.current = targetProgressRef.current;
         }
 
@@ -152,7 +169,6 @@ export const BackgroundStoryCanvas: React.FC = () => {
       aria-hidden="true"
       className="fixed inset-0 w-screen h-screen -z-10 pointer-events-none select-none overflow-hidden bg-[#0A1612]"
     >
-      {/* Hardware-accelerated High-Fidelity Canvas */}
       <canvas
         ref={canvasRef}
         style={{
@@ -162,7 +178,6 @@ export const BackgroundStoryCanvas: React.FC = () => {
         className="w-full h-full block"
       />
 
-      {/* Balanced Cinematic Scrim (Subtle, leaves anime vibrant & crystal-clear) */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/25 to-black/65 pointer-events-none" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_45%,rgba(0,0,0,0.45)_100%)] pointer-events-none" />
     </div>
