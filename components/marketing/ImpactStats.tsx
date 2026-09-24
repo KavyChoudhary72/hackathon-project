@@ -8,10 +8,10 @@ export const ImpactStats: React.FC = () => {
       <div className="max-w-[1340px] px-6 sm:px-8 mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {/* CARD 1: Meals Rescued */}
-          <div className="bg-white/95 backdrop-blur-md rounded-[22px] px-6 py-5 shadow-[0_6px_28px_rgba(0,0,0,0.05)] border border-neutral-100/90 flex items-center justify-between transition-all hover:-translate-y-0.5">
+          <div className="bg-white/10 hover:bg-white/[0.16] backdrop-blur-xl rounded-[22px] px-6 py-5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_10px_32px_rgba(0,0,0,0.3)] border border-white/20 hover:border-white/35 flex items-center justify-between transition-all duration-300 hover:-translate-y-1">
             <div className="flex items-center gap-4">
               {/* Coral Icon Badge */}
-              <div className="w-13 h-13 rounded-full bg-[#FFEFEA] flex items-center justify-center text-[#F9683A] flex-shrink-0">
+              <div className="w-13 h-13 rounded-full bg-[#F9683A]/20 border border-[#F9683A]/30 flex items-center justify-center text-[#F9683A] flex-shrink-0">
                 <svg
                   className="w-6 h-6"
                   viewBox="0 0 24 24"
@@ -21,10 +21,10 @@ export const ImpactStats: React.FC = () => {
                 </svg>
               </div>
               <div>
-                <div className="text-[25px] font-black text-[#142921] tracking-tight leading-tight">
+                <div className="text-[25px] font-black text-white tracking-tight leading-tight drop-shadow-sm">
                   25,000+
                 </div>
-                <div className="text-[12px] font-semibold text-[#64748B] mt-0.5">
+                <div className="text-[12px] font-semibold text-neutral-300 mt-0.5 drop-shadow-sm">
                   Meals Rescued
                 </div>
               </div>
@@ -53,10 +53,10 @@ export const ImpactStats: React.FC = () => {
           </div>
 
           {/* CARD 2: Food Donors */}
-          <div className="bg-white/95 backdrop-blur-md rounded-[22px] px-6 py-5 shadow-[0_6px_28px_rgba(0,0,0,0.05)] border border-neutral-100/90 flex items-center justify-between transition-all hover:-translate-y-0.5">
+          <div className="bg-white/10 hover:bg-white/[0.16] backdrop-blur-xl rounded-[22px] px-6 py-5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_10px_32px_rgba(0,0,0,0.3)] border border-white/20 hover:border-white/35 flex items-center justify-between transition-all duration-300 hover:-translate-y-1">
             <div className="flex items-center gap-4">
               {/* Mint Icon Badge */}
-              <div className="w-13 h-13 rounded-full bg-[#E5F7EB] flex items-center justify-center text-[#10B981] flex-shrink-0">
+              <div className="w-13 h-13 rounded-full bg-[#10B981]/20 border border-[#10B981]/30 flex items-center justify-center text-[#34D399] flex-shrink-0">
                 <svg
                   className="w-6 h-6"
                   viewBox="0 0 24 24"
@@ -66,10 +66,10 @@ export const ImpactStats: React.FC = () => {
                 </svg>
               </div>
               <div>
-                <div className="text-[25px] font-black text-[#142921] tracking-tight leading-tight">
+                <div className="text-[25px] font-black text-white tracking-tight leading-tight drop-shadow-sm">
                   4,500+
                 </div>
-                <div className="text-[12px] font-semibold text-[#64748B] mt-0.5">
+                <div className="text-[12px] font-semibold text-neutral-300 mt-0.5 drop-shadow-sm">
                   Food Donors
                 </div>
               </div>
@@ -77,7 +77,7 @@ export const ImpactStats: React.FC = () => {
 
             {/* Mint Upward Trend Wave */}
             <svg
-              className="w-11 h-6 text-[#10B981] flex-shrink-0"
+              className="w-11 h-6 text-[#34D399] flex-shrink-0"
               viewBox="0 0 44 24"
               fill="none"
             >
@@ -98,10 +98,10 @@ export const ImpactStats: React.FC = () => {
           </div>
 
           {/* CARD 3: Shelters Connected */}
-          <div className="bg-white/95 backdrop-blur-md rounded-[22px] px-6 py-5 shadow-[0_6px_28px_rgba(0,0,0,0.05)] border border-neutral-100/90 flex items-center justify-between transition-all hover:-translate-y-0.5">
+          <div className="bg-white/10 hover:bg-white/[0.16] backdrop-blur-xl rounded-[22px] px-6 py-5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_10px_32px_rgba(0,0,0,0.3)] border border-white/20 hover:border-white/35 flex items-center justify-between transition-all duration-300 hover:-translate-y-1">
             <div className="flex items-center gap-4">
               {/* Amber Icon Badge */}
-              <div className="w-13 h-13 rounded-full bg-[#FEF4E2] flex items-center justify-center text-[#F59E0B] flex-shrink-0">
+              <div className="w-13 h-13 rounded-full bg-[#F59E0B]/20 border border-[#F59E0B]/30 flex items-center justify-center text-[#FBBF24] flex-shrink-0">
                 <svg
                   className="w-6 h-6"
                   viewBox="0 0 24 24"
@@ -111,10 +111,10 @@ export const ImpactStats: React.FC = () => {
                 </svg>
               </div>
               <div>
-                <div className="text-[25px] font-black text-[#142921] tracking-tight leading-tight">
+                <div className="text-[25px] font-black text-white tracking-tight leading-tight drop-shadow-sm">
                   180+
                 </div>
-                <div className="text-[12px] font-semibold text-[#64748B] mt-0.5">
+                <div className="text-[12px] font-semibold text-neutral-300 mt-0.5 drop-shadow-sm">
                   Shelters Connected
                 </div>
               </div>
@@ -122,7 +122,7 @@ export const ImpactStats: React.FC = () => {
 
             {/* Amber Upward Trend Wave */}
             <svg
-              className="w-11 h-6 text-[#F59E0B] flex-shrink-0"
+              className="w-11 h-6 text-[#FBBF24] flex-shrink-0"
               viewBox="0 0 44 24"
               fill="none"
             >
@@ -143,10 +143,10 @@ export const ImpactStats: React.FC = () => {
           </div>
 
           {/* CARD 4: Food Waste Prevented */}
-          <div className="bg-white/95 backdrop-blur-md rounded-[22px] px-6 py-5 shadow-[0_6px_28px_rgba(0,0,0,0.05)] border border-neutral-100/90 flex items-center justify-between transition-all hover:-translate-y-0.5">
+          <div className="bg-white/10 hover:bg-white/[0.16] backdrop-blur-xl rounded-[22px] px-6 py-5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_10px_32px_rgba(0,0,0,0.3)] border border-white/20 hover:border-white/35 flex items-center justify-between transition-all duration-300 hover:-translate-y-1">
             <div className="flex items-center gap-4">
               {/* Green Icon Badge */}
-              <div className="w-13 h-13 rounded-full bg-[#E8F8EE] flex items-center justify-center text-[#16A34A] flex-shrink-0">
+              <div className="w-13 h-13 rounded-full bg-[#16A34A]/20 border border-[#16A34A]/30 flex items-center justify-center text-[#4ADE80] flex-shrink-0">
                 <svg
                   className="w-6 h-6"
                   viewBox="0 0 24 24"
@@ -156,10 +156,10 @@ export const ImpactStats: React.FC = () => {
                 </svg>
               </div>
               <div>
-                <div className="text-[25px] font-black text-[#142921] tracking-tight leading-tight">
+                <div className="text-[25px] font-black text-white tracking-tight leading-tight drop-shadow-sm">
                   12 Tons+
                 </div>
-                <div className="text-[12px] font-semibold text-[#64748B] mt-0.5">
+                <div className="text-[12px] font-semibold text-neutral-300 mt-0.5 drop-shadow-sm">
                   Food Waste Prevented
                 </div>
               </div>
@@ -167,7 +167,7 @@ export const ImpactStats: React.FC = () => {
 
             {/* Green Upward Trend Wave */}
             <svg
-              className="w-11 h-6 text-[#10B981] flex-shrink-0"
+              className="w-11 h-6 text-[#4ADE80] flex-shrink-0"
               viewBox="0 0 44 24"
               fill="none"
             >

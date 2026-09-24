@@ -9,7 +9,7 @@ export const HowItWorks: React.FC = () => {
         {/* Section Header */}
         <div className="mb-10 sm:mb-12">
           {/* Pill Tag */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E8F5E9] text-[#166534] text-[12px] font-bold tracking-tight mb-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-emerald-300 text-[12px] font-bold tracking-tight mb-4 shadow-sm">
             <span>🌱</span>
             <span>Simple Process, Big Impact</span>
           </div>
@@ -28,10 +28,10 @@ export const HowItWorks: React.FC = () => {
         {/* 4 Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* CARD 01: Donate */}
-          <div className="bg-white/95 backdrop-blur-md rounded-[24px] p-7 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.05)] border border-neutral-100/90 flex flex-col justify-between transition-all hover:-translate-y-1">
+          <div className="bg-white/10 hover:bg-white/[0.16] backdrop-blur-xl rounded-[24px] p-7 sm:p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_12px_36px_rgba(0,0,0,0.35)] border border-white/20 hover:border-white/35 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5">
             <div className="flex items-start justify-between mb-8">
               {/* Badge */}
-              <span className="w-9 h-9 rounded-full bg-[#E8F5E9] text-[#166534] font-extrabold text-[14px] flex items-center justify-center">
+              <span className="w-9 h-9 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 font-extrabold text-[14px] flex items-center justify-center shadow-sm">
                 01
               </span>
 
@@ -98,20 +98,20 @@ export const HowItWorks: React.FC = () => {
             </div>
 
             <div>
-              <h3 className="text-[20px] font-bold text-[#142921] mb-2 tracking-tight">
+              <h3 className="text-[21px] font-black text-white mb-2 tracking-tight drop-shadow-sm">
                 Donate
               </h3>
-              <p className="text-[13px] text-[#64748B] leading-[1.6] font-medium">
+              <p className="text-[13.5px] text-neutral-200/95 leading-[1.6] font-medium drop-shadow-sm">
                 Share details about the surplus food you have available.
               </p>
             </div>
           </div>
 
           {/* CARD 02: Match */}
-          <div className="bg-white/95 backdrop-blur-md rounded-[24px] p-7 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.05)] border border-neutral-100/90 flex flex-col justify-between transition-all hover:-translate-y-1">
+          <div className="bg-white/10 hover:bg-white/[0.16] backdrop-blur-xl rounded-[24px] p-7 sm:p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_12px_36px_rgba(0,0,0,0.35)] border border-white/20 hover:border-white/35 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5">
             <div className="flex items-start justify-between mb-8">
               {/* Badge */}
-              <span className="w-9 h-9 rounded-full bg-[#FFEAE8] text-[#F9683A] font-extrabold text-[14px] flex items-center justify-center">
+              <span className="w-9 h-9 rounded-full bg-[#F9683A]/25 border border-[#F9683A]/40 text-[#FFA07A] font-extrabold text-[14px] flex items-center justify-center shadow-sm">
                 02
               </span>
 
@@ -161,20 +161,20 @@ export const HowItWorks: React.FC = () => {
             </div>
 
             <div>
-              <h3 className="text-[20px] font-bold text-[#142921] mb-2 tracking-tight">
+              <h3 className="text-[21px] font-black text-white mb-2 tracking-tight drop-shadow-sm">
                 Match
               </h3>
-              <p className="text-[13px] text-[#64748B] leading-[1.6] font-medium">
+              <p className="text-[13.5px] text-neutral-200/95 leading-[1.6] font-medium drop-shadow-sm">
                 We connect your donation to the nearest shelters in need.
               </p>
             </div>
           </div>
 
           {/* CARD 03: Deliver */}
-          <div className="bg-white/95 backdrop-blur-md rounded-[24px] p-7 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.05)] border border-neutral-100/90 flex flex-col justify-between transition-all hover:-translate-y-1">
+          <div className="bg-white/10 hover:bg-white/[0.16] backdrop-blur-xl rounded-[24px] p-7 sm:p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_12px_36px_rgba(0,0,0,0.35)] border border-white/20 hover:border-white/35 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5">
             <div className="flex items-start justify-between mb-8">
               {/* Badge */}
-              <span className="w-9 h-9 rounded-full bg-[#FEF4E2] text-[#F59E0B] font-extrabold text-[14px] flex items-center justify-center">
+              <span className="w-9 h-9 rounded-full bg-amber-500/25 border border-amber-400/40 text-amber-300 font-extrabold text-[14px] flex items-center justify-center shadow-sm">
                 03
               </span>
 
@@ -225,20 +225,20 @@ export const HowItWorks: React.FC = () => {
             </div>
 
             <div>
-              <h3 className="text-[20px] font-bold text-[#142921] mb-2 tracking-tight">
+              <h3 className="text-[21px] font-black text-white mb-2 tracking-tight drop-shadow-sm">
                 Deliver
               </h3>
-              <p className="text-[13px] text-[#64748B] leading-[1.6] font-medium">
+              <p className="text-[13.5px] text-neutral-200/95 leading-[1.6] font-medium drop-shadow-sm">
                 Our verified drivers safely collect and deliver the food.
               </p>
             </div>
           </div>
 
           {/* CARD 04: Impact */}
-          <div className="bg-white/95 backdrop-blur-md rounded-[24px] p-7 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.05)] border border-neutral-100/90 flex flex-col justify-between transition-all hover:-translate-y-1">
+          <div className="bg-white/10 hover:bg-white/[0.16] backdrop-blur-xl rounded-[24px] p-7 sm:p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_12px_36px_rgba(0,0,0,0.35)] border border-white/20 hover:border-white/35 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5">
             <div className="flex items-start justify-between mb-8">
               {/* Badge */}
-              <span className="w-9 h-9 rounded-full bg-[#E8F5E9] text-[#166534] font-extrabold text-[14px] flex items-center justify-center">
+              <span className="w-9 h-9 rounded-full bg-sky-500/25 border border-sky-400/40 text-sky-300 font-extrabold text-[14px] flex items-center justify-center shadow-sm">
                 04
               </span>
 
@@ -288,10 +288,10 @@ export const HowItWorks: React.FC = () => {
             </div>
 
             <div>
-              <h3 className="text-[20px] font-bold text-[#142921] mb-2 tracking-tight">
+              <h3 className="text-[21px] font-black text-white mb-2 tracking-tight drop-shadow-sm">
                 Impact
               </h3>
-              <p className="text-[13px] text-[#64748B] leading-[1.6] font-medium">
+              <p className="text-[13.5px] text-neutral-200/95 leading-[1.6] font-medium drop-shadow-sm">
                 Your food reaches people in need and creates real change.
               </p>
             </div>

@@ -68,7 +68,7 @@ export const AboutSection: React.FC = () => {
             return (
               <div
                 key={idx}
-                className="bg-white/90 backdrop-blur-md rounded-[24px] p-7 flex flex-col justify-between shadow-[0_8px_30px_rgba(0,0,0,0.06)] border border-neutral-100/80 transition-all hover:-translate-y-1"
+                className="bg-white/10 hover:bg-white/[0.16] backdrop-blur-xl rounded-[24px] p-7 flex flex-col justify-between shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_12px_36px_rgba(0,0,0,0.35)] border border-white/20 hover:border-white/35 transition-all duration-300 hover:-translate-y-1.5"
               >
                 <div>
                   <div
@@ -76,17 +76,17 @@ export const AboutSection: React.FC = () => {
                   >
                     <Icon className={`w-6 h-6 ${role.accent}`} />
                   </div>
-                  <h3 className="text-[20px] font-black text-[#142921] mb-2.5">
+                  <h3 className="text-[20px] font-black text-white mb-2.5 drop-shadow-sm">
                     {role.title}
                   </h3>
-                  <p className="text-[14px] text-[#5F6F67] leading-relaxed mb-6">
+                  <p className="text-[14px] text-neutral-200/90 leading-relaxed mb-6 font-normal drop-shadow-sm">
                     {role.desc}
                   </p>
                 </div>
 
                 <Link
                   href={role.link}
-                  className="inline-flex items-center gap-2 text-[13.5px] font-bold text-[#142921] hover:text-emerald-700 transition-colors"
+                  className="inline-flex items-center gap-2 text-[13.5px] font-bold text-emerald-300 hover:text-emerald-200 transition-colors"
                 >
                   <span>{role.action}</span>
                   <ArrowRight className="w-4 h-4" />
@@ -97,7 +97,7 @@ export const AboutSection: React.FC = () => {
         </div>
 
         {/* Final CTA Box */}
-        <div className="bg-[#113A2B]/95 backdrop-blur-md rounded-[28px] p-8 sm:p-12 text-center max-w-3xl mx-auto border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+        <div className="bg-[#0D281E]/80 hover:bg-[#0D281E]/90 backdrop-blur-2xl rounded-[28px] p-8 sm:p-12 text-center max-w-3xl mx-auto border border-emerald-500/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_24px_60px_rgba(0,0,0,0.45)] transition-all">
           <h3 className="text-2xl sm:text-3xl font-black text-white mb-4">
             Ready to Make Real Food Impact?
           </h3>
