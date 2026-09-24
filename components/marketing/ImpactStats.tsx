@@ -4,7 +4,7 @@ import React from "react";
 
 export const ImpactStats: React.FC = () => {
   return (
-    <section id="impact" className="relative z-10 w-full pb-16 sm:pb-20">
+    <section id="impact" className="relative z-10 w-full py-20 sm:py-28">
       <div className="max-w-[1340px] px-6 sm:px-8 mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {/* CARD 1: Meals Rescued */}

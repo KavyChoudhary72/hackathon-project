@@ -6,7 +6,7 @@ import { Heart, ArrowRight } from "lucide-react";
 
 export const HeroSection: React.FC = () => {
   return (
-    <section id="hero" className="relative z-10 w-full pt-36 sm:pt-40 lg:pt-44 pb-16 sm:pb-20">
+    <section id="hero" className="relative z-10 w-full pt-36 sm:pt-40 lg:pt-44 pb-28 sm:pb-36">
       <div className="max-w-[1340px] px-6 sm:px-8 mx-auto">
         <div className="max-w-3xl mx-auto flex flex-col items-center text-center">
           {/* Pill Tag */}

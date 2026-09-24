@@ -4,7 +4,7 @@ import React from "react";
 
 export const HowItWorks: React.FC = () => {
   return (
-    <section id="how-it-works" className="w-full pb-24 sm:pb-28">
+    <section id="how-it-works" className="relative z-10 w-full py-24 sm:py-32">
       <div className="max-w-[1340px] px-6 sm:px-8 mx-auto">
         {/* Section Header */}
         <div className="mb-10 sm:mb-12">

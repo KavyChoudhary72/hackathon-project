@@ -7,10 +7,9 @@ const TOTAL_FRAMES = 300;
 export const BackgroundStoryCanvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imagesRef = useRef<(HTMLImageElement | null)[]>(new Array(TOTAL_FRAMES).fill(null));
-  const currentFrameRef = useRef<number>(0);
   const targetProgressRef = useRef<number>(0);
   const currentProgressRef = useRef<number>(0);
-  const lastDrawnFrameRef = useRef<number>(-1);
+  const isActivelyDrawingRef = useRef<boolean>(true);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -20,7 +19,7 @@ export const BackgroundStoryCanvas: React.FC = () => {
     let isMounted = true;
     let hasDrawnInitial = false;
 
-    // Fast and robust preloading of all 300 frames
+    // Fast and robust parallel preloading of all 300 frames
     for (let i = 0; i < TOTAL_FRAMES; i++) {
       const img = new Image();
       const numStr = String(i + 1).padStart(3, "0");
@@ -28,15 +27,10 @@ export const BackgroundStoryCanvas: React.FC = () => {
         if (!isMounted) return;
         images[i] = img;
 
-        // Draw frame 0 immediately once ready
+        // Draw initial frame immediately on load
         if (i === 0 && !hasDrawnInitial) {
           hasDrawnInitial = true;
           draw(0);
-        }
-
-        // If the current scroll position is on this frame, redraw
-        if (i === currentFrameRef.current) {
-          draw(i);
         }
       };
       img.src = `/assets/ezgif-frame-${numStr}.jpg`;
@@ -44,7 +38,7 @@ export const BackgroundStoryCanvas: React.FC = () => {
 
     const getLoadedImage = (index: number): HTMLImageElement | null => {
       if (images[index]) return images[index];
-      // Search outward for closest loaded frame so there is NEVER a blank screen
+      // Search outward for nearest loaded frame
       for (let offset = 1; offset < TOTAL_FRAMES; offset++) {
         if (index - offset >= 0 && images[index - offset]) return images[index - offset];
         if (index + offset < TOTAL_FRAMES && images[index + offset]) return images[index + offset];
@@ -52,18 +46,29 @@ export const BackgroundStoryCanvas: React.FC = () => {
       return null;
     };
 
-    const draw = (index: number) => {
+    /**
+     * Sub-frame GPU alpha-blending for infinite frame density.
+     * Smoothly crossfades between adjacent frames so motion is 100% continuous.
+     */
+    const draw = (frameFloat: number) => {
       if (!canvas) return;
-      const img = getLoadedImage(index);
-      if (!img || !img.naturalWidth) return;
+      const clampedFloat = Math.max(0, Math.min(TOTAL_FRAMES - 1, frameFloat));
+      const indexA = Math.floor(clampedFloat);
+      const indexB = Math.min(TOTAL_FRAMES - 1, indexA + 1);
+      const blend = clampedFloat - indexA;
+
+      const imgA = getLoadedImage(indexA);
+      const imgB = indexB !== indexA ? getLoadedImage(indexB) : null;
+
+      if (!imgA || !imgA.naturalWidth) return;
 
       const ctx = canvas.getContext("2d", { alpha: false, desynchronized: true });
       if (!ctx) return;
 
       const cw = canvas.width;
       const ch = canvas.height;
-      const iw = img.naturalWidth;
-      const ih = img.naturalHeight;
+      const iw = imgA.naturalWidth;
+      const ih = imgA.naturalHeight;
 
       // Aspect-ratio cover crop centered
       const scale = Math.max(cw / iw, ch / ih);
@@ -74,8 +79,16 @@ export const BackgroundStoryCanvas: React.FC = () => {
 
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = "high";
-      ctx.drawImage(img, dx, dy, dw, dh);
-      lastDrawnFrameRef.current = index;
+
+      // 1. Draw base frame A
+      ctx.globalAlpha = 1.0;
+      ctx.drawImage(imgA, dx, dy, dw, dh);
+
+      // 2. Hardware crossfade blend with frame B for buttery sub-frame continuity
+      if (blend > 0.015 && imgB && imgB.naturalWidth) {
+        ctx.globalAlpha = blend;
+        ctx.drawImage(imgB, dx, dy, dw, dh);
+      }
     };
 
     const resizeCanvas = () => {
@@ -87,34 +100,29 @@ export const BackgroundStoryCanvas: React.FC = () => {
       if (canvas.width !== w || canvas.height !== h) {
         canvas.width = w;
         canvas.height = h;
-        draw(currentFrameRef.current);
+        const currentFrameFloat = currentProgressRef.current * (TOTAL_FRAMES - 1);
+        draw(currentFrameFloat);
       }
     };
 
     resizeCanvas();
 
-    // Smooth render loop
+    // Smooth momentum render loop (adds 3-4 seconds of sustained fluid glide)
     let rafId: number;
     const renderLoop = () => {
       if (!isMounted) return;
 
       const diff = targetProgressRef.current - currentProgressRef.current;
-      if (Math.abs(diff) > 0.0001) {
-        // Snappy lerp (0.35) for immediate responsiveness to scroll
-        currentProgressRef.current += diff * 0.35;
-        if (Math.abs(targetProgressRef.current - currentProgressRef.current) < 0.0005) {
+      if (Math.abs(diff) > 0.00005) {
+        // Damped momentum (0.075) extends the scroll animation by 3-4 seconds of luxurious fluid motion
+        currentProgressRef.current += diff * 0.075;
+
+        if (Math.abs(targetProgressRef.current - currentProgressRef.current) < 0.0001) {
           currentProgressRef.current = targetProgressRef.current;
         }
 
-        const frameIndex = Math.min(
-          TOTAL_FRAMES - 1,
-          Math.max(0, Math.round(currentProgressRef.current * (TOTAL_FRAMES - 1)))
-        );
-
-        if (frameIndex !== currentFrameRef.current) {
-          currentFrameRef.current = frameIndex;
-          draw(frameIndex);
-        }
+        const currentFrameFloat = currentProgressRef.current * (TOTAL_FRAMES - 1);
+        draw(currentFrameFloat);
       }
 
       rafId = requestAnimationFrame(renderLoop);
@@ -150,7 +158,7 @@ export const BackgroundStoryCanvas: React.FC = () => {
       aria-hidden="true"
       className="fixed inset-0 w-screen h-screen -z-10 pointer-events-none select-none overflow-hidden bg-[#0A1612]"
     >
-      {/* Hardware-accelerated Canvas */}
+      {/* Hardware-accelerated Sub-Frame Canvas */}
       <canvas
         ref={canvasRef}
         className="w-full h-full block object-cover transform-gpu"
