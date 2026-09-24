@@ -23,7 +23,7 @@ LLM_API_KEY   = os.getenv("LLM_API_KEY", os.getenv("GEMINI_API_KEY", ""))
 LLM_PROVIDER  = os.getenv("LLM_PROVIDER", "gemini")   # "gemini" | "stub"
 LLM_MODEL     = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
 CANDIDATE_MODELS = ["gemini-3.5-flash", "gemini-3.1-flash-lite", "gemini-flash-latest", "gemini-2.5-pro"]
-LLM_TIMEOUT_S = int(os.getenv("LLM_TIMEOUT_S", "15"))   # hard timeout — fallback router kicks in if exceeded
+LLM_TIMEOUT_S = int(os.getenv("LLM_TIMEOUT_S", "3"))   # fast timeout — fallback router kicks in if exceeded
 
 # ─── System prompt template ───────────────────────────────────────────────────
 
@@ -116,7 +116,16 @@ def _get_gemini_model(model_name: str = "gemini-3.5-flash"):
         return None
 
 
+_gemini_cooldown_until = 0.0
+
+
 async def _call_gemini(prompt: str) -> str:
+    global _gemini_cooldown_until
+    import time
+    now = time.time()
+    if now < _gemini_cooldown_until:
+        raise RuntimeError("Gemini quota cooling down, fast fallback active")
+
     models_to_try = [LLM_MODEL] + [m for m in CANDIDATE_MODELS if m != LLM_MODEL]
     last_exc = None
 
@@ -127,29 +136,41 @@ async def _call_gemini(prompt: str) -> str:
                 continue
 
             if hasattr(model, "generate_content_async"):
-                response = await model.generate_content_async(
-                    prompt,
-                    generation_config={
-                        "temperature": 0.2,
-                        "max_output_tokens": 512,
-                    },
-                )
-            else:
-                loop = asyncio.get_event_loop()
-                response = await loop.run_in_executor(
-                    None,
-                    lambda m=model: m.generate_content(
+                response = await asyncio.wait_for(
+                    model.generate_content_async(
                         prompt,
                         generation_config={
                             "temperature": 0.2,
                             "max_output_tokens": 512,
                         },
                     ),
+                    timeout=2.5,
+                )
+            else:
+                loop = asyncio.get_event_loop()
+                response = await asyncio.wait_for(
+                    loop.run_in_executor(
+                        None,
+                        lambda m=model: m.generate_content(
+                            prompt,
+                            generation_config={
+                                "temperature": 0.2,
+                                "max_output_tokens": 512,
+                            },
+                        ),
+                    ),
+                    timeout=2.5,
                 )
             if response and response.text:
                 return response.text.strip()
         except Exception as exc:
             last_exc = exc
+            err_str = str(exc)
+            # If rate limited (429), activate 60s cooldown immediately and don't stall with retries
+            if "429" in err_str or "ResourceExhausted" in err_str or "quota" in err_str.lower():
+                _gemini_cooldown_until = time.time() + 60.0
+                logger.info("Gemini 429 quota reached, activated 60s fast-fallback mode")
+                break
             logger.warning("Model %s failed (%s), trying next candidate", m_name, exc)
             continue
 
@@ -246,7 +267,8 @@ def _stub_reply(message: str, role: str = "donor", lang: str = "en", extract_mod
     return "🌱 Welcome to FoodLink! I can help you coordinate surplus food donations, dispatch to verified shelters, or find discounted rescue meals in Jaipur. Type 'Post donation' or 'Deals near me' to begin."
 
 
-# ─── Public API ───────────────────────────────────────────────────────────────
+_REPLY_CACHE: dict[str, str] = {}
+
 
 async def ask(
     message: str,
@@ -262,10 +284,21 @@ async def ask(
     - A plain text reply string (for conversational turns)
     - A dict (for extraction turns — caller receives the parsed fields)
     """
-    # Quick scope check for clearly out-of-scope non-food topics
-    lower = message.lower()
+    # 1. Instant extraction path: if heuristic extraction catches both quantity and food_type, return immediately (<1ms)
+    if extract_mode:
+        heuristic = _heuristic_extract(message)
+        if heuristic.get("quantity") is not None and heuristic.get("food_type") is not None:
+            return heuristic
+
+    # 2. Scope check for clearly out-of-scope non-food topics
+    lower = message.lower().strip()
     if any(k in lower for k in ["python", "code", "programming", "movie", "song", "weather", "politics", "president", "essay"]):
         return "I am the FoodLink food-rescue assistant. I can only help you with food donations, shelter requests, delivery tasks, and rescue deals."
+
+    # 3. Instant cache lookup for repetitive conversational turns
+    cache_key = f"{role}:{lang}:{lower}"
+    if not extract_mode and cache_key in _REPLY_CACHE:
+        return _REPLY_CACHE[cache_key]
 
     draft_str   = json.dumps(draft, ensure_ascii=False, indent=2) if draft else "{}"
     history_str = _format_history(history)
@@ -289,10 +322,10 @@ async def ask(
         try:
             raw = await asyncio.wait_for(_call_gemini(prompt), timeout=LLM_TIMEOUT_S)
         except asyncio.TimeoutError:
-            logger.warning("LLM timeout after %ds", LLM_TIMEOUT_S)
+            logger.info("LLM timeout after %ds, using instant fallback", LLM_TIMEOUT_S)
             raw = _stub_reply(message, role, lang, extract_mode)
         except Exception as exc:
-            logger.warning("LLM call failed (%s), using safe fallback", exc)
+            logger.info("LLM call failed (%s), using safe fallback", exc)
             raw = _stub_reply(message, role, lang, extract_mode)
 
     if extract_mode:
@@ -305,9 +338,12 @@ async def ask(
 
     # Conversational turn: ensure raw is not a JSON extraction blob
     if isinstance(raw, str) and raw.strip().startswith("{") and "food_type" in raw:
-        return "Hello! Welcome to FoodLink. I can help you coordinate surplus food, check dispatch status, or find nearby rescue deals. How can I assist you?"
+        reply = "Hello! Welcome to FoodLink. I can help you coordinate surplus food, check dispatch status, or find nearby rescue deals. How can I assist you?"
+    else:
+        reply = raw or "Hello! I am your FoodLink food-rescue assistant. How can I help you today?"
 
-    return raw or "Hello! I am your FoodLink food-rescue assistant. How can I help you today?"
+    _REPLY_CACHE[cache_key] = reply
+    return reply
 
 
 def _format_history(history: list[dict]) -> str:
