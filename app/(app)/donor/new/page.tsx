@@ -1,437 +1,380 @@
-﻿"use client";
+"use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Clock,
   Sparkles,
-  MapPin,
   Camera,
-  CheckCircle2,
-  AlertTriangle,
-  ArrowRight,
-  ShieldCheck,
-  ChevronLeft,
+  MapPin,
+  Check,
 } from "lucide-react";
-import Link from "next/link";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
-import { Input } from "@/components/ui/Input";
-import { Stepper } from "@/components/ui/Stepper";
-import { Switch } from "@/components/ui/Switch";
-import { VegBadge } from "@/components/ui/Badge";
-import { apiClient } from "@/lib/api/client";
-import { FoodCategory } from "@/lib/api/types";
-import { useToast } from "@/components/ui/Toast";
-import { useI18n } from "@/lib/i18n";
 
-export default function NewDonationPage() {
+export default function PostSurplusFoodPage() {
   const router = useRouter();
-  const { toast } = useToast();
-  const { t } = useI18n();
-
-  // Stopwatch timer proving <60s target
-  const [secondsElapsed, setSecondsElapsed] = useState(0);
-  useEffect(() => {
-    const timer = setInterval(() => setSecondsElapsed((s) => s + 1), 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  // Form State
-  const [foodName, setFoodName] = useState("");
-  const [category, setCategory] = useState<FoodCategory>("COOKED_MEALS");
-  const [quantity, setQuantity] = useState(30);
-  const [unit, setUnit] = useState<"meals" | "kg">("meals");
+  const [foodName, setFoodName] = useState("Dal-chawal with jeera aloo");
+  const [category, setCategory] = useState("Cooked");
   const [isVeg, setIsVeg] = useState(true);
-  const [pickupAddress, setPickupAddress] = useState(
-    "ITC Rajputana, Station Road, Jaipur"
-  );
-  const [safeUntilHours, setSafeUntilHours] = useState(4);
-  const [attestationChecked, setAttestationChecked] = useState(false);
-  const [aiApplied, setAiApplied] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [quantity, setQuantity] = useState(50);
+  const [unit, setUnit] = useState("Meals");
+  const [preparedAt, setPreparedAt] = useState("8:30 PM");
+  const [safeUntil, setSafeUntil] = useState("11:00 PM");
+  const [isConfirmed, setIsConfirmed] = useState(true);
 
-  // Quick Chips
-  const quickDishes = [
-    "Dal Baati & Churma",
-    "Paneer Butter Masala",
-    "Assorted Rice & Roti",
-    "Fresh Bakery Buns",
-    "Seasonal Mixed Fruits",
+  const foodSuggestions = [
+    "Dal-chawal",
+    "Roti-sabzi",
+    "Biryani",
+    "Snacks",
+    "Sweets",
+    "Bread",
   ];
 
-  // AI photo mock parser
-  const handleAiPhotoDrop = () => {
-    setFoodName("Royal Banquet Paneer & Dal Baati");
-    setCategory("COOKED_MEALS");
-    setQuantity(45);
-    setUnit("meals");
-    setIsVeg(true);
-    setSafeUntilHours(4);
-    setAiApplied(true);
-    toast({
-      type: "info",
-      title: "AI Analysis Complete",
-      message: "Detected cooked vegetarian surplus dishes. Please review details.",
-    });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!foodName.trim()) {
-      toast({
-        type: "error",
-        title: "Missing Dish Name",
-        message: "Please enter or select what food you are donating.",
-      });
-      return;
-    }
-    if (!attestationChecked) {
-      toast({
-        type: "error",
-        title: "Food Safety Attestation",
-        message: "Please check the hygiene and safety attestation checkbox.",
-      });
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      const newDonation = await apiClient.createDonation({
-        foodName,
-        category,
-        quantity,
-        unit,
-        isVeg,
-        pickupAddress,
-        safeUntil: new Date(
-          Date.now() + safeUntilHours * 3600 * 1000
-        ).toISOString(),
-      });
-
-      toast({
-        type: "success",
-        title: "Donation Published!",
-        message: `Matched to nearby shelters in ${secondsElapsed} seconds.`,
-      });
-
-      router.push(`/donor/donations/${newDonation.id}`);
-    } catch (err) {
-      toast({
-        type: "error",
-        title: "Error publishing",
-        message: "Please check your network and try again.",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    router.push("/donor/donations/1025");
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      {/* Top Bar with Demo Stopwatch Timer */}
-      <div className="flex items-center justify-between">
-        <Link
-          href="/donor"
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-neutral-500 hover:text-brand-800 transition-colors"
-        >
-          <ChevronLeft className="w-4 h-4" />
-          <span>Back to Dashboard</span>
-        </Link>
-
-        {/* 60s Target Live Stopwatch */}
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-50 border border-brand-200 text-xs font-bold text-brand-900 shadow-2xs">
-          <Clock className="w-4 h-4 text-accent-500 animate-spin" />
-          <span>
-            {t("newPost.timerLabel", "Post Timer")}:{" "}
-            <span
-              className={
-                secondsElapsed > 60 ? "text-red-600 font-black" : "text-emerald-700 font-black"
-              }
-            >
-              {secondsElapsed}s
-            </span>{" "}
-            / 60s
+    <div className="flex flex-col gap-6">
+      {/* HEADER: Breadcrumb + Title + Timer Badge */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 pt-1">
+        <div className="flex flex-col gap-1.5">
+          <Link
+            href="/donor"
+            className="text-[14px] font-semibold text-[#5B6661] hover:text-[#0E3B2E]"
+          >
+            Dashboard / Post food
+          </Link>
+          <h1 className="font-outfit text-3xl sm:text-4xl lg:text-[44px] font-extrabold text-[#0E3B2E] tracking-tight leading-tight">
+            Post surplus food
+          </h1>
+          <span className="text-[15px] sm:text-[16px] text-[#5B6661]">
+            Takes less than a minute. We start finding a shelter as soon as you post.
           </span>
         </div>
-      </div>
 
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-black text-brand-800 tracking-tight">
-          {t("newPost.title", "Post Surplus Food")}
-        </h1>
-        <p className="text-xs text-neutral-500 mt-1">
-          {t("newPost.subtitle", "Target: Broadcast your surplus in under 60 seconds")}
-        </p>
-      </div>
-
-      {/* AI Photo Autofill Dropzone */}
-      <div
-        onClick={handleAiPhotoDrop}
-        className="p-4 rounded-3xl bg-brand-50/60 border-2 border-dashed border-brand-300 hover:border-brand-600 transition-all cursor-pointer flex items-center justify-between group"
-      >
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-white shadow-2xs flex items-center justify-center text-accent-500 group-hover:scale-105 transition-transform">
-            <Camera className="w-5 h-5" />
-          </div>
-          <div>
-            <h4 className="text-xs font-bold text-brand-900 flex items-center gap-1">
-              <span>{t("newPost.aiDropzone", "Instant AI Photo Autofill")}</span>
-              <Sparkles className="w-3.5 h-3.5 text-accent-500 fill-accent-500" />
-            </h4>
-            <p className="text-[11px] text-neutral-500">
-              Click or drop dish photo to autofill quantity, veg type & category
-            </p>
-          </div>
-        </div>
-        <span className="text-xs font-bold text-brand-800 bg-white px-3 py-1.5 rounded-full border border-neutral-200 shadow-2xs group-hover:bg-brand-800 group-hover:text-white transition-colors">
-          Auto-Fill
+        <span className="inline-flex items-center gap-2 h-[38px] px-3.5 rounded-full bg-white border border-[#ECE9E1] text-[14px] font-bold text-[#13231C] shadow-2xs flex-shrink-0">
+          <Clock className="w-4 h-4 text-[#1E9E5A]" />
+          <span>00:38</span>
         </span>
       </div>
 
-      {/* AI Banner Notice if applied */}
-      {aiApplied && (
-        <div className="p-3 rounded-2xl bg-amber-50 border border-amber-200 text-xs font-semibold text-amber-800 flex items-center gap-2 animate-in fade-in">
-          <Sparkles className="w-4 h-4 text-amber-600 flex-shrink-0" />
-          <span>
-            {t("newPost.aiNotice", "✨ AI suggestion applied. Please review before publishing.")}
-          </span>
-        </div>
-      )}
+      {/* 2-COLUMN RESPONSIVE LAYOUT */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* MAIN FORM (2 Cols on lg) */}
+        <form
+          onSubmit={handleSubmit}
+          className="lg:col-span-2 ui-card p-6 sm:p-7 flex flex-col gap-5 shadow-[0_2px_12px_rgba(0,0,0,0.02)]"
+        >
+          {/* AI Banner */}
+          <div className="flex items-center gap-3 p-3.5 px-4 rounded-[14px] bg-[#FFF6E5] text-[#7A4A06] text-[14px] font-semibold">
+            <Sparkles className="w-4 h-4 flex-shrink-0" />
+            <span>Suggested from your photo. Check the details before posting.</span>
+          </div>
 
-      {/* Form Content */}
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <Card padding="lg" className="space-y-5">
-          {/* Dish Name */}
-          <div className="space-y-2">
-            <Input
-              label={t("newPost.foodType", "Food Name / Dish")}
-              placeholder={t("newPost.foodPlaceholder", "e.g. Dal Baati & Paneer Sabzi")}
+          {/* What food is it? */}
+          <div className="flex flex-col gap-2.5">
+            <label htmlFor="food" className="text-[14px] font-bold text-[#13231C]">
+              What food is it?
+            </label>
+            <input
+              id="food"
+              type="text"
               value={foodName}
               onChange={(e) => setFoodName(e.target.value)}
-              className={aiApplied ? "border-amber-400 bg-amber-50/20" : ""}
+              className="h-[50px] border border-[#F1D9A6] bg-[#FFFBF2] rounded-[14px] px-4 text-[15px] text-[#13231C] outline-none focus:border-[#F2622E]"
             />
-
-            {/* Quick Chips */}
-            <div className="flex flex-wrap gap-1.5 pt-1">
-              {quickDishes.map((dish) => (
+            {/* Quick Suggestion Pills */}
+            <div className="flex flex-wrap gap-2 pt-1">
+              {foodSuggestions.map((item) => (
                 <button
+                  key={item}
                   type="button"
-                  key={dish}
-                  onClick={() => setFoodName(dish)}
-                  className="px-2.5 py-1 rounded-full bg-neutral-100 hover:bg-brand-50 hover:text-brand-800 text-[11px] font-medium text-neutral-700 transition-colors"
+                  onClick={() => setFoodName(item)}
+                  className={`h-10 px-4 rounded-full text-[14px] font-semibold transition-all ${
+                    foodName.toLowerCase().includes(item.toLowerCase())
+                      ? "bg-[#0E3B2E] text-white"
+                      : "bg-white border border-[#DCD9D0] text-[#2A3A33] hover:border-[#0E3B2E]"
+                  }`}
                 >
-                  + {dish}
+                  {item}
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Category Segmented Control */}
-          <div className="space-y-1.5 text-left">
-            <label className="text-xs font-bold text-neutral-800">
-              {t("newPost.category", "Category")}
-            </label>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {(
-                [
-                  { id: "COOKED_MEALS", label: "Cooked Meals" },
-                  { id: "RAW_PRODUCE", label: "Raw Produce" },
-                  { id: "BAKERY", label: "Bakery / Bread" },
-                  { id: "DAIRY", label: "Dairy / Milk" },
-                ] as const
-              ).map((cat) => (
-                <button
-                  type="button"
-                  key={cat.id}
-                  onClick={() => setCategory(cat.id)}
-                  className={`p-2.5 rounded-2xl text-xs font-bold border transition-all text-center ${
-                    category === cat.id
-                      ? "bg-brand-800 text-white border-brand-800 shadow-sm"
-                      : "bg-surface-subtle text-neutral-700 border-neutral-200 hover:bg-neutral-100"
-                  }`}
-                >
-                  {cat.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Quantity & Unit Stepper */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-neutral-800">
-                {t("newPost.quantity", "Quantity")}
-              </label>
-              <div>
-                <Stepper
-                  value={quantity}
-                  onChange={setQuantity}
-                  min={5}
-                  max={500}
-                  step={5}
-                  unit={unit}
-                  size="lg"
-                />
+          {/* Category & Veg/Non-veg */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {/* Category */}
+            <div className="flex flex-col gap-2.5">
+              <span className="text-[14px] font-bold text-[#13231C]">Category</span>
+              <div className="flex bg-[#F1F0EB] rounded-[14px] p-1">
+                {["Cooked", "Raw", "Packaged", "Bakery"].map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setCategory(cat)}
+                    className={`flex-1 h-11 rounded-[12px] text-[14px] font-semibold transition-all ${
+                      category === cat
+                        ? "bg-white text-[#0E3B2E] font-bold shadow-xs"
+                        : "text-[#2A3A33] hover:text-[#0E3B2E]"
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-neutral-800">
-                Unit
-              </label>
-              <div className="flex bg-surface-subtle p-1 rounded-2xl border border-neutral-200">
-                <button
-                  type="button"
-                  onClick={() => setUnit("meals")}
-                  className={`flex-1 py-2 rounded-xl text-xs font-bold transition-colors ${
-                    unit === "meals"
-                      ? "bg-white text-brand-800 shadow-2xs"
-                      : "text-neutral-500"
-                  }`}
-                >
-                  Meals (Plates)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setUnit("kg")}
-                  className={`flex-1 py-2 rounded-xl text-xs font-bold transition-colors ${
-                    unit === "kg"
-                      ? "bg-white text-brand-800 shadow-2xs"
-                      : "text-neutral-500"
-                  }`}
-                >
-                  KG (Weight)
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Veg / Non-Veg Compliance Toggle */}
-          <div className="p-3.5 rounded-2xl bg-surface-subtle border border-neutral-200/80 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <VegBadge isVeg={isVeg} showLabel={false} />
-              <div>
-                <div className="text-xs font-bold text-neutral-900">
-                  {isVeg ? "Pure Vegetarian Food" : "Contains Meat / Poultry"}
-                </div>
-                <div className="text-[11px] text-neutral-500">
-                  Strictly verified for shelter dietary matching
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setIsVeg(true)}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
-                  isVeg
-                    ? "bg-emerald-600 text-white border-emerald-600 shadow-2xs"
-                    : "bg-white text-neutral-600 border-neutral-200"
-                }`}
-              >
-                Veg
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsVeg(false)}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
-                  !isVeg
-                    ? "bg-red-600 text-white border-red-600 shadow-2xs"
-                    : "bg-white text-neutral-600 border-neutral-200"
-                }`}
-              >
-                Non-Veg
-              </button>
-            </div>
-          </div>
-
-          {/* Safe Until Quick Chips */}
-          <div className="space-y-1.5 text-left">
-            <label className="text-xs font-bold text-neutral-800 flex items-center justify-between">
-              <span>{t("newPost.safeUntil", "Safe Consumption Expiry Window")}</span>
-              <span className="text-emerald-700 font-semibold text-[11px]">
-                Safe for next {safeUntilHours} hours
+            {/* Veg or Non-veg */}
+            <div className="flex flex-col gap-2.5">
+              <span className="text-[14px] font-bold text-[#13231C]">
+                Veg or non-veg
               </span>
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              {[1, 2, 4].map((hrs) => (
+              <div className="flex gap-2.5">
                 <button
                   type="button"
-                  key={hrs}
-                  onClick={() => setSafeUntilHours(hrs)}
-                  className={`py-2 rounded-2xl text-xs font-bold border transition-colors ${
-                    safeUntilHours === hrs
-                      ? "bg-brand-800 text-white border-brand-800 shadow-2xs"
-                      : "bg-surface-subtle text-neutral-700 border-neutral-200 hover:bg-neutral-100"
+                  onClick={() => setIsVeg(true)}
+                  className={`flex-1 h-14 rounded-[14px] text-[15px] font-bold flex items-center justify-center gap-2.5 transition-all ${
+                    isVeg
+                      ? "border-2 border-[#1E9E5A] bg-[#EEF8F1] text-[#166534]"
+                      : "border border-[#DCD9D0] bg-white text-[#2A3A33]"
                   }`}
                 >
-                  +{hrs} Hours
+                  <span className="w-4 h-4 border-2 border-[#1E9E5A] rounded-[3px] flex items-center justify-center">
+                    <span className="w-2 h-2 rounded-full bg-[#1E9E5A]" />
+                  </span>
+                  <span>Veg</span>
                 </button>
-              ))}
+
+                <button
+                  type="button"
+                  onClick={() => setIsVeg(false)}
+                  className={`flex-1 h-14 rounded-[14px] text-[15px] font-bold flex items-center justify-center gap-2.5 transition-all ${
+                    !isVeg
+                      ? "border-2 border-[#B91C1C] bg-rose-50 text-[#B91C1C]"
+                      : "border border-[#DCD9D0] bg-white text-[#2A3A33]"
+                  }`}
+                >
+                  <span className="w-4 h-4 border-2 border-[#B91C1C] rounded-[3px] flex items-center justify-center">
+                    <span className="w-2 h-2 rounded-full bg-[#B91C1C]" />
+                  </span>
+                  <span>Non-veg</span>
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Pickup Address */}
-          <Input
-            label={t("newPost.pickupLocation", "Pickup Address")}
-            value={pickupAddress}
-            onChange={(e) => setPickupAddress(e.target.value)}
-            leftIcon={<MapPin className="w-4 h-4 text-neutral-400" />}
-            rightIcon={
-              <button
-                type="button"
-                onClick={() => {
-                  setPickupAddress("ITC Rajputana, Station Road, Jaipur");
-                  toast({ type: "info", title: "GPS Acquired", message: "Location locked at ITC Rajputana, Jaipur." });
-                }}
-                className="text-xs font-bold text-brand-800 hover:underline"
-              >
-                GPS
-              </button>
-            }
-          />
+          {/* Quantity & Prepared at */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {/* How much */}
+            <div className="flex flex-col gap-2.5">
+              <span className="text-[14px] font-bold text-[#13231C]">How much?</span>
+              <div className="flex gap-2.5">
+                <div className="flex items-center border border-[#DCD9D0] rounded-[14px] h-[50px] overflow-hidden bg-white">
+                  <button
+                    type="button"
+                    onClick={() => setQuantity(Math.max(5, quantity - 5))}
+                    className="w-12 h-[50px] bg-[#F6F5F1] text-[22px] font-semibold text-[#0E3B2E] hover:bg-[#EEEDE6]"
+                  >
+                    −
+                  </button>
+                  <span className="font-outfit w-16 text-center text-[20px] font-bold text-[#13231C]">
+                    {quantity}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setQuantity(quantity + 5)}
+                    className="w-12 h-[50px] bg-[#F6F5F1] text-[22px] font-semibold text-[#0E3B2E] hover:bg-[#EEEDE6]"
+                  >
+                    +
+                  </button>
+                </div>
 
-          {/* Food Safety Attestation */}
-          <div className="p-3.5 rounded-2xl bg-neutral-50 border border-neutral-200 flex items-start gap-3">
-            <input
-              type="checkbox"
-              id="attest"
-              checked={attestationChecked}
-              onChange={(e) => setAttestationChecked(e.target.checked)}
-              className="mt-0.5 w-4 h-4 rounded text-brand-800 focus:ring-brand-800 cursor-pointer"
-            />
-            <label
-              htmlFor="attest"
-              className="text-xs text-neutral-700 leading-snug cursor-pointer select-none"
+                <div className="flex bg-[#F1F0EB] rounded-[14px] p-1 flex-1">
+                  {["Meals", "Kg"].map((u) => (
+                    <button
+                      key={u}
+                      type="button"
+                      onClick={() => setUnit(u)}
+                      className={`flex-1 h-[42px] rounded-[12px] text-[14px] font-semibold transition-all ${
+                        unit === u
+                          ? "bg-white text-[#0E3B2E] font-bold shadow-xs"
+                          : "text-[#2A3A33]"
+                      }`}
+                    >
+                      {u}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Prepared at */}
+            <div className="flex flex-col gap-2.5">
+              <label htmlFor="prep" className="text-[14px] font-bold text-[#13231C]">
+                Prepared at
+              </label>
+              <input
+                id="prep"
+                type="text"
+                value={preparedAt}
+                onChange={(e) => setPreparedAt(e.target.value)}
+                className="h-[50px] border border-[#DCD9D0] bg-white rounded-[14px] px-4 text-[15px] text-[#13231C] outline-none focus:border-[#0E3B2E]"
+              />
+            </div>
+          </div>
+
+          {/* Safe until */}
+          <div className="flex flex-col gap-2.5">
+            <span className="text-[14px] font-bold text-[#13231C]">Safe until</span>
+            <div className="flex flex-wrap items-center gap-2.5">
+              {["+1 hr", "+2 hr", "11:00 PM", "+4 hr"].map((time) => (
+                <button
+                  key={time}
+                  type="button"
+                  onClick={() => setSafeUntil(time)}
+                  className={`h-10 px-4 rounded-full text-[14px] font-semibold transition-all ${
+                    safeUntil === time
+                      ? "bg-[#0E3B2E] text-white"
+                      : "bg-white border border-[#DCD9D0] text-[#2A3A33] hover:border-[#0E3B2E]"
+                  }`}
+                >
+                  {time}
+                </button>
+              ))}
+              <span className="text-[13px] text-[#5B6661] ml-1">
+                Shelters only get food they can receive before this time.
+              </span>
+            </div>
+          </div>
+
+          {/* Pickup location */}
+          <div className="flex flex-col gap-2.5">
+            <span className="text-[14px] font-bold text-[#13231C]">
+              Pickup location
+            </span>
+            <div className="flex flex-col sm:flex-row gap-3.5">
+              <div className="flex-1 h-[120px] rounded-[16px] bg-[#E7EFE9] relative overflow-hidden flex items-center justify-center">
+                <svg
+                  width="100%"
+                  height="120"
+                  viewBox="0 0 600 120"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M0 70h600M180 0v120M420 0v120M0 25h600"
+                    stroke="#FFFFFF"
+                    strokeWidth="10"
+                  />
+                  <path d="M0 100L600 40" stroke="#FFFFFF" strokeWidth="6" />
+                </svg>
+                <div className="absolute flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full bg-[#F2622E] flex items-center justify-center shadow-md">
+                    <span className="w-2.5 h-2.5 rounded-full bg-white" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="w-full sm:w-[280px] flex flex-col justify-center gap-2">
+                <span className="text-[15px] font-bold text-[#13231C]">
+                  Shree Ram Marriage Garden
+                </span>
+                <span className="text-[13px] text-[#5B6661]">
+                  Gate 2, Malviya Nagar, Jaipur
+                </span>
+                <button
+                  type="button"
+                  className="btn-secondary h-10 px-4 text-[13px] self-start"
+                >
+                  Use my location
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Submit Footer */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-[#F0EEE8] pt-5 mt-2">
+            <label className="flex items-center gap-2.5 text-[14px] font-medium text-[#13231C] cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={isConfirmed}
+                onChange={(e) => setIsConfirmed(e.target.checked)}
+                className="w-5 h-5 accent-[#0E3B2E] rounded-[4px]"
+              />
+              <span>I confirm this food was stored safely and is fit to eat.</span>
+            </label>
+
+            <button
+              type="submit"
+              disabled={!isConfirmed}
+              className="btn-primary h-[54px] px-8 text-[16px] w-full sm:w-auto justify-center disabled:opacity-50"
             >
-              <span className="font-bold text-neutral-900 block mb-0.5 flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 inline" />
-                <span>Food Safety & Hygiene Attestation</span>
-              </span>
-              {t(
-                "newPost.safetyAttestation",
-                "I attest that this food was hygienically prepared and stored properly."
-              )}
-            </label>
+              Post food
+            </button>
           </div>
-        </Card>
+        </form>
 
-        {/* Sticky Mobile One-Thumb Submit Button (56px tall) */}
-        <div className="sticky bottom-20 lg:bottom-4 z-20">
-          <Button
-            type="submit"
-            size="xl"
-            variant="primary"
-            isLoading={isSubmitting}
-            rightIcon={<ArrowRight className="w-5 h-5" />}
-            className="shadow-float"
-          >
-            {t("newPost.publishNow", "Publish Surplus Food")}
-          </Button>
+        {/* RIGHT ASIDE (1 Col on lg) */}
+        <div className="flex flex-col gap-6">
+          {/* Photo Card */}
+          <div className="ui-card p-6 flex flex-col gap-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
+            <h2 className="font-outfit text-[20px] font-bold text-[#13231C]">
+              Photo
+            </h2>
+            <div className="h-[150px] rounded-[16px] bg-[#F4E4CC] flex flex-col items-center justify-center gap-2 text-[#7A4A06] font-semibold text-[13px]">
+              <Camera className="w-8 h-8 opacity-80" />
+              <span>Food photo</span>
+            </div>
+            <span className="text-[13px] text-[#5B6661] leading-relaxed">
+              We suggest the details from your photo. You check them before posting.
+            </span>
+            <button
+              type="button"
+              className="btn-secondary w-full justify-center h-11 text-[13px]"
+            >
+              <Camera className="w-4 h-4" />
+              <span>Change photo</span>
+            </button>
+          </div>
+
+          {/* What happens next */}
+          <div className="ui-card p-6 flex flex-col gap-4 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
+            <h2 className="font-outfit text-[20px] font-bold text-[#13231C]">
+              What happens next
+            </h2>
+            <ol className="flex flex-col gap-4 text-[14px] leading-relaxed">
+              <li className="flex gap-3">
+                <span className="font-outfit w-7 h-7 rounded-full bg-[#E3F5EA] text-[#166534] font-bold text-[13px] flex items-center justify-center flex-shrink-0">
+                  1
+                </span>
+                <span>We check nearby shelters for space, food preference and timing.</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="font-outfit w-7 h-7 rounded-full bg-[#E3F5EA] text-[#166534] font-bold text-[13px] flex items-center justify-center flex-shrink-0">
+                  2
+                </span>
+                <span>The best one gets a WhatsApp offer. No reply in 30 seconds, the next one does.</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="font-outfit w-7 h-7 rounded-full bg-[#E3F5EA] text-[#166534] font-bold text-[13px] flex items-center justify-center flex-shrink-0">
+                  3
+                </span>
+                <span>A volunteer picks up with your OTP.</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="font-outfit w-7 h-7 rounded-full bg-[#E3F5EA] text-[#166534] font-bold text-[13px] flex items-center justify-center flex-shrink-0">
+                  4
+                </span>
+                <span>You get proof of delivery and points.</span>
+              </li>
+            </ol>
+          </div>
         </div>
-      </form>
+      </div>
     </div>
   );
 }

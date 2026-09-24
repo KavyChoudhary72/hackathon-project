@@ -1,387 +1,282 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
+import Link from "next/link";
 import {
-  Award,
-  Sparkles,
-  UtensilsCrossed,
   Heart,
-  Users,
   Leaf,
-  Trophy,
+  Moon,
+  Lock,
+  Star,
   Crown,
-  CheckCircle2,
-  Gift,
+  Download,
 } from "lucide-react";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
-import { apiClient } from "@/lib/api/client";
-import { RewardsProfile } from "@/lib/api/types";
-import { useToast } from "@/components/ui/Toast";
-import { useI18n } from "@/lib/i18n";
 
-export default function RewardsHubPage() {
-  const { toast, celebrate } = useToast();
-  const { t } = useI18n();
-
-  const [profile, setProfile] = useState<RewardsProfile | null>(null);
-  const [activeCategory, setActiveCategory] = useState("All");
-
-  useEffect(() => {
-    apiClient.getRewards().then(setProfile);
-  }, []);
-
-  const handleRedeem = (itemTitle: string, cost: number) => {
-    if (!profile) return;
-    if (profile.impactPoints < cost) {
-      toast({
-        type: "error",
-        title: "Insufficient Points",
-        message: `You need ${cost} points to redeem ${itemTitle}. Keep saving food!`,
-      });
-      return;
-    }
-
-    profile.impactPoints -= cost;
-    celebrate("Perk Redeemed!", `You have successfully redeemed ${itemTitle}!`);
-    toast({
-      type: "success",
-      title: "Reward Claimed",
-      message: `Your voucher has been sent to your registered email.`,
-    });
-  };
-
-  const perks = [
-    {
-      id: "p1",
-      title: "Plant a Tree",
-      category: "Perks",
-      points: 500,
-      image: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=400&q=80",
-      description: "We will plant a tree in your name and send you a digital certificate.",
-    },
-    {
-      id: "p2",
-      title: "FoodLink Eco Bottle",
-      category: "Perks",
-      points: 1000,
-      image: "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400&q=80",
-      description: "Get a premium eco-friendly bottle and support sustainability.",
-    },
-    {
-      id: "p3",
-      title: "FoodLink Tote Bag",
-      category: "Perks",
-      points: 2000,
-      image: "https://images.unsplash.com/photo-1544816155-12df9643f363?w=400&q=80",
-      description: "Carry the change. A stylish tote bag for our amazing donors.",
-    },
-    {
-      id: "p4",
-      title: "Sponsor 10 Meals",
-      category: "Experiences",
-      points: 3000,
-      image: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&q=80",
-      description: "Use your points to directly sponsor 10 meals at a shelter.",
-    },
-    {
-      id: "p5",
-      title: "Recognition Certificate",
-      category: "Recognition",
-      points: 5000,
-      image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&q=80",
-      description: "Get a special recognition certificate for your contributions.",
-    },
-  ];
-
-  const filteredPerks =
-    activeCategory === "All"
-      ? perks
-      : perks.filter((p) => p.category === activeCategory || activeCategory === "All");
-
+export default function RewardsPage() {
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
-      {/* Header matching Reference Image 4 */}
-      <div>
-        <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-neutral-900">
-          <span className="text-brand-800">Re</span>
-          <span className="text-accent-500">wards</span>
+    <div className="flex flex-col gap-6">
+      {/* HEADER */}
+      <div className="flex flex-col gap-1.5 pt-1">
+        <h1 className="font-outfit text-3xl sm:text-4xl lg:text-[44px] font-extrabold text-[#0E3B2E] tracking-tight leading-tight">
+          Rewards
         </h1>
-        <p className="text-xs sm:text-sm text-neutral-500 mt-1 max-w-2xl">
-          {t(
-            "rewards.subtitle",
-            "Every donation creates impact. Earn points, unlock rewards, and be a part of something bigger."
-          )}
-        </p>
+        <span className="text-[15px] sm:text-[16px] text-[#5B6661]">
+          Points for food that actually reaches people. Never for just posting.
+        </span>
       </div>
 
-      {/* Top Section: Impact Level Banner + Your Stats Card */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Your Impact Level Banner */}
-        <Card
-          padding="lg"
-          className="lg:col-span-2 bg-[#FFFDF9] border-amber-200/60 shadow-md relative overflow-hidden flex flex-col justify-between"
-        >
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-              <span className="text-xs font-bold text-neutral-500">
-                Your Impact Level
-              </span>
-              <h2 className="text-3xl font-black text-neutral-900 mt-0.5 flex items-center gap-2">
-                <span>{profile?.level || "Community Hero"}</span>
-                <span className="text-xl">👑</span>
-              </h2>
-              <p className="text-xs text-neutral-600 mt-1">
-                You're making a real difference! Keep going!
-              </p>
-            </div>
-
-            {/* Rosette Medal Badge from Reference 4 */}
-            <div className="w-24 h-24 rounded-full bg-amber-400/20 border-4 border-amber-400 flex items-center justify-center text-amber-500 shadow-md flex-shrink-0">
-              <Award className="w-14 h-14 fill-amber-400 stroke-amber-600" />
-            </div>
-          </div>
-
-          {/* Level Progress */}
-          <div className="mt-8 space-y-1.5">
-            <div className="h-3 w-full bg-neutral-100 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-brand-800 rounded-full transition-all duration-500"
-                style={{ width: `${profile?.levelProgress || 69}%` }}
-              />
-            </div>
-            <div className="flex justify-end text-xs font-bold text-neutral-500">
-              {profile?.impactPoints || 3450} / 5,000 points
-            </div>
-          </div>
-        </Card>
-
-        {/* Your Stats 2x2 Grid from Reference 4 */}
-        <Card padding="md" className="space-y-3">
-          <h3 className="text-sm font-bold text-neutral-900">Your Stats</h3>
-          <div className="grid grid-cols-2 gap-3">
-            {/* Impact points */}
-            <div className="p-3 rounded-2xl bg-surface-subtle flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-rose-100 flex items-center justify-center text-rose-500 flex-shrink-0">
-                <UtensilsCrossed className="w-4 h-4" />
-              </div>
-              <div>
-                <div className="text-sm font-black text-neutral-900">
-                  {profile?.impactPoints || 3450}
-                </div>
-                <div className="text-[10px] text-neutral-500 font-semibold">
-                  Impact Points
-                </div>
-              </div>
-            </div>
-
-            {/* Total donations */}
-            <div className="p-3 rounded-2xl bg-surface-subtle flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-rose-100 flex items-center justify-center text-rose-500 flex-shrink-0">
-                <Heart className="w-4 h-4 fill-rose-500" />
-              </div>
-              <div>
-                <div className="text-sm font-black text-neutral-900">
-                  {profile?.totalDonations || 24}
-                </div>
-                <div className="text-[10px] text-neutral-500 font-semibold">
-                  Total Donations
-                </div>
-              </div>
-            </div>
-
-            {/* Meals Donated */}
-            <div className="p-3 rounded-2xl bg-surface-subtle flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600 flex-shrink-0">
-                <Users className="w-4 h-4" />
-              </div>
-              <div>
-                <div className="text-sm font-black text-neutral-900">
-                  {profile?.mealsRescued?.toLocaleString() || "1,240"}
-                </div>
-                <div className="text-[10px] text-neutral-500 font-semibold">
-                  Meals Donated
-                </div>
-              </div>
-            </div>
-
-            {/* Food Waste Saved */}
-            <div className="p-3 rounded-2xl bg-surface-subtle flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600 flex-shrink-0">
-                <Leaf className="w-4 h-4" />
-              </div>
-              <div>
-                <div className="text-sm font-black text-neutral-900">
-                  {profile?.tonsWasteSaved || 12} Tons
-                </div>
-                <div className="text-[10px] text-neutral-500 font-semibold">
-                  Food Waste Saved
-                </div>
-              </div>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Your Impact Journey Section + Callout Banner */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-center">
-        {/* Journey Milestones (3 Cols) */}
-        <Card padding="lg" className="lg:col-span-3 space-y-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-bold text-neutral-900">
-              {t("rewards.journey", "Your Impact Journey")}
-            </h3>
-            <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-              Current Level: Community Hero
+      {/* TOP ROW: Big Level Card & 4 Metrics (1.5fr 1fr on lg) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Level Card (7 of 12 cols) */}
+        <div className="lg:col-span-7 ui-card p-6 sm:p-8 bg-[#FFF9EC] border-[#F3E6C6] flex flex-col sm:flex-row items-center gap-7 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
+          <div className="flex-1 flex flex-col gap-3.5 w-full">
+            <span className="text-[15px] font-medium text-[#5B6661]">
+              Your level
             </span>
-          </div>
+            <span className="font-outfit text-4xl sm:text-[44px] font-extrabold text-[#0E3B2E] leading-none">
+              Seva Sathi
+            </span>
 
-          {/* Connected Dots Pipeline */}
-          <div className="relative pt-6 pb-2">
-            <div className="absolute top-11 left-6 right-6 h-0.5 bg-neutral-200 -z-0" />
-            <div className="relative flex justify-between z-10 text-center">
-              {/* Milestone 1 */}
-              <div className="flex flex-col items-center gap-2">
-                <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-sm">
-                  <Leaf className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-neutral-800">Food Friend</div>
-                  <div className="text-[10px] text-neutral-400">0 - 1,000 pts</div>
-                </div>
-              </div>
+            <div className="h-3 bg-white rounded-full overflow-hidden w-full">
+              <div className="w-[86%] h-full bg-[#0E3B2E] rounded-full" />
+            </div>
 
-              {/* Milestone 2 */}
-              <div className="flex flex-col items-center gap-2">
-                <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-sm">
-                  <Leaf className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-neutral-800">Impact Supporter</div>
-                  <div className="text-[10px] text-neutral-400">1,000 - 2,500 pts</div>
-                </div>
-              </div>
-
-              {/* Milestone 3 (Current) */}
-              <div className="flex flex-col items-center gap-2">
-                <div className="w-11 h-11 rounded-full bg-amber-400 text-white flex items-center justify-center shadow-md ring-4 ring-amber-100 -mt-0.5">
-                  <Award className="w-6 h-6 fill-white" />
-                </div>
-                <div>
-                  <div className="text-xs font-black text-brand-900">Community Hero</div>
-                  <div className="text-[10px] font-bold text-amber-600">2,500 - 5,000 pts</div>
-                </div>
-              </div>
-
-              {/* Milestone 4 */}
-              <div className="flex flex-col items-center gap-2">
-                <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center">
-                  <Trophy className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-neutral-600">Change Maker</div>
-                  <div className="text-[10px] text-neutral-400">5,000 - 10,000 pts</div>
-                </div>
-              </div>
-
-              {/* Milestone 5 */}
-              <div className="flex flex-col items-center gap-2">
-                <div className="w-10 h-10 rounded-full bg-rose-100 text-rose-500 flex items-center justify-center">
-                  <Crown className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-neutral-600">Impact Leader</div>
-                  <div className="text-[10px] text-neutral-400">10,000+ pts</div>
-                </div>
-              </div>
+            <div className="flex justify-between text-[14px]">
+              <b className="font-bold text-[#13231C]">860 / 1,000 points</b>
+              <span className="text-[#5B6661]">140 to Ann Rakshak</span>
             </div>
           </div>
-        </Card>
 
-        {/* Small Donations Banner (1 Col) matching Reference Image 4 */}
-        <div className="p-6 rounded-3xl bg-amber-50/70 border border-amber-200 shadow-sm flex flex-col justify-between h-full space-y-4">
-          <div className="w-12 h-12 rounded-2xl bg-white shadow-2xs flex items-center justify-center text-3xl">
-            🌍
+          {/* Big Glowing Heart Badge */}
+          <span className="w-[120px] sm:w-[132px] h-[120px] sm:h-[132px] rounded-full bg-[#FDE8DD] border-[8px] border-white shadow-[0_10px_30px_rgba(242,98,46,0.25)] flex items-center justify-center flex-shrink-0">
+            <Heart className="w-14 h-14 fill-[#F2622E] stroke-none" />
+          </span>
+        </div>
+
+        {/* 4 Stats Cards (5 of 12 cols) */}
+        <div className="lg:col-span-5 ui-card p-6 grid grid-cols-2 gap-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
+          <div className="bg-[#F6F5F1] rounded-[16px] p-4 flex flex-col gap-0.5">
+            <span className="font-outfit text-[26px] font-bold text-[#13231C] leading-tight">
+              860
+            </span>
+            <span className="text-[13px] text-[#5B6661]">Impact points</span>
           </div>
-          <div>
-            <h4 className="text-sm font-bold text-neutral-900">
-              Small Donations Create Big Change
-            </h4>
-            <p className="text-xs text-neutral-600 mt-1 leading-relaxed">
-              Redeem rewards, support shelters, and help us build a hunger-free tomorrow.
-            </p>
+
+          <div className="bg-[#F6F5F1] rounded-[16px] p-4 flex flex-col gap-0.5">
+            <span className="font-outfit text-[26px] font-bold text-[#13231C] leading-tight">
+              24
+            </span>
+            <span className="text-[13px] text-[#5B6661]">Donations</span>
+          </div>
+
+          <div className="bg-[#F6F5F1] rounded-[16px] p-4 flex flex-col gap-0.5">
+            <span className="font-outfit text-[26px] font-bold text-[#13231C] leading-tight">
+              1,240
+            </span>
+            <span className="text-[13px] text-[#5B6661]">Meals to people</span>
+          </div>
+
+          <div className="bg-[#F6F5F1] rounded-[16px] p-4 flex flex-col gap-0.5">
+            <span className="font-outfit text-[26px] font-bold text-[#13231C] leading-tight">
+              3 weeks
+            </span>
+            <span className="text-[13px] text-[#5B6661]">Current streak</span>
           </div>
         </div>
       </div>
 
-      {/* Redeem Your Rewards Store */}
-      <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <h2 className="text-xl font-black text-brand-800 tracking-tight">
-            {t("rewards.redeemTitle", "Redeem Your Rewards")}
+      {/* YOUR JOURNEY CARD */}
+      <div className="ui-card p-6 sm:p-8 flex flex-col gap-5 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
+        <h2 className="font-outfit text-[22px] font-bold text-[#13231C]">
+          Your journey
+        </h2>
+
+        <div className="relative pt-2 pb-2">
+          <div className="absolute top-[32px] left-[12.5%] right-[12.5%] h-[3px] bg-[#E6E3DC]" />
+          <div className="absolute top-[32px] left-[12.5%] w-[30%] h-[3px] bg-[#0E3B2E]" />
+
+          <div className="relative grid grid-cols-2 sm:grid-cols-4 gap-6 text-center z-10">
+            {/* Level 1 */}
+            <div className="flex flex-col items-center gap-2">
+              <span className="w-13 h-13 rounded-full bg-[#E3F5EA] flex items-center justify-center">
+                <Leaf className="w-6 h-6 text-[#1E9E5A]" />
+              </span>
+              <span className="text-[15px] font-bold text-[#13231C]">
+                Annadaan Mitra
+              </span>
+              <span className="text-[13px] text-[#5B6661]">0–249 points</span>
+            </div>
+
+            {/* Level 2 (You're here) */}
+            <div className="flex flex-col items-center gap-2">
+              <span className="w-13 h-13 rounded-full bg-[#FDE8DD] outline-3 outline-[#F2622E] outline-offset-3 flex items-center justify-center">
+                <Heart className="w-6 h-6 fill-[#F2622E] stroke-none" />
+              </span>
+              <span className="text-[15px] font-bold text-[#13231C]">
+                Seva Sathi
+              </span>
+              <span className="ui-chip bg-[#DCF5E4] text-[#166534] h-6 text-[12px] font-bold">
+                You&apos;re here
+              </span>
+            </div>
+
+            {/* Level 3 */}
+            <div className="flex flex-col items-center gap-2">
+              <span className="w-13 h-13 rounded-full bg-[#FFF1D1] flex items-center justify-center">
+                <Star className="w-6 h-6 fill-[#E89B1C] stroke-none" />
+              </span>
+              <span className="text-[15px] font-bold text-[#13231C]">
+                Ann Rakshak
+              </span>
+              <span className="text-[13px] text-[#5B6661]">1,000–4,999 points</span>
+            </div>
+
+            {/* Level 4 */}
+            <div className="flex flex-col items-center gap-2">
+              <span className="w-13 h-13 rounded-full bg-[#0E3B2E] flex items-center justify-center">
+                <Crown className="w-6 h-6 text-[#F5B82E]" />
+              </span>
+              <span className="text-[15px] font-bold text-[#13231C]">
+                Annapurna Champion
+              </span>
+              <span className="text-[13px] text-[#5B6661]">5,000+ points</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* BOTTOM 3-COLUMN RESPONSIVE GRID */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Col 1: How to earn */}
+        <div className="ui-card p-6 flex flex-col justify-between shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
+          <div>
+            <h2 className="font-outfit text-[20px] font-bold text-[#13231C] mb-3">
+              How to earn
+            </h2>
+
+            <div className="divide-y divide-[#F0EEE8] text-[14px]">
+              <div className="py-2.5 flex justify-between">
+                <span>Meal delivered to a shelter</span>
+                <b className="text-[#166534] font-bold">+1 each</b>
+              </div>
+              <div className="py-2.5 flex justify-between">
+                <span>Meal collected as a rescue deal</span>
+                <b className="text-[#166534] font-bold">+0.3 each</b>
+              </div>
+              <div className="py-2.5 flex justify-between">
+                <span>Kg sent for animal feed or biogas</span>
+                <b className="text-[#166534] font-bold">+0.2 each</b>
+              </div>
+              <div className="py-2.5 flex justify-between">
+                <span>First delivered donation</span>
+                <b className="text-[#166534] font-bold">+25</b>
+              </div>
+              <div className="py-2.5 flex justify-between">
+                <span>Posted with 3+ hours of safe time</span>
+                <b className="text-[#166534] font-bold">+10</b>
+              </div>
+              <div className="py-2.5 flex justify-between">
+                <span>Week with 2+ deliveries</span>
+                <b className="text-[#166534] font-bold">+20</b>
+              </div>
+            </div>
+          </div>
+
+          <span className="text-[12px] text-[#5B6661] leading-relaxed pt-3 border-t border-[#F0EEE8]">
+            Up to 300 points a day. Points are removed if a shelter reports unfit food and we confirm it.
+          </span>
+        </div>
+
+        {/* Col 2: Badges · 3 of 6 */}
+        <div className="ui-card p-6 flex flex-col gap-4 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
+          <h2 className="font-outfit text-[20px] font-bold text-[#13231C]">
+            Badges · 3 of 6
           </h2>
 
-          {/* Filter tabs */}
-          <div className="flex items-center gap-1.5 overflow-x-auto bg-white p-1 rounded-full border border-neutral-200 shadow-2xs text-xs font-bold">
-            {["All", "Vouchers", "Experiences", "Perks", "Recognition"].map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`px-3.5 py-1 rounded-full transition-colors whitespace-nowrap ${
-                  activeCategory === cat
-                    ? "bg-brand-800 text-white"
-                    : "text-neutral-600 hover:text-neutral-900"
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
+          <div className="grid grid-cols-3 gap-y-5 gap-x-2 text-center text-[13px] font-semibold">
+            {/* Unlocked 1 */}
+            <div className="flex flex-col items-center gap-1.5">
+              <span className="w-13 h-13 rounded-full bg-[#E3F5EA] flex items-center justify-center">
+                <Leaf className="w-6 h-6 text-[#1E9E5A]" />
+              </span>
+              <span>First rescue</span>
+            </div>
+
+            {/* Unlocked 2 */}
+            <div className="flex flex-col items-center gap-1.5">
+              <span className="w-13 h-13 rounded-full bg-[#FDE8DD] flex items-center justify-center">
+                <Heart className="w-6 h-6 fill-[#F2622E] stroke-none" />
+              </span>
+              <span>100 meals</span>
+            </div>
+
+            {/* Unlocked 3 */}
+            <div className="flex flex-col items-center gap-1.5">
+              <span className="w-13 h-13 rounded-full bg-[#FFF1D1] flex items-center justify-center">
+                <Moon className="w-6 h-6 fill-[#E89B1C] stroke-none" />
+              </span>
+              <span>Night saver</span>
+            </div>
+
+            {/* Locked 4 */}
+            <div className="flex flex-col items-center gap-1.5 text-[#8A938F]">
+              <span className="w-13 h-13 rounded-full bg-[#EFEDE8] flex items-center justify-center">
+                <Lock className="w-5 h-5 text-[#8A938F]" />
+              </span>
+              <span>1,000 meals</span>
+            </div>
+
+            {/* Locked 5 */}
+            <div className="flex flex-col items-center gap-1.5 text-[#8A938F]">
+              <span className="w-13 h-13 rounded-full bg-[#EFEDE8] flex items-center justify-center">
+                <Lock className="w-5 h-5 text-[#8A938F]" />
+              </span>
+              <span>Zero-waste week</span>
+            </div>
+
+            {/* Locked 6 */}
+            <div className="flex flex-col items-center gap-1.5 text-[#8A938F]">
+              <span className="w-13 h-13 rounded-full bg-[#EFEDE8] flex items-center justify-center">
+                <Lock className="w-5 h-5 text-[#8A938F]" />
+              </span>
+              <span>4-week streak</span>
+            </div>
           </div>
         </div>
 
-        {/* 5 Cards Grid matching Reference Image 4 */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          {filteredPerks.map((perk) => (
-            <Card
-              key={perk.id}
-              padding="none"
-              className="overflow-hidden flex flex-col justify-between border-neutral-200 shadow-sm hover:shadow-card-hover hover:-translate-y-1 transition-all"
-            >
-              <div>
-                {/* Photo with Points Badge */}
-                <div className="relative h-36 w-full overflow-hidden">
-                  <img
-                    src={perk.image}
-                    alt={perk.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-xs text-brand-900 font-black text-[11px] shadow-sm">
-                    {perk.points} Points
-                  </div>
-                </div>
+        {/* Col 3: Recognition Certificate + Sponsor Rewards */}
+        <div className="flex flex-col gap-6">
+          {/* Certificate Card */}
+          <div className="ui-card p-6 flex flex-col gap-3 flex-1 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
+            <h2 className="font-outfit text-[20px] font-bold text-[#13231C]">
+              Recognition certificate
+            </h2>
+            <span className="text-[14px] text-[#5B6661] leading-relaxed">
+              Your meals, kg diverted and level on one page, ready for your CSR report.
+            </span>
+            <div className="mt-auto pt-2">
+              <Link
+                href="/admin/impact"
+                className="btn-primary w-full justify-center text-[14px]"
+              >
+                <Download className="w-4 h-4" />
+                <span>Download certificate</span>
+              </Link>
+            </div>
+          </div>
 
-                <div className="p-4 space-y-1.5">
-                  <h4 className="text-xs font-bold text-neutral-900 line-clamp-1">
-                    {perk.title}
-                  </h4>
-                  <p className="text-[11px] text-neutral-500 line-clamp-2 leading-relaxed">
-                    {perk.description}
-                  </p>
-                </div>
-              </div>
-
-              <div className="p-4 pt-0">
-                <Button
-                  size="sm"
-                  variant="primary"
-                  onClick={() => handleRedeem(perk.title, perk.points)}
-                  className="w-full text-xs"
-                >
-                  {t("rewards.redeemBtn", "Redeem Now ->")}
-                </Button>
-              </div>
-            </Card>
-          ))}
+          {/* Sponsor Rewards (Coming soon) */}
+          <div className="ui-card p-6 bg-[#FDEEE6] border-[#F8DCCC] flex flex-col gap-2 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
+            <span className="ui-chip bg-white text-[#9A3412] self-start text-[12px]">
+              Coming soon
+            </span>
+            <span className="font-outfit text-[18px] font-bold text-[#7A2E0E]">
+              Sponsor rewards
+            </span>
+            <span className="text-[13px] text-[#7A3A1C] leading-relaxed">
+              Tree planting and meal sponsorships from partner brands.
+            </span>
+          </div>
         </div>
       </div>
     </div>

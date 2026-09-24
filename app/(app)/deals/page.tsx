@@ -1,216 +1,207 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import {
-  Tag,
-  Clock,
-  MapPin,
-  Phone,
-  ShieldAlert,
-  ArrowRight,
-  CheckCircle2,
-} from "lucide-react";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
-import { TierBadge } from "@/components/ui/Badge";
-import { Sheet } from "@/components/ui/Sheet";
-import { Stepper } from "@/components/ui/Stepper";
-import { apiClient } from "@/lib/api/client";
-import { Deal } from "@/lib/api/types";
-import { useToast } from "@/components/ui/Toast";
+import React, { useState } from "react";
+import { Navigation } from "lucide-react";
 
 export default function RescueDealsPage() {
-  const { toast } = useToast();
-  const [deals, setDeals] = useState<Deal[]>([]);
-  const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
-  const [claimQty, setClaimQty] = useState(2);
-  const [claimOtp, setClaimOtp] = useState<string | null>(null);
-
-  useEffect(() => {
-    apiClient.getDeals().then(setDeals);
-  }, []);
-
-  const handleOpenClaim = (deal: Deal) => {
-    setSelectedDeal(deal);
-    setClaimQty(1);
-    setClaimOtp(null);
-  };
-
-  const handleConfirmClaim = () => {
-    if (!selectedDeal) return;
-    const res = apiClient.claimDeal(selectedDeal.id, claimQty);
-    if (res.then) {
-      res.then(({ success, otp }) => {
-        if (success) {
-          setClaimOtp(otp);
-          toast({
-            type: "success",
-            title: "Rescue Deal Claimed!",
-            message: `Pickup code: ${otp}. Pay ₹${selectedDeal.dealPrice * claimQty} at pickup.`,
-          });
-        }
-      });
-    }
-  };
+  const [filter, setFilter] = useState("all");
+  const [claimedDeal, setClaimedDeal] = useState<string | null>("Veg thali");
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
-      <div>
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold mb-2">
-          <Tag className="w-3.5 h-3.5 text-amber-600" />
-          <span>Tier 2: Hyperlocal Surplus Marketplace</span>
-        </div>
-        <h1 className="text-3xl font-black text-brand-800 tracking-tight">
-          Rescue Deals (₹30 - ₹50)
+    <div className="max-w-[440px] mx-auto w-full flex flex-col gap-3.5 py-2 pb-16">
+      {/* HEADER: Title + Subtitle */}
+      <div className="flex flex-col gap-1 pt-1">
+        <h1 className="font-outfit text-[28px] font-extrabold text-[#0E3B2E] tracking-tight leading-tight">
+          Rescue deals near you
         </h1>
-        <p className="text-xs text-neutral-500 mt-1 max-w-xl">
-          Discounted fresh meal boxes from banquet hotels for students and budget-conscious residents. Self-pickup only.
-        </p>
+        <span className="text-[14px] text-[#5B6661]">
+          Fresh surplus at a nominal price. Pickup only.
+        </span>
       </div>
 
-      {/* Deals Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {deals.map((deal) => (
-          <Card
-            key={deal.id}
-            padding="none"
-            className="overflow-hidden flex flex-col justify-between border-neutral-200 shadow-card hover:shadow-card-hover hover:-translate-y-1 transition-all"
+      {/* FILTER CHIPS */}
+      <div className="flex items-center gap-2 pt-0.5">
+        <button
+          type="button"
+          onClick={() => setFilter("distance")}
+          className={`h-[34px] px-3.5 rounded-full text-[13px] font-semibold transition-all ${
+            filter === "distance" || filter === "all"
+              ? "bg-[#0E3B2E] text-white"
+              : "bg-white border border-[#DCD9D0] text-[#2A3A33]"
+          }`}
+        >
+          Within 3 km
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setFilter("veg")}
+          className={`h-[34px] px-3.5 rounded-full text-[13px] font-semibold transition-all ${
+            filter === "veg"
+              ? "bg-[#0E3B2E] text-white"
+              : "bg-white border border-[#DCD9D0] text-[#2A3A33]"
+          }`}
+        >
+          Veg only
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setFilter("map")}
+          className={`h-[34px] px-3.5 rounded-full text-[13px] font-semibold transition-all ${
+            filter === "map"
+              ? "bg-[#0E3B2E] text-white"
+              : "bg-white border border-[#DCD9D0] text-[#2A3A33]"
+          }`}
+        >
+          Map
+        </button>
+      </div>
+
+      {/* DEAL CARD 1: Veg Thali */}
+      <div className="ui-card p-4 flex flex-col gap-3 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+        <div className="flex gap-3.5">
+          <div className="w-[76px] h-[76px] rounded-[16px] bg-[#F4E4CC] flex items-center justify-center text-[11px] font-bold text-[#7A4A06] flex-shrink-0">
+            Photo
+          </div>
+          <div className="flex-1 flex flex-col gap-0.5">
+            <span className="text-[16px] font-bold text-[#13231C]">
+              Veg thali
+            </span>
+            <span className="text-[13px] text-[#5B6661]">
+              Hotel Saffron Kitchen · 1.2 km
+            </span>
+            <div className="flex flex-wrap gap-1.5 mt-1">
+              <span className="ui-chip bg-[#E3F5EA] text-[#166534] text-[11px] h-6 px-2.5">
+                Veg
+              </span>
+              <span className="ui-chip bg-[#FFF1D1] text-[#7A4A06] text-[11px] h-6 px-2.5">
+                Collect by 9:30 PM
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-between items-center pt-1 border-t border-[#F0EEE8]">
+          <div>
+            <span className="font-outfit text-[26px] font-extrabold text-[#13231C]">
+              ₹20
+            </span>
+            <span className="text-[13px] text-[#5B6661]"> / meal · 18 left</span>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setClaimedDeal("Veg thali")}
+            className="h-11 px-5 rounded-[14px] bg-[#0E3B2E] hover:bg-[#17553F] text-white font-bold text-[14px] shadow-2xs transition-all active:scale-95"
           >
-            <div>
-              {/* Photo & Pricing */}
-              <div className="relative h-44 w-full overflow-hidden">
-                <img
-                  src={deal.image}
-                  alt={deal.foodTitle}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute top-3 left-3 flex gap-2">
-                  <span className="px-3 py-1 rounded-full bg-white/95 backdrop-blur-xs font-black text-xs text-brand-800 shadow-sm">
-                    ₹{deal.dealPrice}{" "}
-                    <span className="line-through text-neutral-400 font-normal ml-1">
-                      ₹{deal.originalPrice}
-                    </span>
-                  </span>
-                  <TierBadge tier={2} />
-                </div>
-              </div>
-
-              <div className="p-5 space-y-2">
-                <div className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider">
-                  {deal.donorName}
-                </div>
-                <h3 className="text-base font-bold text-neutral-900 leading-snug">
-                  {deal.foodTitle}
-                </h3>
-
-                <div className="space-y-1.5 text-xs text-neutral-600 pt-2 border-t border-neutral-100">
-                  <div className="flex items-center gap-1.5">
-                    <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>{deal.pickupAddress} ({deal.distanceKm} km away)</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-amber-700 font-semibold">
-                    <Clock className="w-3.5 h-3.5 text-amber-600" />
-                    <span>Collect by 11:30 PM (Tonight)</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-5 pt-0">
-              <Button
-                size="lg"
-                variant="primary"
-                onClick={() => handleOpenClaim(deal)}
-                className="w-full text-xs"
-              >
-                Claim Deal ({deal.quantityRemaining} remaining)
-              </Button>
-            </div>
-          </Card>
-        ))}
+            Claim
+          </button>
+        </div>
       </div>
 
-      {/* Claim Bottom Sheet */}
-      <Sheet
-        isOpen={!!selectedDeal}
-        onClose={() => setSelectedDeal(null)}
-        title={claimOtp ? "Voucher Generated!" : "Claim Rescue Deal"}
-      >
-        {selectedDeal && !claimOtp && (
-          <div className="space-y-5 pb-6">
-            <div className="p-4 rounded-2xl bg-surface-subtle flex items-center justify-between">
-              <div>
-                <h4 className="text-sm font-bold text-neutral-900">
-                  {selectedDeal.foodTitle}
-                </h4>
-                <p className="text-xs text-neutral-500">{selectedDeal.donorName}</p>
-              </div>
-              <div className="text-right">
-                <div className="text-lg font-black text-brand-800">
-                  ₹{selectedDeal.dealPrice * claimQty}
-                </div>
-                <div className="text-[10px] text-neutral-400">Pay at pickup</div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-neutral-700">
-                Number of Portions (Max 5):
+      {/* DEAL CARD 2: Bread & Buns */}
+      <div className="ui-card p-4 flex flex-col gap-3 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+        <div className="flex gap-3.5">
+          <div className="w-[76px] h-[76px] rounded-[16px] bg-[#EFE3D0] flex items-center justify-center text-[11px] font-bold text-[#6B4423] flex-shrink-0">
+            Photo
+          </div>
+          <div className="flex-1 flex flex-col gap-0.5">
+            <span className="text-[16px] font-bold text-[#13231C]">
+              Bread &amp; buns
+            </span>
+            <span className="text-[13px] text-[#5B6661]">
+              Baker&apos;s Corner · 2.4 km
+            </span>
+            <div className="flex flex-wrap gap-1.5 mt-1">
+              <span className="ui-chip bg-[#E3F5EA] text-[#166534] text-[11px] h-6 px-2.5">
+                Veg
               </span>
-              <Stepper
-                value={claimQty}
-                onChange={setClaimQty}
-                min={1}
-                max={5}
-                unit="boxes"
-              />
-            </div>
-
-            <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-800 flex items-start gap-2">
-              <ShieldAlert className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-              <span>
-                Self-pickup only. Please bring your own container or tote bag to promote zero single-use plastic waste.
+              <span className="ui-chip bg-[#FFF1D1] text-[#7A4A06] text-[11px] h-6 px-2.5">
+                Collect by 10:15 PM
               </span>
             </div>
-
-            <Button
-              size="xl"
-              variant="primary"
-              onClick={handleConfirmClaim}
-              rightIcon={<ArrowRight className="w-5 h-5" />}
-            >
-              Confirm Voucher Claim
-            </Button>
           </div>
-        )}
+        </div>
 
-        {claimOtp && selectedDeal && (
-          <div className="text-center py-6 space-y-4">
-            <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
-              <CheckCircle2 className="w-8 h-8" />
-            </div>
-            <div>
-              <h3 className="text-lg font-black text-neutral-900">
-                Voucher #{claimOtp}
-              </h3>
-              <p className="text-xs text-neutral-500 mt-1 max-w-xs mx-auto">
-                Show this 4-digit OTP to the donor at {selectedDeal.pickupAddress}. Pay ₹{selectedDeal.dealPrice * claimQty} upon collection.
-              </p>
-            </div>
-            <div className="p-4 rounded-3xl bg-brand-900 text-accent-400 font-mono text-4xl font-black tracking-widest max-w-xs mx-auto">
-              {claimOtp}
-            </div>
-            <Button
-              size="lg"
-              variant="secondary"
-              onClick={() => setSelectedDeal(null)}
-              className="mt-4"
-            >
-              Done
-            </Button>
+        <div className="flex justify-between items-center pt-1 border-t border-[#F0EEE8]">
+          <div>
+            <span className="font-outfit text-[26px] font-extrabold text-[#13231C]">
+              ₹10
+            </span>
+            <span className="text-[13px] text-[#5B6661]"> / pack · 12 left</span>
           </div>
-        )}
-      </Sheet>
+
+          <button
+            type="button"
+            onClick={() => setClaimedDeal("Bread & buns")}
+            className="h-11 px-5 rounded-[14px] bg-[#0E3B2E] hover:bg-[#17553F] text-white font-bold text-[14px] shadow-2xs transition-all active:scale-95"
+          >
+            Claim
+          </button>
+        </div>
+      </div>
+
+      {/* CLAIMED BOTTOM SHEET / CARD */}
+      {claimedDeal && (
+        <div className="ui-card p-5 pt-3.5 flex flex-col gap-4 bg-white border border-[#ECE9E1] shadow-[0_8px_30px_rgba(14,59,46,0.12)] mt-2">
+          <span className="w-11 h-1.5 rounded-full bg-[#DCD9D0] self-center" />
+
+          <div className="flex justify-between items-center">
+            <span className="font-outfit text-[22px] font-bold text-[#13231C]">
+              Claimed · {claimedDeal}
+            </span>
+            <button
+              type="button"
+              onClick={() => setClaimedDeal(null)}
+              className="text-[12px] font-semibold text-[#5B6661] hover:text-[#0E3B2E]"
+            >
+              Dismiss
+            </button>
+          </div>
+
+          {/* Show this OTP at pickup */}
+          <div className="bg-[#0E3B2E] text-white rounded-[18px] p-4.5 flex flex-col items-center gap-1">
+            <span className="text-[13px] text-[#C9DDD3]">
+              Show this OTP at pickup
+            </span>
+            <span className="font-outfit text-[44px] font-extrabold tracking-[0.2em]">
+              5531
+            </span>
+          </div>
+
+          <div className="flex flex-col gap-2 text-[14px]">
+            <div className="flex justify-between">
+              <span className="text-[#5B6661]">Meals</span>
+              <b className="font-bold text-[#13231C]">2</b>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[#5B6661]">
+                Pay the restaurant (cash or UPI)
+              </span>
+              <b className="font-bold text-[#13231C]">₹40</b>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[#5B6661]">Collect by</span>
+              <b className="font-bold text-[#13231C]">9:30 PM</b>
+            </div>
+          </div>
+
+          <span className="text-[12px] leading-relaxed bg-[#F6F5F1] rounded-[12px] p-2.5 px-3 text-[#5B6661]">
+            Surplus food sold directly by Hotel Saffron Kitchen. Eat before the time shown.
+          </span>
+
+          <a
+            href="https://www.google.com/maps"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="h-[54px] rounded-[16px] bg-[#C2410C] hover:bg-[#A8370A] text-white text-[16px] font-bold flex items-center justify-center gap-2 shadow-sm transition-all"
+          >
+            <Navigation className="w-5 h-5 fill-white" />
+            <span>Get directions</span>
+          </a>
+        </div>
+      )}
     </div>
   );
 }

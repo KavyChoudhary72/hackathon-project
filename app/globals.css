@@ -1,70 +1,121 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --font-inter: 'Inter', sans-serif;
+  --font-outfit: 'Outfit', sans-serif;
   --font-jakarta: 'Plus Jakarta Sans', sans-serif;
   --font-noto-hindi: 'Noto Sans Devanagari', sans-serif;
 
-  --bg-base: #FAF9F5;
+  --bg-base: #F6F5F1;
   --bg-surface: #FFFFFF;
-  --bg-subtle: #F4F6F5;
-  --border-subtle: #E5E7EB;
-  --text-main: #142921;
-  --text-muted: #5F6F65;
-  --text-light: #9CA3AF;
-}
-
-[data-theme='dark'] {
-  --bg-base: #0D1512;
-  --bg-surface: #182621;
-  --bg-subtle: #1F332C;
-  --border-subtle: #2A423A;
-  --text-main: #F3F4F6;
-  --text-muted: #9CA3AF;
-  --text-light: #6B7280;
+  --bg-subtle: #F0EEE8;
+  --border-subtle: #ECE9E1;
+  --text-main: #13231C;
+  --text-muted: #5B6661;
+  --brand-green: #0E3B2E;
+  --brand-accent: #F2622E;
 }
 
 body {
-  font-family: var(--font-inter), sans-serif;
-  background-color: var(--bg-base);
-  color: var(--text-main);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: #F6F5F1;
+  color: #13231C;
   overflow-x: hidden;
   -webkit-tap-highlight-color: transparent;
 }
 
-h1, h2, h3, .font-display {
-  font-family: var(--font-jakarta), var(--font-inter), sans-serif;
+.font-outfit {
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.font-plus {
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 [lang="hi"] {
   font-family: var(--font-noto-hindi), sans-serif;
 }
 
-/* Custom scrollbars for clean UI */
+/* Design Tokens from HTML Spec */
+.ui-card {
+  background: #FFFFFF;
+  border: 1px solid #ECE9E1;
+  border-radius: 22px;
+  box-sizing: border-box;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 50px;
+  padding: 0 24px;
+  border-radius: 16px;
+  background: #0E3B2E;
+  color: #FFFFFF;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  border: 0;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.btn-primary:hover {
+  background: #17553F;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 46px;
+  padding: 0 20px;
+  border-radius: 14px;
+  background: #FFFFFF;
+  color: #0E3B2E;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid #DCD9D0;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.btn-secondary:hover {
+  background: #F9F8F5;
+}
+
+.ui-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Custom scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
-
 ::-webkit-scrollbar-track {
   background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: #DCD9D0;
   border-radius: 9999px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
-}
-
-/* Focus styles meeting WCAG AA */
 *:focus-visible {
-  outline: 2px solid #113A2B;
+  outline: 3px solid #F2622E;
   outline-offset: 2px;
 }

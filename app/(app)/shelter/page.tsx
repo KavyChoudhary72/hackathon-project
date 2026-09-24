@@ -1,328 +1,206 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import {
-  Building2,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  AlertTriangle,
-  Truck,
-  ShieldCheck,
-  ChevronRight,
-  Flame,
-  ArrowRight,
-} from "lucide-react";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
-import { Stepper } from "@/components/ui/Stepper";
-import { VegBadge, TierBadge } from "@/components/ui/Badge";
-import { Modal } from "@/components/ui/Modal";
-import { apiClient } from "@/lib/api/client";
-import { Donation, Shelter } from "@/lib/api/types";
-import { useToast } from "@/components/ui/Toast";
-import { useI18n } from "@/lib/i18n";
-import { useLiveEvents } from "@/lib/ws/eventBus";
-import { formatTimeRemaining } from "@/lib/utils";
+import React, { useState } from "react";
+import Link from "next/link";
+import { Check, AlertCircle } from "lucide-react";
 
-export default function ShelterDashboardPage() {
-  const { toast } = useToast();
-  const { t } = useI18n();
+export default function ShelterAppPage() {
+  const [capacity, setCapacity] = useState(60);
+  const [isAccepted, setIsAccepted] = useState(false);
+  const [lang, setLang] = useState<"EN" | "HI">("EN");
 
-  const [shelter, setShelter] = useState<Shelter | null>(null);
-  const [capacity, setCapacity] = useState(40);
-  const [incomingOffers, setIncomingOffers] = useState<Donation[]>([]);
-  const [acceptedDeliveries, setAcceptedDeliveries] = useState<Donation[]>([]);
-  const [isReportOpen, setIsReportOpen] = useState(false);
-
-  const loadData = async () => {
-    const shelters = await apiClient.getShelters();
-    if (shelters.length > 0) {
-      setShelter(shelters[0]);
-      setCapacity(shelters[0].capacityTonight);
-    }
-    const all = await apiClient.getDonations();
-    setIncomingOffers(all.filter((d) => d.status === "MATCHED" || d.status === "CREATED"));
-    setAcceptedDeliveries(
-      all.filter((d) => d.status === "DRIVER_ASSIGNED" || d.status === "IN_TRANSIT")
-    );
-  };
-
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  useLiveEvents("donation:created", loadData);
-  useLiveEvents("shelter:matched", loadData);
-  useLiveEvents("driver:assigned", loadData);
-  useLiveEvents("donation:delivered", loadData);
-
-  const handleCapacityChange = async (val: number) => {
-    setCapacity(val);
-    if (shelter) {
-      await apiClient.updateShelterCapacity(shelter.id, val);
-      toast({
-        type: "success",
-        title: "Capacity Updated",
-        message: `Tonight's capacity set to ${val} meals.`,
-      });
-    }
-  };
-
-  const handleAccept = async (donationId: string) => {
-    if (!shelter) return;
-    await apiClient.acceptOffer(donationId, shelter.id);
-    toast({
-      type: "success",
-      title: "Offer Accepted!",
-      message: "Delivery partner assigned. Arriving soon.",
-    });
-    loadData();
-  };
-
-  const handleDecline = async (donationId: string) => {
-    if (!shelter) return;
-    await apiClient.declineOffer(donationId, shelter.id);
-    toast({
-      type: "info",
-      title: "Offer Declined",
-      message: "Cascaded to next nearest community shelter.",
-    });
-    loadData();
+  const handleAccept = () => {
+    setIsAccepted(true);
+    setCapacity((prev) => Math.max(0, prev - 50));
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">
-              Verified Shelter Partner
-            </span>
-          </div>
-          <h1 className="text-3xl font-black text-brand-800 tracking-tight">
-            {shelter?.name || "Hope Community Shelter"}
-          </h1>
-          <p className="text-xs text-neutral-500 mt-0.5">
-            {shelter?.address || "Bani Park, Jaipur"} · Phone: {shelter?.phone}
-          </p>
+    <div className="max-w-[440px] mx-auto w-full flex flex-col gap-4 py-2">
+      {/* TOP HEADER: Shelter Name + Language Switcher */}
+      <div className="flex items-center justify-between pt-1">
+        <div className="flex flex-col gap-0.5">
+          <span className="font-outfit text-[24px] font-extrabold text-[#0E3B2E]">
+            Asha Shelter
+          </span>
+          <span className="text-[13px] text-[#5B6661]">
+            Malviya Nagar, Jaipur
+          </span>
         </div>
 
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={() => setIsReportOpen(true)}
-          className="text-xs"
-        >
-          {t("shelter.reportIssue", "Report Quality Issue")}
-        </Button>
-      </div>
-
-      {/* CAPACITY STEPPER CARD - SAVED INSTANTLY */}
-      <Card padding="lg" className="bg-brand-50/70 border-brand-200">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <span className="text-xs font-bold text-brand-800 uppercase tracking-wider">
-              {t("shelter.capacityTitle", "Tonight's Shelter Capacity")}
-            </span>
-            <h3 className="text-xl font-black text-neutral-900 mt-1">
-              How many meals can you serve tonight?
-            </h3>
-            <p className="text-xs text-neutral-600 mt-0.5">
-              Live matching stops automatically once this capacity is fulfilled.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Stepper
-              value={capacity}
-              onChange={handleCapacityChange}
-              min={5}
-              max={250}
-              step={5}
-              unit="meals"
-              size="lg"
-            />
-          </div>
+        <div className="flex bg-white border border-[#ECE9E1] rounded-full p-1 shadow-2xs">
+          <button
+            type="button"
+            onClick={() => setLang("EN")}
+            className={`h-[34px] px-3.5 rounded-full text-[13px] font-bold transition-all ${
+              lang === "EN"
+                ? "bg-[#0E3B2E] text-white"
+                : "text-[#2A3A33] hover:text-[#0E3B2E]"
+            }`}
+          >
+            EN
+          </button>
+          <button
+            type="button"
+            onClick={() => setLang("HI")}
+            className={`h-[34px] px-3.5 rounded-full text-[13px] font-bold transition-all ${
+              lang === "HI"
+                ? "bg-[#0E3B2E] text-white"
+                : "text-[#2A3A33] hover:text-[#0E3B2E]"
+            }`}
+          >
+            हिं
+          </button>
         </div>
-      </Card>
+      </div>
 
-      {/* INCOMING URGENT FOOD OFFERS */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-black text-brand-800 tracking-tight flex items-center gap-2">
-            <span>{t("shelter.incomingOffers", "Urgent Incoming Food Offers")}</span>
-            <span className="px-2.5 py-0.5 rounded-full bg-accent-50 text-accent-600 text-xs font-bold border border-accent-200">
-              {incomingOffers.length} available
+      {/* CAPACITY STEPPER CARD */}
+      <div className="ui-card p-5 flex flex-col gap-3.5 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+        <span className="text-[16px] font-bold text-[#13231C]">
+          How many meals can you take tonight?
+        </span>
+
+        <div className="flex items-center justify-between py-1">
+          <button
+            type="button"
+            onClick={() => setCapacity(Math.max(0, capacity - 5))}
+            aria-label="Fewer meals"
+            className="w-13 h-13 rounded-full bg-[#F6F5F1] text-[26px] font-bold text-[#0E3B2E] flex items-center justify-center hover:bg-[#EDECE6] active:scale-95 transition-all"
+          >
+            −
+          </button>
+
+          <div className="flex flex-col items-center">
+            <span className="font-outfit text-[52px] font-extrabold text-[#0E3B2E] leading-none">
+              {capacity}
             </span>
-          </h2>
+            <span className="text-[13px] text-[#5B6661] font-medium">meals</span>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setCapacity(capacity + 5)}
+            aria-label="More meals"
+            className="w-13 h-13 rounded-full bg-[#F6F5F1] text-[26px] font-bold text-[#0E3B2E] flex items-center justify-center hover:bg-[#EDECE6] active:scale-95 transition-all"
+          >
+            +
+          </button>
         </div>
 
-        {incomingOffers.length === 0 ? (
-          <Card padding="lg" className="text-center py-10 text-neutral-500 text-xs">
-            No incoming donations currently matching. You will be alerted instantly when surplus is posted nearby!
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 gap-4">
-            {incomingOffers.map((item) => (
-              <Card
-                key={item.id}
-                padding="md"
-                className="border-neutral-200 shadow-md space-y-4"
-              >
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={item.image}
-                      alt=""
-                      className="w-16 h-16 rounded-2xl object-cover shadow-2xs"
-                    />
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <VegBadge isVeg={item.isVeg} />
-                        <TierBadge tier={item.tier} />
-                      </div>
-                      <h4 className="text-base font-bold text-neutral-900">
-                        {item.foodName}
-                      </h4>
-                      <p className="text-xs text-neutral-500">
-                        From: <span className="font-semibold text-neutral-800">{item.donorName}</span>
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Safety Countdown badge */}
-                  <div className="flex sm:flex-col items-end gap-1">
-                    <div className="px-3 py-1.5 rounded-2xl bg-amber-100 text-amber-900 text-xs font-bold flex items-center gap-1.5 border border-amber-300">
-                      <Clock className="w-3.5 h-3.5 text-amber-700 animate-spin" />
-                      <span>Safe for 3h 45m</span>
-                    </div>
-                    <span className="text-[11px] text-neutral-400">
-                      Cooked 1h ago
-                    </span>
-                  </div>
-                </div>
-
-                {/* Match Reason Chips */}
-                <div className="p-3 rounded-2xl bg-surface-subtle flex flex-wrap gap-2 text-xs font-semibold text-brand-900">
-                  <span className="bg-white px-2.5 py-1 rounded-xl border border-neutral-200 shadow-2xs">
-                    📍 2.1 km away
-                  </span>
-                  <span className="bg-white px-2.5 py-1 rounded-xl border border-neutral-200 shadow-2xs">
-                    🍽️ {item.quantity} {item.unit}
-                  </span>
-                  <span className="bg-white px-2.5 py-1 rounded-xl border border-neutral-200 shadow-2xs">
-                    🌱 100% Veg Compliance
-                  </span>
-                </div>
-
-                {/* XL Accept / Decline Action Buttons */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                  <Button
-                    size="xl"
-                    variant="primary"
-                    onClick={() => handleAccept(item.id)}
-                    leftIcon={<CheckCircle2 className="w-5 h-5 stroke-[2.5]" />}
-                  >
-                    {t("shelter.acceptOffer", "Accept Food Offer")}
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="danger"
-                    onClick={() => handleDecline(item.id)}
-                    leftIcon={<XCircle className="w-5 h-5 stroke-[2.5]" />}
-                  >
-                    {t("shelter.declineOffer", "Decline (Cascade)")}
-                  </Button>
-                </div>
-              </Card>
-            ))}
-          </div>
-        )}
+        <span className="text-[13px] font-semibold text-[#166534] flex items-center gap-1.5">
+          <Check className="w-4 h-4 stroke-[2.8]" />
+          <span>Saved. Donors see this right away.</span>
+        </span>
       </div>
 
-      {/* ACCEPTED DELIVERIES WITH DELIVERY OTP */}
-      <div className="space-y-4 pt-4 border-t border-neutral-200">
-        <h2 className="text-lg font-black text-brand-800 tracking-tight">
-          {t("shelter.incomingDelivery", "Active Incoming Deliveries")}
-        </h2>
-
-        {acceptedDeliveries.length === 0 ? (
-          <Card padding="md" className="text-center py-8 text-neutral-400 text-xs">
-            No drivers currently en route to your shelter.
-          </Card>
-        ) : (
-          <div className="space-y-3">
-            {acceptedDeliveries.map((d) => (
-              <Card
-                key={d.id}
-                padding="md"
-                className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-emerald-50/50 border-emerald-200"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center">
-                    <Truck className="w-6 h-6 animate-bounce" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-neutral-900">
-                      {d.foodName} ({d.quantity} {d.unit})
-                    </h4>
-                    <p className="text-xs text-neutral-600">
-                      Driver: {d.driverName || "Ramesh Kumar"} (ETA ~20m)
-                    </p>
-                  </div>
-                </div>
-
-                {/* Delivery OTP Display */}
-                <div className="text-left sm:text-right bg-white p-3 rounded-2xl border border-emerald-300 shadow-2xs">
-                  <div className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider">
-                    Give this Delivery OTP to Driver
-                  </div>
-                  <div className="font-mono text-3xl font-black tracking-widest text-brand-800">
-                    {d.deliveryOtp}
-                  </div>
-                </div>
-              </Card>
-            ))}
+      {/* INCOMING OFFER CARD (Orange border) */}
+      {!isAccepted ? (
+        <div className="ui-card p-5 flex flex-col gap-3.5 border-2 border-[#F2622E] shadow-[0_4px_16px_rgba(242,98,46,0.08)]">
+          <div className="flex justify-between items-center">
+            <span className="text-[14px] font-bold text-[#C2410C]">
+              New offer
+            </span>
+            <span className="ui-chip bg-[#FDE8DD] text-[#9A3412] font-bold h-7">
+              Reply in 0:24
+            </span>
           </div>
-        )}
-      </div>
 
-      {/* Quality Report Dialog */}
-      <Modal
-        isOpen={isReportOpen}
-        onClose={() => setIsReportOpen(false)}
-        title="Report Food Quality Issue"
-        description="Submit safety or hygiene concerns within 12 hours of delivery."
-      >
-        <div className="space-y-4 pt-2">
-          <textarea
-            rows={3}
-            placeholder="Describe the issue (e.g. food odor, temperature, packaging damage)..."
-            className="w-full text-xs p-3 rounded-2xl border border-neutral-200 bg-surface-subtle focus:bg-white focus:outline-none focus:border-brand-700"
-          />
-          <div className="flex justify-end gap-2">
-            <Button variant="ghost" onClick={() => setIsReportOpen(false)}>
-              Cancel
-            </Button>
-            <Button
-              variant="danger"
-              onClick={() => {
-                setIsReportOpen(false);
-                toast({
-                  type: "info",
-                  title: "Report Submitted",
-                  message: "Our safety team has logged this report for audit.",
-                });
-              }}
+          <div className="flex items-center gap-3.5">
+            <div className="w-[72px] h-[72px] rounded-[16px] bg-[#F4E4CC] flex items-center justify-center text-[11px] font-bold text-[#7A4A06] flex-shrink-0">
+              Food Photo
+            </div>
+            <div className="flex flex-col gap-0.5">
+              <span className="font-outfit text-[24px] font-bold text-[#13231C] leading-tight">
+                50 meals
+              </span>
+              <span className="text-[14px] text-[#13231C]">
+                Dal-chawal · <span className="text-[#166534] font-bold">Veg</span>
+              </span>
+              <span className="text-[13px] text-[#5B6661]">
+                Safe until 11:00 PM
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2 pt-0.5">
+            <span className="ui-chip bg-[#F1F0EB] text-[#2A3A33] text-[12px]">
+              2.1 km · ~12 min
+            </span>
+            <span className="ui-chip bg-[#F1F0EB] text-[#2A3A33] text-[12px]">
+              fits your space
+            </span>
+            <span className="ui-chip bg-[#F1F0EB] text-[#2A3A33] text-[12px]">
+              cooked veg
+            </span>
+          </div>
+
+          <span className="text-[13px] text-[#5B6661]">
+            From Shree Ram Marriage Garden
+          </span>
+
+          <div className="flex gap-2.5 pt-1">
+            <button
+              type="button"
+              onClick={handleAccept}
+              className="btn-primary flex-2 h-[56px] text-[17px] font-bold justify-center"
             >
-              Submit Report
-            </Button>
+              Accept
+            </button>
+            <button
+              type="button"
+              className="btn-secondary flex-1 h-[56px] text-[16px] font-semibold justify-center"
+            >
+              Decline
+            </button>
           </div>
         </div>
-      </Modal>
+      ) : (
+        /* ACCEPTED CONFIRMATION CARD */
+        <div className="ui-card p-5 flex flex-col gap-3.5 bg-[#EEF8F1] border-[#CDE8D6] shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
+          <span className="text-[15px] font-bold text-[#166534] flex items-center gap-2">
+            <Check className="w-5 h-5 stroke-[2.8]" />
+            <span>Accepted · 50 meals on the way</span>
+          </span>
+
+          <span className="text-[14px] text-[#13231C]">
+            Driver Ravi · arriving about 10:24 PM
+          </span>
+
+          <div className="bg-[#0E3B2E] text-white rounded-[16px] p-4 flex flex-col items-center gap-1">
+            <span className="text-[13px] text-[#C9DDD3]">
+              Give this OTP to the driver
+            </span>
+            <span className="font-outfit text-[40px] font-extrabold tracking-[0.2em]">
+              7390
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* EARLIER TONIGHT CARD */}
+      <div className="ui-card p-5 flex flex-col gap-3 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+        <span className="text-[16px] font-bold text-[#13231C]">
+          Earlier tonight
+        </span>
+
+        <div className="flex justify-between items-center text-[14px]">
+          <span>
+            <b>30 meals</b> · Veg biryani
+          </span>
+          <span className="ui-chip bg-[#DCF5E4] text-[#166534]">Delivered</span>
+        </div>
+
+        <Link
+          href="/admin/quality-reports"
+          className="text-[13px] font-semibold text-[#5B6661] underline hover:text-[#C2410C]"
+        >
+          Report a problem with this food
+        </Link>
+      </div>
+
+      {/* WHATSAPP FOOTNOTE */}
+      <span className="text-[13px] text-center text-[#5B6661] leading-relaxed pt-2">
+        Offers also arrive on WhatsApp. Reply <b>HAAN</b> to accept.
+      </span>
     </div>
   );
 }
