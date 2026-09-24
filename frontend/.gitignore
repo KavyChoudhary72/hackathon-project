@@ -1,25 +1,21 @@
 ﻿# dependencies
-node_modules/
-*/node_modules/
+/node_modules
 /.pnp
 .pnp.js
 
 # testing
-coverage/
+/coverage
 
 # next.js
-.next/
-*/.next/
-out/
-*/out/
+/.next/
+/out/
 
 # production
-build/
+/build
 
 # misc
 .DS_Store
 *.pem
-Thumbs.db
 
 # debug
 npm-debug.log*
@@ -29,10 +25,7 @@ yarn-error.log*
 # local env files
 .env*.local
 .env
-*.env
-*/.env*.local
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-*/next-env.d.ts
