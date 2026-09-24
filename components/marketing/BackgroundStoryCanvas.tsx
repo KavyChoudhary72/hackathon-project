@@ -9,7 +9,7 @@ export const BackgroundStoryCanvas: React.FC = () => {
   const imagesRef = useRef<(HTMLImageElement | null)[]>(new Array(TOTAL_FRAMES).fill(null));
   const targetProgressRef = useRef<number>(0);
   const currentProgressRef = useRef<number>(0);
-  const isActivelyDrawingRef = useRef<boolean>(true);
+  const lastDrawnIndexRef = useRef<number>(-1);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -19,7 +19,7 @@ export const BackgroundStoryCanvas: React.FC = () => {
     let isMounted = true;
     let hasDrawnInitial = false;
 
-    // Fast and robust parallel preloading of all 300 frames
+    // Fast, reliable preloading of all 300 frames
     for (let i = 0; i < TOTAL_FRAMES; i++) {
       const img = new Image();
       const numStr = String(i + 1).padStart(3, "0");
@@ -31,6 +31,8 @@ export const BackgroundStoryCanvas: React.FC = () => {
         if (i === 0 && !hasDrawnInitial) {
           hasDrawnInitial = true;
           draw(0);
+        } else if (i === Math.round(currentProgressRef.current * (TOTAL_FRAMES - 1))) {
+          draw(i);
         }
       };
       img.src = `/assets/ezgif-frame-${numStr}.jpg`;
@@ -38,7 +40,7 @@ export const BackgroundStoryCanvas: React.FC = () => {
 
     const getLoadedImage = (index: number): HTMLImageElement | null => {
       if (images[index]) return images[index];
-      // Search outward for nearest loaded frame
+      // Search outward for closest loaded frame
       for (let offset = 1; offset < TOTAL_FRAMES; offset++) {
         if (index - offset >= 0 && images[index - offset]) return images[index - offset];
         if (index + offset < TOTAL_FRAMES && images[index + offset]) return images[index + offset];
@@ -47,48 +49,38 @@ export const BackgroundStoryCanvas: React.FC = () => {
     };
 
     /**
-     * Sub-frame GPU alpha-blending for infinite frame density.
-     * Smoothly crossfades between adjacent frames so motion is 100% continuous.
+     * Crystal-clear hardware-accelerated draw.
+     * Uses discrete, sharp 1080p frames at integer pixel alignment (zero ghosting/distortion).
      */
-    const draw = (frameFloat: number) => {
+    const draw = (frameIndex: number) => {
       if (!canvas) return;
-      const clampedFloat = Math.max(0, Math.min(TOTAL_FRAMES - 1, frameFloat));
-      const indexA = Math.floor(clampedFloat);
-      const indexB = Math.min(TOTAL_FRAMES - 1, indexA + 1);
-      const blend = clampedFloat - indexA;
+      const clampedIndex = Math.max(0, Math.min(TOTAL_FRAMES - 1, Math.round(frameIndex)));
+      const img = getLoadedImage(clampedIndex);
 
-      const imgA = getLoadedImage(indexA);
-      const imgB = indexB !== indexA ? getLoadedImage(indexB) : null;
-
-      if (!imgA || !imgA.naturalWidth) return;
+      if (!img || !img.naturalWidth) return;
 
       const ctx = canvas.getContext("2d", { alpha: false, desynchronized: true });
       if (!ctx) return;
 
       const cw = canvas.width;
       const ch = canvas.height;
-      const iw = imgA.naturalWidth;
-      const ih = imgA.naturalHeight;
+      const iw = img.naturalWidth || 1920;
+      const ih = img.naturalHeight || 1080;
 
-      // Aspect-ratio cover crop centered
+      // Exact cover-fit math maintaining true 16:9 aspect ratio without stretching
       const scale = Math.max(cw / iw, ch / ih);
-      const dw = iw * scale;
-      const dh = ih * scale;
-      const dx = (cw - dw) * 0.5;
-      const dy = (ch - dh) * 0.5;
+      const dw = Math.round(iw * scale);
+      const dh = Math.round(ih * scale);
+      const dx = Math.round((cw - dw) * 0.5);
+      const dy = Math.round((ch - dh) * 0.5);
 
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = "high";
 
-      // 1. Draw base frame A
+      // Draw pure, unghosted frame with full fidelity
       ctx.globalAlpha = 1.0;
-      ctx.drawImage(imgA, dx, dy, dw, dh);
-
-      // 2. Hardware crossfade blend with frame B for buttery sub-frame continuity
-      if (blend > 0.015 && imgB && imgB.naturalWidth) {
-        ctx.globalAlpha = blend;
-        ctx.drawImage(imgB, dx, dy, dw, dh);
-      }
+      ctx.drawImage(img, dx, dy, dw, dh);
+      lastDrawnIndexRef.current = clampedIndex;
     };
 
     const resizeCanvas = () => {
@@ -100,29 +92,31 @@ export const BackgroundStoryCanvas: React.FC = () => {
       if (canvas.width !== w || canvas.height !== h) {
         canvas.width = w;
         canvas.height = h;
-        const currentFrameFloat = currentProgressRef.current * (TOTAL_FRAMES - 1);
-        draw(currentFrameFloat);
+        const currentIdx = Math.round(currentProgressRef.current * (TOTAL_FRAMES - 1));
+        draw(currentIdx);
       }
     };
 
     resizeCanvas();
 
-    // Smooth momentum render loop (adds 3-4 seconds of sustained fluid glide)
+    // Gentle, cinematic momentum loop (slowed down for relaxed 8-12s total scroll playback)
     let rafId: number;
     const renderLoop = () => {
       if (!isMounted) return;
 
       const diff = targetProgressRef.current - currentProgressRef.current;
       if (Math.abs(diff) > 0.00005) {
-        // Damped momentum (0.075) extends the scroll animation by 3-4 seconds of luxurious fluid motion
-        currentProgressRef.current += diff * 0.075;
+        // Slowed down lerp (0.045) creates a calm, deliberate, cinematic motion with 2-3s longer glide
+        currentProgressRef.current += diff * 0.045;
 
         if (Math.abs(targetProgressRef.current - currentProgressRef.current) < 0.0001) {
           currentProgressRef.current = targetProgressRef.current;
         }
 
-        const currentFrameFloat = currentProgressRef.current * (TOTAL_FRAMES - 1);
-        draw(currentFrameFloat);
+        const targetFrame = Math.round(currentProgressRef.current * (TOTAL_FRAMES - 1));
+        if (targetFrame !== lastDrawnIndexRef.current) {
+          draw(targetFrame);
+        }
       }
 
       rafId = requestAnimationFrame(renderLoop);
@@ -130,7 +124,7 @@ export const BackgroundStoryCanvas: React.FC = () => {
 
     rafId = requestAnimationFrame(renderLoop);
 
-    // Passive scroll listener mapping full page height to all 300 frames
+    // Passive scroll listener
     const handleScroll = () => {
       const scrollY = window.scrollY;
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
@@ -158,19 +152,19 @@ export const BackgroundStoryCanvas: React.FC = () => {
       aria-hidden="true"
       className="fixed inset-0 w-screen h-screen -z-10 pointer-events-none select-none overflow-hidden bg-[#0A1612]"
     >
-      {/* Hardware-accelerated Sub-Frame Canvas */}
+      {/* Hardware-accelerated High-Fidelity Canvas */}
       <canvas
         ref={canvasRef}
-        className="w-full h-full block object-cover transform-gpu"
+        style={{
+          width: "100%",
+          height: "100%",
+        }}
+        className="w-full h-full block"
       />
 
-      {/* Atmospheric Scrims:
-          - Top shadow for floating navbar clarity
-          - Soft center contrast so text & cards have pristine readability
-          - Bottom dark fade
-      */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/35 to-black/75 pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,rgba(0,0,0,0.5)_100%)] pointer-events-none" />
+      {/* Balanced Cinematic Scrim (Subtle, leaves anime vibrant & crystal-clear) */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/25 to-black/65 pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_45%,rgba(0,0,0,0.45)_100%)] pointer-events-none" />
     </div>
   );
 };
