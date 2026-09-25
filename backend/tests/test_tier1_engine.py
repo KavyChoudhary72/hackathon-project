@@ -17,7 +17,7 @@ def test_geojson_coordinate_helper():
 
 
 def test_tier1_matching_filters_and_scores(mock_jaipur_donation, mock_jaipur_shelters):
-    now_utc = datetime.now(timezone.utc)
+    now_utc = datetime(2026, 9, 25, 10, 0, 0, tzinfo=timezone.utc)
     result = evaluate_tier1_matching(mock_jaipur_donation, mock_jaipur_shelters, now_utc)
 
     assert result["total_shelters_evaluated"] == 3
@@ -41,7 +41,7 @@ def test_tier1_matching_filters_and_scores(mock_jaipur_donation, mock_jaipur_she
 
 
 def test_expired_food_never_routed(mock_jaipur_donation, mock_jaipur_shelters):
-    now_utc = datetime.now(timezone.utc)
+    now_utc = datetime(2026, 9, 25, 10, 0, 0, tzinfo=timezone.utc)
     # Set safe_until in the past
     mock_jaipur_donation["safe_until"] = (now_utc - timedelta(minutes=10)).isoformat()
 

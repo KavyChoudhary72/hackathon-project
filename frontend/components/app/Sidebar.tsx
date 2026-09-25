@@ -14,78 +14,240 @@ import {
   Tag,
   HelpCircle,
   LogOut,
+  ShieldAlert,
+  Sliders,
+  Scale,
+  Sparkles,
+  ArrowLeftRight,
+  UserCheck,
+  Award,
 } from "lucide-react";
+import { useAuth } from "@/lib/auth/AuthContext";
+import { useI18n } from "@/lib/i18n";
 
 export const Sidebar: React.FC = () => {
   const pathname = usePathname();
+  const { user, role, switchRole, logout } = useAuth();
+  const { locale, t } = useI18n();
 
-  const navLinks = [
-    {
-      href: "/donor",
-      label: "Dashboard",
-      icon: LayoutDashboard,
-      active: pathname === "/donor",
-    },
-    {
-      href: "/donor/new",
-      label: "Post food",
-      icon: PlusCircle,
-      active: pathname === "/donor/new",
-    },
-    {
-      href: "/donor/donations/1025",
-      label: "My donations",
-      icon: PackageOpen,
-      active: pathname.startsWith("/donor/donations"),
-    },
-    {
-      href: "/rewards",
-      label: "Rewards",
-      icon: Trophy,
-      active: pathname === "/rewards",
-    },
-    {
-      href: "/admin/impact",
-      label: "Impact",
-      icon: BarChart3,
-      active: pathname.startsWith("/admin/impact"),
-    },
-    {
-      href: "/shelter",
-      label: "Shelter",
-      icon: Building2,
-      active: pathname === "/shelter",
-    },
-    {
-      href: "/driver",
-      label: "Driver",
-      icon: Truck,
-      active: pathname === "/driver",
-    },
-    {
-      href: "/deals",
-      label: "Rescue deals",
-      icon: Tag,
-      active: pathname === "/deals",
-    },
-  ];
+  // Role-Specific Navigation Links with full Bilingual (EN/HI) Support
+  const getNavLinks = () => {
+    const isHi = locale === "hi";
+
+    if (role === "DONOR") {
+      return [
+        {
+          href: "/donor",
+          label: isHi ? "रसोई डैशबोर्ड" : "Kitchen Dashboard",
+          icon: LayoutDashboard,
+          active: pathname === "/donor",
+        },
+        {
+          href: "/donor/new",
+          label: isHi ? "अधिशेष भोजन पोस्ट करें" : "Post Surplus (<30s)",
+          icon: PlusCircle,
+          active: pathname === "/donor/new",
+          highlight: true,
+        },
+        {
+          href: "/donor/donations/1025",
+          label: isHi ? "सक्रिय दान एवं ओटीपी" : "Active Donations & OTP",
+          icon: PackageOpen,
+          active: pathname.startsWith("/donor/donations"),
+        },
+        {
+          href: "/certificate",
+          label: isHi ? "प्रशंसा प्रमाण पत्र" : "Official Certificate",
+          icon: Award,
+          active: pathname === "/certificate",
+          highlight: true,
+        },
+        {
+          href: "/admin/impact",
+          label: isHi ? "सीएसआर एवं प्रभाव रिपोर्ट" : "CSR Tax Receipts",
+          icon: BarChart3,
+          active: pathname.startsWith("/admin/impact"),
+        },
+        {
+          href: "/rewards",
+          label: isHi ? "सेवा साथी पुरस्कार" : "Seva Sathi Rewards",
+          icon: Trophy,
+          active: pathname === "/rewards",
+        },
+      ];
+    }
+
+    if (role === "SHELTER") {
+      return [
+        {
+          href: "/shelter",
+          label: isHi ? "आश्रय इनटेक एवं प्रस्ताव" : "Shelter Intake & Offers",
+          icon: Building2,
+          active: pathname === "/shelter",
+          highlight: true,
+        },
+        {
+          href: "/admin/quality-reports",
+          label: isHi ? "FSSAI गुणवत्ता रिपोर्ट" : "FSSAI Spoilage Reports",
+          icon: Scale,
+          active: pathname === "/admin/quality-reports",
+        },
+        {
+          href: "/admin/impact",
+          label: isHi ? "भोजन प्रभाव लेजर" : "Meal Impact Ledger",
+          icon: BarChart3,
+          active: pathname.startsWith("/admin/impact"),
+        },
+        {
+          href: "/certificate",
+          label: isHi ? "प्रशंसा प्रमाण पत्र" : "Official Certificate",
+          icon: Award,
+          active: pathname === "/certificate",
+        },
+        {
+          href: "/rewards",
+          label: isHi ? "पुरस्कार एवं बैज" : "Rewards & Badges",
+          icon: Trophy,
+          active: pathname === "/rewards",
+        },
+      ];
+    }
+
+    if (role === "DRIVER") {
+      return [
+        {
+          href: "/driver",
+          label: isHi ? "बचाव मिशन एवं ओटीपी" : "Rescue Missions & OTP",
+          icon: Truck,
+          active: pathname === "/driver",
+          highlight: true,
+        },
+        {
+          href: "/rewards",
+          label: isHi ? "स्वयंसेवक अंक" : "Volunteer Points",
+          icon: Trophy,
+          active: pathname === "/rewards",
+        },
+        {
+          href: "/admin/impact",
+          label: isHi ? "शहर बचाव प्रभाव" : "City Rescue Impact",
+          icon: BarChart3,
+          active: pathname.startsWith("/admin/impact"),
+        },
+      ];
+    }
+
+    // SUPER_ADMIN (Dedicated Governance & Audit Command Center)
+    return [
+      {
+        href: "/admin",
+        label: isHi ? "एडमिन कमांड सेंटर" : "Admin Command Center",
+        icon: LayoutDashboard,
+        active: pathname === "/admin",
+        highlight: true,
+      },
+      {
+        href: "/admin/donations",
+        label: isHi ? "इंजन निर्णय एवं ऑडिट" : "Rescue & Engine Audit",
+        icon: Sliders,
+        active: pathname === "/admin/donations",
+      },
+      {
+        href: "/admin/verifications",
+        label: isHi ? "दाता एवं आश्रय सत्यापन" : "Partner Verifications",
+        icon: UserCheck,
+        active: pathname === "/admin/verifications",
+      },
+      {
+        href: "/admin/quality-reports",
+        label: isHi ? "FSSAI विवाद कतार" : "FSSAI Dispute Queue",
+        icon: Scale,
+        active: pathname === "/admin/quality-reports",
+      },
+      {
+        href: "/admin/rules",
+        label: isHi ? "नियम एवं रिवॉर्ड विन्यास" : "Rules & Point Config",
+        icon: Trophy,
+        active: pathname === "/admin/rules",
+      },
+      {
+        href: "/admin/impact",
+        label: isHi ? "शहर संचालन एवं ईएसजी" : "City Ops & ESG Ledger",
+        icon: BarChart3,
+        active: pathname === "/admin/impact",
+      },
+      {
+        href: "/certificate",
+        label: isHi ? "प्रमाण पत्र जनरेटर" : "Certificate Hub",
+        icon: Award,
+        active: pathname === "/certificate",
+      },
+      {
+        href: "/rewards",
+        label: isHi ? "लीडरबोर्ड एवं बैज" : "Leaderboard & Badges",
+        icon: Trophy,
+        active: pathname === "/rewards",
+      },
+    ];
+  };
+
+  const navLinks = getNavLinks();
 
   return (
     <>
-      {/* Desktop Sidebar matching Sidebar_component.html */}
-      <aside className="hidden lg:flex flex-col justify-between w-64 min-h-[920px] bg-white border border-[#ECE9E1] rounded-[28px] p-[28px_18px_24px] flex-shrink-0 shadow-[0_2px_12px_rgba(0,0,0,0.02)] sticky top-6 self-start">
-        <div className="flex flex-col gap-6">
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:flex flex-col justify-between w-64 min-h-[920px] bg-white border border-[#ECE9E1] rounded-[28px] p-[24px_16px_20px] flex-shrink-0 shadow-[0_2px_12px_rgba(0,0,0,0.02)] sticky top-6 self-start">
+        <div className="flex flex-col gap-5">
           {/* Brand Logo */}
           <Link href="/" className="flex items-center gap-2.5 px-2.5 select-none">
-            <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true" className="flex-shrink-0">
+            <svg width="32" height="32" viewBox="0 0 34 34" aria-hidden="true" className="flex-shrink-0">
               <path d="M17 30s-11-6.6-11-14.2A6 6 0 0 1 17 12a6 6 0 0 1 11 3.8C28 23.4 17 30 17 30z" fill="#F2622E" />
               <path d="M16 12c0-5 3-8 8-8 0 5-3 8-8 8z" fill="#1E9E5A" />
               <path d="M16 12c0-4-2.5-6.5-7-6.5 0 4 2.5 6.5 7 6.5z" fill="#F5B82E" />
             </svg>
-            <span className="font-outfit text-[24px] font-bold tracking-tight text-[#0E3B2E]">
+            <span className="font-outfit text-[23px] font-extrabold tracking-tight text-[#0E3B2E]">
               Food<span className="text-[#1E9E5A]">Link</span>
             </span>
           </Link>
+
+          {/* Active Role Card Pill */}
+          <div
+            className={`p-3 rounded-[16px] border flex flex-col gap-1 text-left ${
+              role === "SUPER_ADMIN"
+                ? "bg-amber-50/80 border-amber-200/80 text-amber-950"
+                : role === "DONOR"
+                ? "bg-emerald-50/80 border-emerald-200/80 text-emerald-950"
+                : role === "SHELTER"
+                ? "bg-blue-50/80 border-blue-200/80 text-blue-950"
+                : "bg-purple-50/80 border-purple-200/80 text-purple-950"
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-white shadow-2xs">
+                {role === "SUPER_ADMIN"
+                  ? "👑 Super Admin"
+                  : role === "DONOR"
+                  ? (locale === "hi" ? "🏨 होटल / मेस" : "🏨 Hotel / Mess")
+                  : role === "SHELTER"
+                  ? (locale === "hi" ? "🏠 आश्रय एनजीओ" : "🏠 Shelter NGO")
+                  : (locale === "hi" ? "🛵 चालक बेड़ा" : "🛵 Driver Fleet")}
+              </span>
+              <Link
+                href="/login"
+                className="text-[11px] font-bold text-[#0E3B2E] hover:underline flex items-center gap-1"
+                title="Switch Profile"
+              >
+                <ArrowLeftRight className="w-3 h-3" />
+                <span>{locale === "hi" ? "बदलें" : "Switch"}</span>
+              </Link>
+            </div>
+            <span className="text-[13px] font-extrabold truncate mt-0.5">
+              {user.organizationName}
+            </span>
+            <span className="text-[11px] opacity-75 truncate">
+              {user.name}
+            </span>
+          </div>
 
           {/* Navigation Links */}
           <nav className="flex flex-col gap-1.5" aria-label="Main">
@@ -95,14 +257,15 @@ export const Sidebar: React.FC = () => {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-3.5 h-[48px] px-4 rounded-[14px] text-[15px] font-semibold transition-all ${
+                  prefetch={true}
+                  className={`flex items-center gap-3 h-[46px] px-3.5 rounded-[14px] text-[14px] font-semibold transition-all ${
                     item.active
                       ? "bg-[#0E3B2E] text-white shadow-sm"
                       : "text-[#2A3A33] hover:text-[#0E3B2E] hover:bg-[#F6F5F1]"
                   }`}
                 >
-                  <Icon className="w-5 h-5 flex-shrink-0 stroke-[2]" />
-                  <span>{item.label}</span>
+                  <Icon className="w-4 h-4 flex-shrink-0 stroke-[2.2]" />
+                  <span className="truncate">{item.label}</span>
                 </Link>
               );
             })}
@@ -110,93 +273,45 @@ export const Sidebar: React.FC = () => {
         </div>
 
         {/* Bottom Banner & Footer Links */}
-        <div className="flex flex-col gap-5 pt-6">
-          {/* "Good food, better futures." Card */}
-          <div className="bg-[#E8F3EC] rounded-[22px] p-5 flex flex-col gap-3.5 text-left">
-            <svg width="56" height="48" viewBox="0 0 64 56" aria-hidden="true" className="flex-shrink-0">
-              <path d="M14 22h36l-4 28H18z" fill="#F7A55B" />
-              <path d="M32 44s-8-4.8-8-10a4 4 0 0 1 8-1.8A4 4 0 0 1 40 34c0 5.2-8 10-8 10z" fill="#F2622E" />
-              <path d="M20 22c-2-9 2-15 9-17 1 8-2 14-9 17z" fill="#1E9E5A" />
-              <path d="M44 22c3-8 0-14-6-17-2 7 0 13 6 17z" fill="#3FB871" />
-            </svg>
-            <div className="font-outfit text-[19px] font-bold leading-tight text-[#0E3B2E]">
-              Good food, better futures.
-            </div>
+        <div className="flex flex-col gap-4 pt-4 border-t border-[#ECE9E1]/80 mt-4">
+          <div className="flex flex-col gap-1 px-2 text-[13px] font-medium text-[#2A3A33]">
             <Link
-              href="/admin/impact"
-              className="text-[14px] font-semibold text-[#0E3B2E] hover:text-[#C2410C] transition-colors"
+              href="/login"
+              prefetch={true}
+              className="h-8 flex items-center gap-2 hover:text-[#0E3B2E] transition-colors"
             >
-              See your impact →
+              <UserCheck className="w-3.5 h-3.5" />
+              <span>{locale === "hi" ? "भूमिका स्विचर पोर्टल" : "Role Switcher Portal"}</span>
             </Link>
-          </div>
-
-          {/* Sub Links */}
-          <div className="flex flex-col gap-1 px-3 text-[14px] font-medium text-[#2A3A33]">
-            <Link
-              href="/styleguide"
-              className="h-9 flex items-center gap-2.5 hover:text-[#0E3B2E] transition-colors"
+            <button
+              onClick={logout}
+              className="h-8 flex items-center gap-2 hover:text-rose-700 text-left transition-colors cursor-pointer"
             >
-              <HelpCircle className="w-4 h-4" />
-              <span>Help &amp; support</span>
-            </Link>
-            <Link
-              href="/"
-              className="h-9 flex items-center gap-2.5 hover:text-[#0E3B2E] transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-              <span>Log out</span>
-            </Link>
+              <LogOut className="w-3.5 h-3.5" />
+              <span>{locale === "hi" ? "लॉग आउट" : "Log out"}</span>
+            </button>
           </div>
         </div>
       </aside>
 
       {/* Mobile Bottom Navigation */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#ECE9E1] px-2 py-2 flex items-center justify-around">
-        <Link
-          href="/donor"
-          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl text-[10px] font-bold ${
-            pathname === "/donor" ? "text-[#0E3B2E] font-black" : "text-[#5B6661]"
-          }`}
-        >
-          <LayoutDashboard className="w-5 h-5" />
-          <span>Home</span>
-        </Link>
-        <Link
-          href="/donor/new"
-          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl text-[10px] font-bold ${
-            pathname === "/donor/new" ? "text-[#0E3B2E] font-black" : "text-[#5B6661]"
-          }`}
-        >
-          <PlusCircle className="w-5 h-5 text-[#F2622E]" />
-          <span>Post</span>
-        </Link>
-        <Link
-          href="/shelter"
-          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl text-[10px] font-bold ${
-            pathname === "/shelter" ? "text-[#0E3B2E] font-black" : "text-[#5B6661]"
-          }`}
-        >
-          <Building2 className="w-5 h-5" />
-          <span>Shelter</span>
-        </Link>
-        <Link
-          href="/driver"
-          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl text-[10px] font-bold ${
-            pathname === "/driver" ? "text-[#0E3B2E] font-black" : "text-[#5B6661]"
-          }`}
-        >
-          <Truck className="w-5 h-5" />
-          <span>Driver</span>
-        </Link>
-        <Link
-          href="/rewards"
-          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl text-[10px] font-bold ${
-            pathname === "/rewards" ? "text-[#0E3B2E] font-black" : "text-[#5B6661]"
-          }`}
-        >
-          <Trophy className="w-5 h-5" />
-          <span>Rewards</span>
-        </Link>
+        {navLinks.slice(0, 5).map((item) => {
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              prefetch={true}
+              className={`flex flex-col items-center gap-1 p-1.5 rounded-xl text-[10px] font-bold ${
+                item.active ? "text-[#0E3B2E] font-black" : "text-[#5B6661]"
+              }`}
+            >
+              <Icon className="w-5 h-5" />
+              <span className="truncate max-w-[56px]">{item.label.split(" ")[0]}</span>
+            </Link>
+          );
+        })}
       </nav>
     </>
   );

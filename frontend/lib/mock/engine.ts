@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import {
   initialDonations,
@@ -8,15 +8,20 @@ import {
   initialRewardsProfile,
   initialImpactData,
   defaultFeatureFlags,
+  defaultPlatformRules,
+  initialVerifications,
 } from "./seed";
 import {
   Donation,
+  DonationStatus,
   Shelter,
   Deal,
   DiversionOffer,
   RewardsProfile,
   ImpactData,
   FeatureFlags,
+  PlatformRules,
+  OrganizationVerification,
 } from "../api/types";
 import { eventBus } from "../ws/eventBus";
 
@@ -28,6 +33,8 @@ class MockEngine {
   private rewards: RewardsProfile = initialRewardsProfile;
   private impact: ImpactData = initialImpactData;
   private flags: FeatureFlags = defaultFeatureFlags;
+  private rules: PlatformRules = defaultPlatformRules;
+  private verifications: OrganizationVerification[] = initialVerifications;
   private cascadeTimers: Map<string, NodeJS.Timeout> = new Map();
 
   constructor() {
@@ -45,6 +52,8 @@ class MockEngine {
     this.rewards = JSON.parse(JSON.stringify(initialRewardsProfile));
     this.impact = JSON.parse(JSON.stringify(initialImpactData));
     this.flags = JSON.parse(JSON.stringify(defaultFeatureFlags));
+    this.rules = JSON.parse(JSON.stringify(defaultPlatformRules));
+    this.verifications = JSON.parse(JSON.stringify(initialVerifications));
     eventBus.emit("mock:reset");
   }
 
@@ -127,19 +136,17 @@ class MockEngine {
       cascadeTimerSeconds: 30,
     };
 
+    // Auto-match to first shelter immediately
+    newDonation.status = "MATCHED";
+    newDonation.shelterId = this.shelters[0].id;
+    newDonation.shelterName = this.shelters[0].name;
+    newDonation.shelterAddress = this.shelters[0].address;
+    newDonation.shelterLat = this.shelters[0].lat;
+    newDonation.shelterLng = this.shelters[0].lng;
+
     this.donations.unshift(newDonation);
     eventBus.emit("donation:created", newDonation);
-
-    // Auto-match to first shelter after brief delay
-    setTimeout(() => {
-      newDonation.status = "MATCHED";
-      newDonation.shelterId = this.shelters[0].id;
-      newDonation.shelterName = this.shelters[0].name;
-      newDonation.shelterAddress = this.shelters[0].address;
-      newDonation.shelterLat = this.shelters[0].lat;
-      newDonation.shelterLng = this.shelters[0].lng;
-      eventBus.emit("shelter:matched", newDonation);
-    }, 1500);
+    eventBus.emit("shelter:matched", newDonation);
 
     return newDonation;
   }
@@ -213,7 +220,9 @@ class MockEngine {
     if (donation.deliveryOtp !== otp.trim()) return false;
 
     donation.status = "DELIVERED";
-    const pointsGained = 150;
+    const basePoints = (donation.quantity || 20) * (this.rules.pointsPerMeal || 10);
+    const photoBonus = donation.image ? (this.rules.photoBonus || 25) : 0;
+    const pointsGained = Math.round(basePoints + photoBonus);
     donation.pointsEarned = pointsGained;
 
     // Update impact & rewards
@@ -287,9 +296,70 @@ class MockEngine {
     }
   }
 
-  // Rewards
+  // Rewards & Platform Rules (Super Admin Configurable)
   public getRewardsProfile(): RewardsProfile {
     return this.rewards;
+  }
+
+  public getPlatformRules(): PlatformRules {
+    return this.rules;
+  }
+
+  public updatePlatformRules(newRules: Partial<PlatformRules>): PlatformRules {
+    this.rules = { ...this.rules, ...newRules };
+    eventBus.emit("rules:updated", this.rules);
+    return this.rules;
+  }
+
+  // Organization Verifications (Super Admin Governance)
+  public getVerifications(): OrganizationVerification[] {
+    return this.verifications;
+  }
+
+  public updateVerification(
+    id: string,
+    status: "VERIFIED" | "PENDING_REVIEW" | "SUSPENDED",
+    notes?: string
+  ): boolean {
+    const org = this.verifications.find((v) => v.id === id);
+    if (!org) return false;
+    org.status = status;
+    if (notes) org.notes = notes;
+    eventBus.emit("verification:updated", org);
+    return true;
+  }
+
+  // Donation Overrides & Governance (Super Admin)
+  public overrideDonationShelter(donationId: string, shelterId: string): boolean {
+    const donation = this.donations.find((d) => d.id === donationId);
+    const shelter = this.shelters.find((s) => s.id === shelterId);
+    if (!donation || !shelter) return false;
+
+    donation.shelterId = shelter.id;
+    donation.shelterName = shelter.name;
+    donation.shelterAddress = shelter.address;
+    donation.shelterLat = shelter.lat;
+    donation.shelterLng = shelter.lng;
+    donation.status = "MATCHED";
+    eventBus.emit("donation:overridden", donation);
+    eventBus.emit("shelter:matched", donation);
+    return true;
+  }
+
+  public forceDonationStatus(donationId: string, status: DonationStatus): boolean {
+    const donation = this.donations.find((d) => d.id === donationId);
+    if (!donation) return false;
+    donation.status = status;
+    eventBus.emit("donation:updated", donation);
+    return true;
+  }
+
+  public cancelDonation(donationId: string, reason?: string): boolean {
+    const donation = this.donations.find((d) => d.id === donationId);
+    if (!donation) return false;
+    donation.status = "CANCELLED";
+    eventBus.emit("donation:cancelled", { donationId, reason });
+    return true;
   }
 
   public getImpactData(): ImpactData {

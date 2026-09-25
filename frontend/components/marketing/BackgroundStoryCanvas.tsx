@@ -19,24 +19,75 @@ export const BackgroundStoryCanvas: React.FC = () => {
     let isMounted = true;
     let hasDrawnInitial = false;
 
-    // Fast, reliable preloading of all 300 frames
-    for (let i = 0; i < TOTAL_FRAMES; i++) {
-      const img = new Image();
-      const numStr = String(i + 1).padStart(3, "0");
-      img.onload = () => {
-        if (!isMounted) return;
-        images[i] = img;
+    // 1. Prioritized 2-stage frame loader (Keyframes first, then remaining frames in small batches)
+    const loadFrame = (index: number): Promise<void> => {
+      return new Promise((resolve) => {
+        if (!isMounted || images[index]) {
+          resolve();
+          return;
+        }
+        const img = new Image();
+        const numStr = String(index + 1).padStart(3, "0");
+        img.onload = () => {
+          if (!isMounted) return;
+          images[index] = img;
+          if (index === 0 && !hasDrawnInitial) {
+            hasDrawnInitial = true;
+            draw(0);
+          } else if (index === Math.round(currentProgressRef.current * (TOTAL_FRAMES - 1))) {
+            draw(index);
+          }
+          resolve();
+        };
+        img.onerror = () => resolve();
+        img.src = `/assets/ezgif-frame-${numStr}.jpg`;
+      });
+    };
 
-        // Draw initial frame immediately on load
-        if (i === 0 && !hasDrawnInitial) {
-          hasDrawnInitial = true;
-          draw(0);
-        } else if (i === Math.round(currentProgressRef.current * (TOTAL_FRAMES - 1))) {
-          draw(i);
+    // Fast initial burst: Load first frame and keyframes (every 6th frame)
+    const preloadSequence = async () => {
+      await loadFrame(0);
+      
+      // Load milestone keyframes with concurrency 4
+      const keyIndices: number[] = [];
+      for (let i = 1; i < TOTAL_FRAMES; i += 6) {
+        keyIndices.push(i);
+      }
+
+      const queue = [...keyIndices];
+      const activeWorkers = 4;
+      const worker = async () => {
+        while (queue.length > 0 && isMounted) {
+          const nextIdx = queue.shift();
+          if (nextIdx !== undefined) {
+            await loadFrame(nextIdx);
+          }
         }
       };
-      img.src = `/assets/ezgif-frame-${numStr}.jpg`;
-    }
+
+      await Promise.all(Array.from({ length: activeWorkers }, worker));
+
+      // Fill in remaining frames during idle time
+      if (!isMounted) return;
+      const remainingIndices: number[] = [];
+      for (let i = 0; i < TOTAL_FRAMES; i++) {
+        if (!images[i]) remainingIndices.push(i);
+      }
+
+      const fillQueue = [...remainingIndices];
+      const fillWorker = async () => {
+        while (fillQueue.length > 0 && isMounted) {
+          const nextIdx = fillQueue.shift();
+          if (nextIdx !== undefined) {
+            await loadFrame(nextIdx);
+          }
+        }
+      };
+
+      Promise.all(Array.from({ length: 3 }, fillWorker));
+    };
+
+    preloadSequence();
 
     const getLoadedImage = (index: number): HTMLImageElement | null => {
       if (images[index]) return images[index];
@@ -50,7 +101,7 @@ export const BackgroundStoryCanvas: React.FC = () => {
 
     /**
      * Crystal-clear hardware-accelerated draw.
-     * Uses discrete, sharp 1080p frames at integer pixel alignment (zero ghosting/distortion).
+     * Uses discrete, sharp frames at integer pixel alignment.
      */
     const draw = (frameIndex: number) => {
       if (!canvas) return;
@@ -67,7 +118,7 @@ export const BackgroundStoryCanvas: React.FC = () => {
       const iw = img.naturalWidth || 1920;
       const ih = img.naturalHeight || 1080;
 
-      // Exact cover-fit math maintaining true 16:9 aspect ratio without stretching
+      // Exact cover-fit math maintaining true aspect ratio without stretching
       const scale = Math.max(cw / iw, ch / ih);
       const dw = Math.round(iw * scale);
       const dh = Math.round(ih * scale);
@@ -77,7 +128,7 @@ export const BackgroundStoryCanvas: React.FC = () => {
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = "high";
 
-      // Draw pure, unghosted frame with full fidelity
+      // Draw pure frame
       ctx.globalAlpha = 1.0;
       ctx.drawImage(img, dx, dy, dw, dh);
       lastDrawnIndexRef.current = clampedIndex;
@@ -85,7 +136,7 @@ export const BackgroundStoryCanvas: React.FC = () => {
 
     const resizeCanvas = () => {
       if (!canvas) return;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       const w = Math.round(window.innerWidth * dpr);
       const h = Math.round(window.innerHeight * dpr);
 
@@ -99,17 +150,27 @@ export const BackgroundStoryCanvas: React.FC = () => {
 
     resizeCanvas();
 
-    // Gentle, cinematic momentum loop (slowed down for relaxed 8-12s total scroll playback)
-    let rafId: number;
+    // High-efficiency on-demand render loop (only runs when active, 0% CPU when idle!)
+    let rafId: number | null = null;
+    let isLoopRunning = false;
+
+    const startLoop = () => {
+      if (isLoopRunning || !isMounted) return;
+      isLoopRunning = true;
+      rafId = requestAnimationFrame(renderLoop);
+    };
+
     const renderLoop = () => {
-      if (!isMounted) return;
+      if (!isMounted) {
+        isLoopRunning = false;
+        return;
+      }
 
       const diff = targetProgressRef.current - currentProgressRef.current;
-      if (Math.abs(diff) > 0.00005) {
-        // Slowed down lerp (0.045) creates a calm, deliberate, cinematic motion with 2-3s longer glide
-        currentProgressRef.current += diff * 0.045;
+      if (Math.abs(diff) > 0.0001) {
+        currentProgressRef.current += diff * 0.08;
 
-        if (Math.abs(targetProgressRef.current - currentProgressRef.current) < 0.0001) {
+        if (Math.abs(targetProgressRef.current - currentProgressRef.current) < 0.0002) {
           currentProgressRef.current = targetProgressRef.current;
         }
 
@@ -117,14 +178,15 @@ export const BackgroundStoryCanvas: React.FC = () => {
         if (targetFrame !== lastDrawnIndexRef.current) {
           draw(targetFrame);
         }
-      }
 
-      rafId = requestAnimationFrame(renderLoop);
+        rafId = requestAnimationFrame(renderLoop);
+      } else {
+        isLoopRunning = false;
+        rafId = null;
+      }
     };
 
-    rafId = requestAnimationFrame(renderLoop);
-
-    // Passive scroll listener
+    // Passive scroll listener that activates loop on demand
     const handleScroll = () => {
       const scrollY = window.scrollY;
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
@@ -132,6 +194,7 @@ export const BackgroundStoryCanvas: React.FC = () => {
 
       const progress = Math.max(0, Math.min(1, scrollY / maxScroll));
       targetProgressRef.current = progress;
+      startLoop();
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -141,7 +204,7 @@ export const BackgroundStoryCanvas: React.FC = () => {
 
     return () => {
       isMounted = false;
-      cancelAnimationFrame(rafId);
+      if (rafId !== null) cancelAnimationFrame(rafId);
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", resizeCanvas);
     };

@@ -1,11 +1,15 @@
-﻿import {
+import {
   Donation,
+  DonationStatus,
   Shelter,
   Deal,
   DiversionOffer,
   RewardsProfile,
   ImpactData,
   FeatureFlags,
+  VisionParseResult,
+  PlatformRules,
+  OrganizationVerification,
 } from "./types";
 import { mockEngine } from "../mock/engine";
 
@@ -147,4 +151,159 @@ export const apiClient = {
     const res = await fetch("/api/features");
     return res.json();
   },
+
+  // Vision AI Photo Parsing
+  async parsePhoto(payload: {
+    photoUrl?: string;
+    imageBase64?: string;
+    presetId?: string;
+  }): Promise<{ success: boolean; data: VisionParseResult }> {
+    const mockMap: Record<string, VisionParseResult> = {
+      dal_rice_trays: {
+        food_name: "Dal Makhani & Steamed Basmati Rice",
+        category: "Cooked",
+        is_veg: true,
+        quantity_estimate: 50,
+        unit: "Meals",
+        safe_window_minutes: 180,
+        safe_until_suggestion: "+3 hr",
+        confidence: 0.96,
+        containers: [
+          { container_type: "Deep Catering Tray (GN 1/1)", item_name: "Steamed Basmati Rice", count: 1, estimated_meals: 25 },
+          { container_type: "Deep Catering Tray (GN 1/1)", item_name: "Dal Makhani", count: 1, estimated_meals: 25 }
+        ],
+        note: "Vision model identified 2 standard full-size catering trays (GN 1/1). Estimated 50 portions."
+      },
+      roti_paneer_pack: {
+        food_name: "Tandoori Roti Stack with Shahi Paneer Gravy",
+        category: "Cooked",
+        is_veg: true,
+        quantity_estimate: 35,
+        unit: "Meals",
+        safe_window_minutes: 180,
+        safe_until_suggestion: "+3 hr",
+        confidence: 0.93,
+        containers: [
+          { container_type: "Foil Wrapped Casserole", item_name: "Tandoori Roti (40 pcs)", count: 1, estimated_meals: 20 },
+          { container_type: "Stainless Donga / Pot", item_name: "Shahi Paneer", count: 1, estimated_meals: 15 }
+        ],
+        note: "Detected foil-wrapped bread pack (~40 rotis) + 1 medium curry donga."
+      },
+      biryani_handi: {
+        food_name: "Dum Biryani with Mirchi Salan & Raita",
+        category: "Cooked",
+        is_veg: false,
+        quantity_estimate: 40,
+        unit: "Meals",
+        safe_window_minutes: 120,
+        safe_until_suggestion: "+2 hr",
+        confidence: 0.95,
+        containers: [
+          { container_type: "Large Sealed Handi / Degchi", item_name: "Dum Biryani", count: 1, estimated_meals: 40 }
+        ],
+        note: "Identified large commercial banquet handi (~16 kg gross). Estimated 40 individual servings."
+      },
+      bakery_assortment: {
+        food_name: "Fresh Bakery Bread Buns & Veg Patties",
+        category: "Bakery",
+        is_veg: true,
+        quantity_estimate: 30,
+        unit: "Meals",
+        safe_window_minutes: 300,
+        safe_until_suggestion: "+4 hr",
+        confidence: 0.91,
+        containers: [
+          { container_type: "Bakery Crates / Boxes", item_name: "Buns & Savory Pastries", count: 3, estimated_meals: 30 }
+        ],
+        note: "Recognized 3 corrugated bakery delivery boxes with evening batch bread & buns."
+      }
+    };
+
+    if (USE_MOCK || payload.presetId) {
+      const selected = (payload.presetId && mockMap[payload.presetId]) || mockMap.dal_rice_trays;
+      return { success: true, data: selected };
+    }
+
+    try {
+      const res = await fetch("http://localhost:8000/api/ai/parse-photo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          photo_url: payload.photoUrl,
+          image_base64: payload.imageBase64,
+          preset_id: payload.presetId,
+        }),
+      });
+      if (res.ok) {
+        return res.json();
+      }
+    } catch {
+      // Fallback
+    }
+
+    const selected = (payload.presetId && mockMap[payload.presetId]) || mockMap.dal_rice_trays;
+    return { success: true, data: selected };
+  },
+
+  // Super Admin Platform Rules
+  async getPlatformRules(): Promise<PlatformRules> {
+    if (USE_MOCK) return mockEngine.getPlatformRules();
+    try {
+      const res = await fetch("/api/rewards/rules");
+      if (res.ok) {
+        const json = await res.json();
+        return json.data?.rules || mockEngine.getPlatformRules();
+      }
+    } catch {}
+    return mockEngine.getPlatformRules();
+  },
+
+  async updatePlatformRules(rules: Partial<PlatformRules>): Promise<PlatformRules> {
+    if (USE_MOCK) return mockEngine.updatePlatformRules(rules);
+    try {
+      const res = await fetch("/api/rewards/rules", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(rules),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        return json.data || mockEngine.updatePlatformRules(rules);
+      }
+    } catch {}
+    return mockEngine.updatePlatformRules(rules);
+  },
+
+  // Super Admin Verifications
+  async getVerifications(): Promise<OrganizationVerification[]> {
+    if (USE_MOCK) return mockEngine.getVerifications();
+    return mockEngine.getVerifications();
+  },
+
+  async updateVerification(
+    id: string,
+    status: "VERIFIED" | "PENDING_REVIEW" | "SUSPENDED",
+    notes?: string
+  ): Promise<boolean> {
+    if (USE_MOCK) return mockEngine.updateVerification(id, status, notes);
+    return mockEngine.updateVerification(id, status, notes);
+  },
+
+  // Super Admin Donation Overrides
+  async overrideDonationShelter(donationId: string, shelterId: string): Promise<boolean> {
+    if (USE_MOCK) return mockEngine.overrideDonationShelter(donationId, shelterId);
+    return mockEngine.overrideDonationShelter(donationId, shelterId);
+  },
+
+  async forceDonationStatus(donationId: string, status: DonationStatus): Promise<boolean> {
+    if (USE_MOCK) return mockEngine.forceDonationStatus(donationId, status);
+    return mockEngine.forceDonationStatus(donationId, status);
+  },
+
+  async cancelDonation(donationId: string, reason?: string): Promise<boolean> {
+    if (USE_MOCK) return mockEngine.cancelDonation(donationId, reason);
+    return mockEngine.cancelDonation(donationId, reason);
+  },
 };
+
+

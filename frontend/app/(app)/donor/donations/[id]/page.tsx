@@ -9,6 +9,7 @@ import {
   Flag,
   Phone,
 } from "lucide-react";
+import { APP_IMAGES } from "@/lib/images";
 
 export default function LiveTrackerPage({
   params,
@@ -130,9 +131,11 @@ export default function LiveTrackerPage({
 
             {/* Candidate 2: Accepted */}
             <div className="flex items-start gap-3.5 bg-[#EEF8F1] rounded-[16px] p-3.5 -mx-1.5">
-              <span className="w-8 h-8 rounded-full bg-[#1E9E5A] text-white flex items-center justify-center flex-shrink-0">
-                <Check className="w-4 h-4 stroke-[3]" />
-              </span>
+              <img
+                src={APP_IMAGES.ashaShelter}
+                alt="Asha Shelter"
+                className="w-9 h-9 rounded-full object-cover flex-shrink-0 border border-[#A8E0BA]"
+              />
               <div className="flex-1 flex flex-col gap-0.5">
                 <span className="text-[15px] font-bold text-[#13231C]">
                   Asha Shelter · 2.1 km
@@ -154,9 +157,11 @@ export default function LiveTrackerPage({
             </h2>
 
             <div className="flex items-center gap-3.5">
-              <span className="font-outfit w-[52px] h-[52px] rounded-full bg-[#E0EAFF] text-[#1D4ED8] font-bold text-lg flex items-center justify-center flex-shrink-0">
-                RK
-              </span>
+              <img
+                src={APP_IMAGES.deliveryDriver}
+                alt="Ravi Kumar"
+                className="w-[52px] h-[52px] rounded-full object-cover flex-shrink-0 border border-[#CDE8D6]"
+              />
               <div className="flex-1 flex flex-col gap-0.5">
                 <span className="text-[16px] font-bold text-[#13231C]">
                   Ravi Kumar

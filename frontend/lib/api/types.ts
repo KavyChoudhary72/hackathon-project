@@ -1,4 +1,4 @@
-﻿export type DonationStatus =
+export type DonationStatus =
   | "CREATED"
   | "MATCHED"
   | "DRIVER_ASSIGNED"
@@ -181,3 +181,51 @@ export interface FeatureFlags {
   qualityReportsEnabled: boolean;
   aiPhotoEnabled: boolean;
 }
+
+export interface VisionContainerItem {
+  container_type: string;
+  item_name: string;
+  count: number;
+  estimated_meals: number;
+}
+
+export interface VisionParseResult {
+  food_name: string;
+  category: string;
+  is_veg: boolean;
+  quantity_estimate: number;
+  unit: string;
+  safe_window_minutes: number;
+  safe_until_suggestion: string;
+  confidence: number;
+  containers: VisionContainerItem[];
+  note: string;
+}
+
+export interface PlatformRules {
+  pointsPerMeal: number; // default: 10
+  photoBonus: number; // default: 25
+  earlyPostBonus: number; // default: 50
+  streakBonus: number; // default: 100
+  maxRadiusKm: number; // default: 20
+  spoilageThresholdMin: number; // default: 240
+  cascadeTimeoutSec: number; // default: 30
+  rescueDealDiscountCap: number; // default: 50
+}
+
+export interface OrganizationVerification {
+  id: string;
+  name: string;
+  type: "DONOR" | "SHELTER";
+  fssaiNumber: string;
+  contactPerson: string;
+  phone: string;
+  address: string;
+  capacityOrSurplus: string;
+  safetyScore: number;
+  status: "VERIFIED" | "PENDING_REVIEW" | "SUSPENDED";
+  registeredAt: string;
+  notes?: string;
+}
+
+

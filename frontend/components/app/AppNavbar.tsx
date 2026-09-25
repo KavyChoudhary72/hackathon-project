@@ -1,23 +1,25 @@
-﻿"use client";
+"use client";
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Search, Bell, ChevronDown, Sparkles } from "lucide-react";
+import { Search, Bell, ChevronDown, Sparkles, UserCheck, ShieldAlert, Building2, Home, Truck } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { Input } from "@/components/ui/Input";
+import { useAuth } from "@/lib/auth/AuthContext";
 
 export const AppNavbar: React.FC = () => {
-  const { locale, setLocale, t } = useI18n();
+  const { locale, setLocale } = useI18n();
+  const { user, role } = useAuth();
   const [hasUnread, setHasUnread] = useState(true);
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between h-18 px-4 sm:px-8 bg-surface-base/90 backdrop-blur-md border-b border-neutral-200/60">
-      {/* Search Bar matching reference image */}
+      {/* Search Bar */}
       <div className="flex-1 max-w-xl">
         <Input
           pill
           leftIcon={<Search className="w-4 h-4 text-neutral-400" />}
-          placeholder="Search donations, shelters, or places..."
+          placeholder="Search surplus batches, shelters, or donor kitchens..."
           className="bg-white/90 border-neutral-200 shadow-2xs text-xs sm:text-sm"
         />
       </div>
@@ -60,26 +62,25 @@ export const AppNavbar: React.FC = () => {
           )}
         </button>
 
-        {/* User Profile Chip from Reference Images 2 & 4 */}
-        <div className="flex items-center gap-3 pl-1 sm:pl-2">
-          <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0">
-            <img
-              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&h=120&fit=crop&crop=face"
-              alt="Vikas Mehta"
-              className="w-full h-full object-cover"
-            />
+        {/* Active Auth Role User Chip */}
+        <Link
+          href="/login"
+          className="flex items-center gap-2.5 pl-1 sm:pl-2 p-1.5 rounded-full bg-white/80 hover:bg-white border border-[#ECE9E1] transition-all shadow-xs"
+          title="Click to Switch Roles"
+        >
+          <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0 bg-[#0E3B2E] text-white flex items-center justify-center font-bold text-xs">
+            {role === "SUPER_ADMIN" ? "👑" : role === "DONOR" ? "🏨" : role === "SHELTER" ? "🏠" : "🛵"}
           </div>
-          <div className="hidden md:flex flex-col text-left">
-            <div className="text-xs font-bold text-neutral-900 flex items-center gap-1">
-              <span>Vikas Mehta</span>
-              <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />
+          <div className="hidden md:flex flex-col text-left pr-2">
+            <div className="text-xs font-bold text-[#13231C] flex items-center gap-1">
+              <span className="truncate max-w-[140px]">{user.name.split("(")[0]}</span>
+              <ChevronDown className="w-3 h-3 text-neutral-400" />
             </div>
-            <div className="text-[11px] font-semibold text-brand-700 flex items-center gap-1">
-              <Sparkles className="w-2.5 h-2.5 text-amber-500 fill-amber-500" />
-              <span>Community Hero</span>
+            <div className="text-[10px] font-extrabold uppercase tracking-wide text-[#1E9E5A] flex items-center gap-1">
+              <span>{role.replace("_", " ")}</span>
             </div>
           </div>
-        </div>
+        </Link>
       </div>
     </header>
   );

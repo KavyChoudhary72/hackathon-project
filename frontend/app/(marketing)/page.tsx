@@ -11,32 +11,51 @@ import { AboutSection } from "@/components/marketing/AboutSection";
 export default function HomePage() {
   const [activeChapter, setActiveChapter] = useState<string>("home");
 
-  // Track active chapter based on scroll position
+  // Track active chapter based on scroll position (throttled with RAF)
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
+    let ticking = false;
+    let offsets = { howItWorksTop: 800, impactTop: 1600, aboutTop: 2400 };
+
+    const computeOffsets = () => {
       const howItWorks = document.getElementById("how-it-works");
       const impact = document.getElementById("impact");
       const about = document.getElementById("about");
+      offsets = {
+        howItWorksTop: howItWorks ? howItWorks.offsetTop - 300 : 800,
+        impactTop: impact ? impact.offsetTop - 300 : 1600,
+        aboutTop: about ? about.offsetTop - 300 : 2400,
+      };
+    };
 
-      const howItWorksTop = howItWorks ? howItWorks.offsetTop - 300 : 800;
-      const impactTop = impact ? impact.offsetTop - 300 : 1600;
-      const aboutTop = about ? about.offsetTop - 300 : 2400;
+    computeOffsets();
 
-      if (scrollY < howItWorksTop) {
-        setActiveChapter("home");
-      } else if (scrollY >= howItWorksTop && scrollY < impactTop) {
-        setActiveChapter("how-it-works");
-      } else if (scrollY >= impactTop && scrollY < aboutTop) {
-        setActiveChapter("impact");
-      } else {
-        setActiveChapter("about");
+    const handleScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const scrollY = window.scrollY;
+          if (scrollY < offsets.howItWorksTop) {
+            setActiveChapter("home");
+          } else if (scrollY >= offsets.howItWorksTop && scrollY < offsets.impactTop) {
+            setActiveChapter("how-it-works");
+          } else if (scrollY >= offsets.impactTop && scrollY < offsets.aboutTop) {
+            setActiveChapter("impact");
+          } else {
+            setActiveChapter("about");
+          }
+          ticking = false;
+        });
+        ticking = true;
       }
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", computeOffsets, { passive: true });
     handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", computeOffsets);
+    };
   }, []);
 
   const handleNavigateChapter = useCallback((chapterId: string) => {

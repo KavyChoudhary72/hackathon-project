@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import {
   Heart,
@@ -10,18 +10,35 @@ import {
   Star,
   Crown,
   Download,
+  Award,
+  Sparkles,
 } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
+import { DonorCertificateModal } from "@/components/donor/DonorCertificateModal";
 
 export default function RewardsPage() {
+  const { locale } = useI18n();
+  const [isCertOpen, setIsCertOpen] = useState(false);
+  const isHi = locale === "hi";
+
   return (
     <div className="flex flex-col gap-6">
+      {/* CERTIFICATE MODAL */}
+      <DonorCertificateModal
+        isOpen={isCertOpen}
+        onClose={() => setIsCertOpen(false)}
+        defaultDonorName="Shree Ram Marriage Garden"
+      />
+
       {/* HEADER */}
       <div className="flex flex-col gap-1.5 pt-1">
         <h1 className="font-outfit text-3xl sm:text-4xl lg:text-[44px] font-extrabold text-[#0E3B2E] tracking-tight leading-tight">
-          Rewards
+          {isHi ? "पुरस्कार एवं सम्मान" : "Rewards & Badges"}
         </h1>
         <span className="text-[15px] sm:text-[16px] text-[#5B6661]">
-          Points for food that actually reaches people. Never for just posting.
+          {isHi
+            ? "वास्तव में लोगों तक पहुंचने वाले भोजन पर अंक मिलते हैं। केवल पोस्ट करने पर कभी नहीं।"
+            : "Points for food that actually reaches people. Never for just posting."}
         </span>
       </div>
 
@@ -31,10 +48,10 @@ export default function RewardsPage() {
         <div className="lg:col-span-7 ui-card p-6 sm:p-8 bg-[#FFF9EC] border-[#F3E6C6] flex flex-col sm:flex-row items-center gap-7 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
           <div className="flex-1 flex flex-col gap-3.5 w-full">
             <span className="text-[15px] font-medium text-[#5B6661]">
-              Your level
+              {isHi ? "आपका स्तर" : "Your level"}
             </span>
             <span className="font-outfit text-4xl sm:text-[44px] font-extrabold text-[#0E3B2E] leading-none">
-              Seva Sathi
+              {isHi ? "सेवा साथी" : "Seva Sathi"}
             </span>
 
             <div className="h-3 bg-white rounded-full overflow-hidden w-full">
@@ -42,8 +59,10 @@ export default function RewardsPage() {
             </div>
 
             <div className="flex justify-between text-[14px]">
-              <b className="font-bold text-[#13231C]">860 / 1,000 points</b>
-              <span className="text-[#5B6661]">140 to Ann Rakshak</span>
+              <b className="font-bold text-[#13231C]">860 / 1,000 {isHi ? "अंक" : "points"}</b>
+              <span className="text-[#5B6661]">
+                {isHi ? "140 अन्न रक्षक के लिए" : "140 to Ann Rakshak"}
+              </span>
             </div>
           </div>
 
@@ -59,28 +78,36 @@ export default function RewardsPage() {
             <span className="font-outfit text-[26px] font-bold text-[#13231C] leading-tight">
               860
             </span>
-            <span className="text-[13px] text-[#5B6661]">Impact points</span>
+            <span className="text-[13px] text-[#5B6661]">
+              {isHi ? "प्रभाव अंक" : "Impact points"}
+            </span>
           </div>
 
           <div className="bg-[#F6F5F1] rounded-[16px] p-4 flex flex-col gap-0.5">
             <span className="font-outfit text-[26px] font-bold text-[#13231C] leading-tight">
               24
             </span>
-            <span className="text-[13px] text-[#5B6661]">Donations</span>
+            <span className="text-[13px] text-[#5B6661]">
+              {isHi ? "सफल दान" : "Donations"}
+            </span>
           </div>
 
           <div className="bg-[#F6F5F1] rounded-[16px] p-4 flex flex-col gap-0.5">
             <span className="font-outfit text-[26px] font-bold text-[#13231C] leading-tight">
               1,240
             </span>
-            <span className="text-[13px] text-[#5B6661]">Meals to people</span>
+            <span className="text-[13px] text-[#5B6661]">
+              {isHi ? "बचाया गया भोजन" : "Meals to people"}
+            </span>
           </div>
 
           <div className="bg-[#F6F5F1] rounded-[16px] p-4 flex flex-col gap-0.5">
             <span className="font-outfit text-[26px] font-bold text-[#13231C] leading-tight">
-              3 weeks
+              {isHi ? "3 सप्ताह" : "3 weeks"}
             </span>
-            <span className="text-[13px] text-[#5B6661]">Current streak</span>
+            <span className="text-[13px] text-[#5B6661]">
+              {isHi ? "सक्रिय लकीर" : "Current streak"}
+            </span>
           </div>
         </div>
       </div>
@@ -88,7 +115,7 @@ export default function RewardsPage() {
       {/* YOUR JOURNEY CARD */}
       <div className="ui-card p-6 sm:p-8 flex flex-col gap-5 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
         <h2 className="font-outfit text-[22px] font-bold text-[#13231C]">
-          Your journey
+          {isHi ? "आपकी सेवा यात्रा" : "Your journey"}
         </h2>
 
         <div className="relative pt-2 pb-2">
@@ -98,111 +125,114 @@ export default function RewardsPage() {
           <div className="relative grid grid-cols-2 sm:grid-cols-4 gap-6 text-center z-10">
             {/* Level 1 */}
             <div className="flex flex-col items-center gap-2">
-              <span className="w-13 h-13 rounded-full bg-[#E3F5EA] flex items-center justify-center">
-                <Leaf className="w-6 h-6 text-[#1E9E5A]" />
+              <span className="w-16 h-16 rounded-full bg-[#0E3B2E] text-white flex items-center justify-center font-bold text-[18px] shadow-sm">
+                1
               </span>
-              <span className="text-[15px] font-bold text-[#13231C]">
-                Annadaan Mitra
+              <span className="font-outfit text-[18px] font-bold text-[#13231C]">
+                {isHi ? "अन्न मित्र" : "Anna Mitra"}
               </span>
-              <span className="text-[13px] text-[#5B6661]">0–249 points</span>
+              <span className="text-[13px] text-[#166534] font-semibold">
+                {isHi ? "पूर्ण" : "Completed"}
+              </span>
             </div>
 
-            {/* Level 2 (You're here) */}
+            {/* Level 2 (Active) */}
             <div className="flex flex-col items-center gap-2">
-              <span className="w-13 h-13 rounded-full bg-[#FDE8DD] outline-3 outline-[#F2622E] outline-offset-3 flex items-center justify-center">
-                <Heart className="w-6 h-6 fill-[#F2622E] stroke-none" />
+              <span className="w-16 h-16 rounded-full bg-[#E3F5EA] border-[3px] border-[#1E9E5A] text-[#166534] flex items-center justify-center font-bold text-[18px]">
+                2
               </span>
-              <span className="text-[15px] font-bold text-[#13231C]">
-                Seva Sathi
+              <span className="font-outfit text-[18px] font-bold text-[#13231C]">
+                {isHi ? "सेवा साथी" : "Seva Sathi"}
               </span>
-              <span className="ui-chip bg-[#DCF5E4] text-[#166534] h-6 text-[12px] font-bold">
-                You&apos;re here
+              <span className="text-[13px] text-[#0E3B2E] font-bold">
+                {isHi ? "सक्रिय (860 अंक)" : "Active (860 pts)"}
               </span>
             </div>
 
             {/* Level 3 */}
-            <div className="flex flex-col items-center gap-2">
-              <span className="w-13 h-13 rounded-full bg-[#FFF1D1] flex items-center justify-center">
-                <Star className="w-6 h-6 fill-[#E89B1C] stroke-none" />
+            <div className="flex flex-col items-center gap-2 text-[#8A938F]">
+              <span className="w-16 h-16 rounded-full bg-[#EFEDE8] text-[#8A938F] flex items-center justify-center font-bold text-[18px]">
+                3
               </span>
-              <span className="text-[15px] font-bold text-[#13231C]">
-                Ann Rakshak
+              <span className="font-outfit text-[18px] font-bold text-[#8A938F]">
+                {isHi ? "अन्न रक्षक" : "Ann Rakshak"}
               </span>
-              <span className="text-[13px] text-[#5B6661]">1,000–4,999 points</span>
+              <span className="text-[13px] text-[#8A938F]">1,000 pts</span>
             </div>
 
             {/* Level 4 */}
-            <div className="flex flex-col items-center gap-2">
-              <span className="w-13 h-13 rounded-full bg-[#0E3B2E] flex items-center justify-center">
-                <Crown className="w-6 h-6 text-[#F5B82E]" />
+            <div className="flex flex-col items-center gap-2 text-[#8A938F]">
+              <span className="w-16 h-16 rounded-full bg-[#EFEDE8] text-[#8A938F] flex items-center justify-center font-bold text-[18px]">
+                4
               </span>
-              <span className="text-[15px] font-bold text-[#13231C]">
-                Annapurna Champion
+              <span className="font-outfit text-[18px] font-bold text-[#8A938F]">
+                {isHi ? "जीवन दाता" : "Jeevan Daata"}
               </span>
-              <span className="text-[13px] text-[#5B6661]">5,000+ points</span>
+              <span className="text-[13px] text-[#8A938F]">2,500 pts</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* BOTTOM 3-COLUMN RESPONSIVE GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Col 1: How to earn */}
-        <div className="ui-card p-6 flex flex-col justify-between shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
-          <div>
-            <h2 className="font-outfit text-[20px] font-bold text-[#13231C] mb-3">
-              How to earn
-            </h2>
-
-            <div className="divide-y divide-[#F0EEE8] text-[14px]">
-              <div className="py-2.5 flex justify-between">
-                <span>Meal delivered to a shelter</span>
-                <b className="text-[#166534] font-bold">+1 each</b>
-              </div>
-              <div className="py-2.5 flex justify-between">
-                <span>Meal collected as a rescue deal</span>
-                <b className="text-[#166534] font-bold">+0.3 each</b>
-              </div>
-              <div className="py-2.5 flex justify-between">
-                <span>Kg sent for animal feed or biogas</span>
-                <b className="text-[#166534] font-bold">+0.2 each</b>
-              </div>
-              <div className="py-2.5 flex justify-between">
-                <span>First delivered donation</span>
-                <b className="text-[#166534] font-bold">+25</b>
-              </div>
-              <div className="py-2.5 flex justify-between">
-                <span>Posted with 3+ hours of safe time</span>
-                <b className="text-[#166534] font-bold">+10</b>
-              </div>
-              <div className="py-2.5 flex justify-between">
-                <span>Week with 2+ deliveries</span>
-                <b className="text-[#166534] font-bold">+20</b>
-              </div>
-            </div>
-          </div>
-
-          <span className="text-[12px] text-[#5B6661] leading-relaxed pt-3 border-t border-[#F0EEE8]">
-            Up to 300 points a day. Points are removed if a shelter reports unfit food and we confirm it.
-          </span>
-        </div>
-
-        {/* Col 2: Badges · 3 of 6 */}
+      {/* 3-COLUMN BOTTOM ROW: Rewards, Badges, Certificate */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Col 1: Redeem Rewards */}
         <div className="ui-card p-6 flex flex-col gap-4 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
           <h2 className="font-outfit text-[20px] font-bold text-[#13231C]">
-            Badges · 3 of 6
+            {isHi ? "अंक भुनाएं" : "Redeem rewards"}
           </h2>
 
-          <div className="grid grid-cols-3 gap-y-5 gap-x-2 text-center text-[13px] font-semibold">
-            {/* Unlocked 1 */}
+          <div className="flex flex-col gap-3">
+            <div className="border border-[#ECE9E1] rounded-[16px] p-4 flex items-center justify-between">
+              <div className="flex flex-col">
+                <span className="text-[15px] font-bold text-[#13231C]">
+                  {isHi ? "बायोगैस खाद वाउचर" : "Biogas compost voucher"}
+                </span>
+                <span className="text-[13px] text-[#5B6661]">
+                  {isHi ? "500 अंक · 5 किग्रा जैविक खाद" : "500 points · 5 kg organic compost"}
+                </span>
+              </div>
+              <button
+                type="button"
+                className="btn-secondary h-9 px-3.5 text-[13px] cursor-pointer"
+              >
+                {isHi ? "भुनाएं" : "Redeem"}
+              </button>
+            </div>
+
+            <div className="border border-[#ECE9E1] rounded-[16px] p-4 flex items-center justify-between">
+              <div className="flex flex-col">
+                <span className="text-[15px] font-bold text-[#13231C]">
+                  {isHi ? "वृक्षारोपण प्रमाणपत्र" : "Tree plantation in your name"}
+                </span>
+                <span className="text-[13px] text-[#5B6661]">
+                  {isHi ? "750 अंक · जयपुर नगर निगम साझेदारी" : "750 points · JMC green belt"}
+                </span>
+              </div>
+              <button
+                type="button"
+                className="btn-secondary h-9 px-3.5 text-[13px] cursor-pointer"
+              >
+                {isHi ? "भुनाएं" : "Redeem"}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Col 2: Badges (6 grid) */}
+        <div className="ui-card p-6 flex flex-col gap-4 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
+          <h2 className="font-outfit text-[20px] font-bold text-[#13231C]">
+            {isHi ? "बैज एवं पदक" : "Badges"}
+          </h2>
+
+          <div className="grid grid-cols-3 gap-3 text-center text-[12px] font-bold text-[#13231C]">
             <div className="flex flex-col items-center gap-1.5">
               <span className="w-13 h-13 rounded-full bg-[#E3F5EA] flex items-center justify-center">
                 <Leaf className="w-6 h-6 text-[#1E9E5A]" />
               </span>
-              <span>First rescue</span>
+              <span>{isHi ? "प्रथम बचाव" : "First rescue"}</span>
             </div>
 
-            {/* Unlocked 2 */}
             <div className="flex flex-col items-center gap-1.5">
               <span className="w-13 h-13 rounded-full bg-[#FDE8DD] flex items-center justify-center">
                 <Heart className="w-6 h-6 fill-[#F2622E] stroke-none" />
@@ -210,15 +240,13 @@ export default function RewardsPage() {
               <span>100 meals</span>
             </div>
 
-            {/* Unlocked 3 */}
             <div className="flex flex-col items-center gap-1.5">
               <span className="w-13 h-13 rounded-full bg-[#FFF1D1] flex items-center justify-center">
                 <Moon className="w-6 h-6 fill-[#E89B1C] stroke-none" />
               </span>
-              <span>Night saver</span>
+              <span>{isHi ? "रात्रि रक्षक" : "Night saver"}</span>
             </div>
 
-            {/* Locked 4 */}
             <div className="flex flex-col items-center gap-1.5 text-[#8A938F]">
               <span className="w-13 h-13 rounded-full bg-[#EFEDE8] flex items-center justify-center">
                 <Lock className="w-5 h-5 text-[#8A938F]" />
@@ -226,55 +254,58 @@ export default function RewardsPage() {
               <span>1,000 meals</span>
             </div>
 
-            {/* Locked 5 */}
             <div className="flex flex-col items-center gap-1.5 text-[#8A938F]">
               <span className="w-13 h-13 rounded-full bg-[#EFEDE8] flex items-center justify-center">
                 <Lock className="w-5 h-5 text-[#8A938F]" />
               </span>
-              <span>Zero-waste week</span>
+              <span>{isHi ? "शून्य अपशिष्ट" : "Zero-waste"}</span>
             </div>
 
-            {/* Locked 6 */}
             <div className="flex flex-col items-center gap-1.5 text-[#8A938F]">
               <span className="w-13 h-13 rounded-full bg-[#EFEDE8] flex items-center justify-center">
                 <Lock className="w-5 h-5 text-[#8A938F]" />
               </span>
-              <span>4-week streak</span>
+              <span>{isHi ? "4 सप्ताह लकीर" : "4-week streak"}</span>
             </div>
           </div>
         </div>
 
-        {/* Col 3: Recognition Certificate + Sponsor Rewards */}
+        {/* Col 3: Recognition Certificate */}
         <div className="flex flex-col gap-6">
-          {/* Certificate Card */}
           <div className="ui-card p-6 flex flex-col gap-3 flex-1 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
-            <h2 className="font-outfit text-[20px] font-bold text-[#13231C]">
-              Recognition certificate
+            <h2 className="font-outfit text-[20px] font-bold text-[#13231C] flex items-center gap-2">
+              <Award className="w-5 h-5 text-[#D4AF37]" />
+              <span>{isHi ? "प्रशंसा प्रमाण पत्र" : "Recognition certificate"}</span>
             </h2>
             <span className="text-[14px] text-[#5B6661] leading-relaxed">
-              Your meals, kg diverted and level on one page, ready for your CSR report.
+              {isHi
+                ? "आपके भोजन, बचाए गए किग्रा और स्तर के साथ आधिकारिक जयपुर फूड रेस्क्यू प्रमाण पत्र।"
+                : "Your meals, kg diverted and level on one page, ready for your CSR report."}
             </span>
             <div className="mt-auto pt-2">
-              <Link
-                href="/admin/impact"
-                className="btn-primary w-full justify-center text-[14px]"
+              <button
+                type="button"
+                onClick={() => setIsCertOpen(true)}
+                className="btn-primary w-full justify-center text-[14px] cursor-pointer"
               >
-                <Download className="w-4 h-4" />
-                <span>Download certificate</span>
-              </Link>
+                <Award className="w-4 h-4" />
+                <span>{isHi ? "प्रमाण पत्र देखें / PDF" : "View / Download certificate"}</span>
+              </button>
             </div>
           </div>
 
-          {/* Sponsor Rewards (Coming soon) */}
+          {/* Sponsor Rewards */}
           <div className="ui-card p-6 bg-[#FDEEE6] border-[#F8DCCC] flex flex-col gap-2 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
-            <span className="ui-chip bg-white text-[#9A3412] self-start text-[12px]">
-              Coming soon
+            <span className="ui-chip bg-white text-[#9A3412] self-start text-[12px] font-bold">
+              {isHi ? "शीघ्र आ रहा है" : "Coming soon"}
             </span>
             <span className="font-outfit text-[18px] font-bold text-[#7A2E0E]">
-              Sponsor rewards
+              {isHi ? "ब्रांड प्रायोजक पुरस्कार" : "Sponsor rewards"}
             </span>
             <span className="text-[13px] text-[#7A3A1C] leading-relaxed">
-              Tree planting and meal sponsorships from partner brands.
+              {isHi
+                ? "भागीदार ब्रांडों से वृक्षारोपण और भोजन प्रायोजन।"
+                : "Tree planting and meal sponsorships from partner brands."}
             </span>
           </div>
         </div>

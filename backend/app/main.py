@@ -13,6 +13,7 @@ from app.chat.handlers import register_chat_subscribers
 
 # Import Routers
 from app.api.features import router as features_router
+from app.api.auth import router as auth_router
 from app.api.donations import router as donations_router
 from app.api.offers import router as offers_router
 from app.api.shelters import router as shelters_router
@@ -68,6 +69,7 @@ app.add_middleware(
 )
 
 # Include All API Routers
+app.include_router(auth_router, prefix="/api")
 app.include_router(features_router, prefix="/api")
 app.include_router(donations_router, prefix="/api")
 app.include_router(offers_router, prefix="/api")
@@ -80,6 +82,7 @@ app.include_router(rewards_router, prefix="/api")
 app.include_router(tier2_router, prefix="/api")
 app.include_router(tier3_router, prefix="/api")
 app.include_router(ws_router)
+
 
 
 @app.get("/health", tags=["Health"])

@@ -25,6 +25,18 @@ body {
   color: #13231C;
   overflow-x: hidden;
   -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+canvas {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.ui-card {
+  transform: translateZ(0);
 }
 
 .font-outfit {

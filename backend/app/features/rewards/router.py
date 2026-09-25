@@ -6,6 +6,15 @@ from app.features.rewards.rules import DEFAULT_REWARD_RULES, LEVEL_THRESHOLDS
 router = APIRouter(prefix="/rewards", tags=["Rewards"])
 
 
+class UpdateRewardRulesRequest(BaseModel):
+    points_per_meal: Optional[float] = 10.0
+    photo_bonus: Optional[float] = 25.0
+    early_post_bonus: Optional[float] = 50.0
+    streak_bonus: Optional[float] = 100.0
+    max_radius_km: Optional[float] = 20.0
+    spoilage_threshold_min: Optional[int] = 240
+
+
 @router.get("/rules")
 async def get_reward_rules():
     """List all available reward rules and how to earn points."""
@@ -14,6 +23,28 @@ async def get_reward_rules():
         "data": {
             "rules": DEFAULT_REWARD_RULES,
             "level_thresholds": LEVEL_THRESHOLDS
+        },
+        "error": None
+    }
+
+
+@router.put("/rules")
+async def update_reward_rules(req: UpdateRewardRulesRequest):
+    """Super Admin endpoint to configure point values and operational thresholds."""
+    for rule in DEFAULT_REWARD_RULES:
+        if rule.get("rule_id") == "rule_verified_delivery" and req.points_per_meal is not None:
+            rule["formula_value"] = req.points_per_meal
+        elif rule.get("rule_id") == "rule_photo_bonus" and req.photo_bonus is not None:
+            rule["formula_value"] = req.photo_bonus
+        elif rule.get("rule_id") == "rule_early_post_bonus" and req.early_post_bonus is not None:
+            rule["formula_value"] = req.early_post_bonus
+
+    return {
+        "success": True,
+        "data": {
+            "rules": DEFAULT_REWARD_RULES,
+            "level_thresholds": LEVEL_THRESHOLDS,
+            "message": "Platform reward rules updated successfully by Super Admin."
         },
         "error": None
     }

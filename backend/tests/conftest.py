@@ -3,7 +3,8 @@ from datetime import datetime, timezone, timedelta
 
 @pytest.fixture
 def mock_jaipur_donation():
-    now_utc = datetime.now(timezone.utc)
+    # Use deterministic daytime time (10:00 UTC = 15:30 IST) so shelter operating hours match reliably
+    now_utc = datetime(2026, 9, 25, 10, 0, 0, tzinfo=timezone.utc)
     return {
         "donation_id": "don_test_001",
         "donor_id": "donor_hotel_clarks",

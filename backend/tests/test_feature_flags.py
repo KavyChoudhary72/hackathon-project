@@ -4,7 +4,7 @@ from app.engine.tier1 import evaluate_tier1_matching
 
 
 def test_feature_flags_do_not_alter_tier1_matching(mock_jaipur_donation, mock_jaipur_shelters):
-    now_utc = datetime.now(timezone.utc)
+    now_utc = datetime(2026, 9, 25, 10, 0, 0, tzinfo=timezone.utc)
 
     # 1. Evaluate Tier 1 with all features ON
     settings.ENABLE_REWARDS = True

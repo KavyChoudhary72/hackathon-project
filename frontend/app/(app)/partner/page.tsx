@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   Recycle,
   Building2,
@@ -8,11 +9,10 @@ import {
   ArrowRight,
   Truck,
   Leaf,
+  Scale,
+  Sparkles,
+  Zap,
 } from "lucide-react";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
-import { TierBadge } from "@/components/ui/Badge";
-import { Modal } from "@/components/ui/Modal";
 import { apiClient } from "@/lib/api/client";
 import { DiversionOffer } from "@/lib/api/types";
 import { useToast } from "@/components/ui/Toast";
@@ -45,111 +45,176 @@ export default function PartnerDiversionPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      <div>
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-200 text-stone-900 text-xs font-bold mb-2">
-          <Recycle className="w-3.5 h-3.5 text-stone-700" />
-          <span>Tier 3: Industrial & Agricultural Diversion</span>
+    <div className="flex flex-col gap-6">
+      {/* HEADER: Breadcrumb + Title + Live Badge */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 pt-1">
+        <div className="flex flex-col gap-1.5">
+          <Link
+            href="/admin/impact"
+            className="text-[14px] font-semibold text-[#5B6661] hover:text-[#0E3B2E]"
+          >
+            City Ops / Tier 3 Diversion
+          </Link>
+          <div className="flex items-center gap-3">
+            <h1 className="font-outfit text-3xl sm:text-4xl lg:text-[42px] font-extrabold text-[#0E3B2E] tracking-tight leading-tight">
+              Tier 3: Biogas &amp; Animal Feed
+            </h1>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E7F7EE] border border-[#BDECD2] text-[12px] font-extrabold text-[#166534]">
+              <Recycle className="w-3.5 h-3.5 text-[#1E9E5A]" />
+              <span>Zero-Landfill Protocol</span>
+            </span>
+          </div>
+          <span className="text-[15px] sm:text-[16px] text-[#5B6661]">
+            Non-human consumption surplus routed to certified gaushalas (गौशाला) and municipal anaerobic bio-digesters.
+          </span>
         </div>
-        <h1 className="text-3xl font-black text-brand-800 tracking-tight">
-          Gaushala & Bio-Digester Portal
-        </h1>
-        <p className="text-xs text-neutral-500 mt-1 max-w-xl">
-          Non-human consumption surplus routed to certified cattle shelters (गौशाला) and municipal anaerobic bio-gas digesters.
-        </p>
+
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-2 h-10 px-4 rounded-full bg-white border border-[#ECE9E1] text-[13px] font-bold text-[#13231C] shadow-2xs">
+            <Scale className="w-4 h-4 text-[#1E9E5A]" />
+            <span>Honest Separated KG Ledger</span>
+          </span>
+        </div>
       </div>
 
-      <div className="space-y-4">
-        {offers.map((offer) => (
-          <Card
-            key={offer.id}
-            padding="lg"
-            className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-neutral-200 shadow-sm"
-          >
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <TierBadge tier={3} />
-                <span className="text-xs font-bold text-stone-600 bg-stone-100 px-2.5 py-0.5 rounded-full">
-                  {offer.partnerType === "GAUSHALA" ? "🐄 Gaushala Fodder" : "⚡ Biogas Methane"}
-                </span>
-                <span
-                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                    offer.status === "COMPLETED"
-                      ? "bg-emerald-100 text-emerald-800"
-                      : "bg-blue-100 text-blue-800"
-                  }`}
-                >
-                  {offer.status}
-                </span>
-              </div>
+      {/* 3 METRIC CARDS */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="ui-card p-5 flex flex-col gap-1 border-t-[5px] border-t-[#8B5E34] shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+          <span className="text-[13px] font-semibold text-[#5B6661]">Gaushala Fodder Diverted</span>
+          <span className="font-outfit text-[32px] font-extrabold text-[#13231C]">
+            640 kg
+          </span>
+          <span className="text-[11px] text-[#8B5E34] font-bold">Hingonia & Pinjrapol Gaushala</span>
+        </div>
 
-              <h3 className="text-base font-bold text-neutral-900">
-                {offer.foodType}
-              </h3>
-              <p className="text-xs text-neutral-500">
-                Source: <span className="font-semibold text-neutral-800">{offer.donorName}</span> · Pickup: {offer.pickupAddress}
-              </p>
+        <div className="ui-card p-5 flex flex-col gap-1 border-t-[5px] border-t-[#1E9E5A] shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+          <span className="text-[13px] font-semibold text-[#5B6661]">Biogas Methane Generation</span>
+          <span className="font-outfit text-[32px] font-extrabold text-[#13231C]">
+            982 kg
+          </span>
+          <span className="text-[11px] text-[#1E9E5A] font-bold">Jaipur Municipal Bio-Digester</span>
+        </div>
 
-              <div className="text-xs font-mono font-bold text-brand-800">
-                Estimated Weight: {offer.estimatedKg} KG{" "}
-                {offer.actualKg && (
-                  <span className="text-emerald-700 font-semibold ml-2">
-                    (Verified: {offer.actualKg} KG)
+        <div className="ui-card p-5 flex flex-col gap-1 border-t-[5px] border-t-[#0E3B2E] shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+          <span className="text-[13px] font-semibold text-[#5B6661]">Total Landfill Avoided</span>
+          <span className="font-outfit text-[32px] font-extrabold text-[#13231C]">
+            1,622 kg
+          </span>
+          <span className="text-[11px] text-[#5B6661]">4,055 kg CO₂e offset</span>
+        </div>
+      </div>
+
+      {/* OFFERS LIST */}
+      <div className="flex flex-col gap-4">
+        {offers.map((offer) => {
+          const isCompleted = offer.status === "COMPLETED";
+
+          return (
+            <div
+              key={offer.id}
+              className="ui-card p-6 sm:p-7 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-[0_2px_12px_rgba(0,0,0,0.02)] border border-[#ECE9E1]"
+            >
+              <div className="flex flex-col gap-2 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-[11px] font-extrabold px-2.5 py-1 rounded-md bg-[#8B5E34] text-white">
+                    TIER 3 DIVERSION
                   </span>
-                )}
-              </div>
-            </div>
+                  <span className="text-[12px] font-bold text-[#8B5E34] bg-[#F9F5F0] border border-[#E8DEC9] px-2.5 py-0.5 rounded-full">
+                    {offer.partnerType === "GAUSHALA" ? "🐄 Gaushala Cattle Fodder" : "⚡ Bio-Digester Methane"}
+                  </span>
+                  <span
+                    className={`text-[11px] font-extrabold px-2.5 py-0.5 rounded-full ${
+                      isCompleted
+                        ? "bg-[#E3F5EA] text-[#166534]"
+                        : "bg-blue-100 text-blue-900"
+                    }`}
+                  >
+                    {offer.status}
+                  </span>
+                </div>
 
-            {offer.status !== "COMPLETED" ? (
-              <Button
-                size="md"
-                variant="primary"
-                onClick={() => {
-                  setSelectedOffer(offer);
-                  setActualKg(offer.estimatedKg);
-                }}
-              >
-                Mark Received & Verify KG
-              </Button>
-            ) : (
-              <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-2xl border border-emerald-200">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                <span>Weighed & Diverted</span>
+                <h3 className="font-outfit text-[20px] font-bold text-[#13231C]">
+                  {offer.foodType}
+                </h3>
+                <p className="text-[13px] text-[#5B6661]">
+                  Origin: <strong className="text-[#13231C]">{offer.donorName}</strong> · Pickup Point: {offer.pickupAddress}
+                </p>
+
+                <div className="text-[13px] font-mono font-bold text-[#0E3B2E] bg-[#F6F5F1] px-3 py-1.5 rounded-xl self-start border border-[#ECE9E1]">
+                  Estimated Weight: {offer.estimatedKg} KG{" "}
+                  {offer.actualKg && (
+                    <span className="text-[#1E9E5A] ml-2">
+                      (Scale Verified: {offer.actualKg} KG)
+                    </span>
+                  )}
+                </div>
               </div>
-            )}
-          </Card>
-        ))}
+
+              {!isCompleted ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedOffer(offer);
+                    setActualKg(offer.estimatedKg);
+                  }}
+                  className="btn-primary h-11 px-5 text-[14px] font-bold self-start sm:self-center"
+                >
+                  <Scale className="w-4 h-4" />
+                  <span>Verify Weighbridge KG</span>
+                </button>
+              ) : (
+                <div className="flex items-center gap-2 text-[13px] font-bold text-[#166534] bg-[#EEF8F1] px-4 py-2 rounded-xl border border-[#BDECD2] self-start sm:self-center">
+                  <CheckCircle2 className="w-4 h-4 text-[#1E9E5A]" />
+                  <span>Weighed &amp; Diverted</span>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Verification Modal */}
-      <Modal
-        isOpen={!!selectedOffer}
-        onClose={() => setSelectedOffer(null)}
-        title="Verify Actual Diversion Weight"
-        description="Enter the net weight received after weighbridge or scale verification."
-      >
-        <div className="space-y-4 pt-2">
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-neutral-800">
-              Net Weight Received (KG):
-            </label>
-            <input
-              type="number"
-              value={actualKg}
-              onChange={(e) => setActualKg(Number(e.target.value))}
-              className="w-full text-base font-bold p-3 rounded-2xl border border-neutral-300 bg-surface-subtle focus:bg-white focus:border-brand-800 focus:outline-none"
-            />
-          </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="ghost" onClick={() => setSelectedOffer(null)}>
-              Cancel
-            </Button>
-            <Button variant="primary" onClick={handleComplete}>
-              Confirm Weigh Receipt
-            </Button>
+      {selectedOffer && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-[24px] max-w-md w-full p-6 sm:p-7 shadow-2xl border border-[#ECE9E1] flex flex-col gap-4">
+            <h3 className="font-outfit text-2xl font-bold text-[#0E3B2E]">
+              Verify Actual Diversion Weight
+            </h3>
+            <p className="text-[13px] text-[#5B6661]">
+              Enter the gross net weight received from weighbridge or digital scale for batch <strong>{selectedOffer.foodType}</strong>.
+            </p>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-[13px] font-bold text-[#13231C]">
+                Net Weight Received (KG):
+              </label>
+              <input
+                type="number"
+                value={actualKg}
+                onChange={(e) => setActualKg(Number(e.target.value))}
+                className="h-12 border border-[#DCD9D0] rounded-xl px-4 text-[16px] font-bold text-[#13231C] outline-none focus:border-[#0E3B2E]"
+              />
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setSelectedOffer(null)}
+                className="btn-secondary flex-1 h-11 text-[13px] font-bold justify-center"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleComplete}
+                className="btn-primary flex-1 h-11 text-[13px] font-bold justify-center"
+              >
+                Confirm Weigh Receipt
+              </button>
+            </div>
           </div>
         </div>
-      </Modal>
+      )}
     </div>
   );
 }
