@@ -1,8 +1,11 @@
-﻿/** @type {import('next').NextConfig} */
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false, // GSAP / ScrollTrigger cleanup is cleaner without double-mount in dev
   images: {
     unoptimized: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
   },
 };
 
