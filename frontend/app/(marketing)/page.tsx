@@ -77,7 +77,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <main className="min-h-screen text-[#142921] selection:bg-[#E8F5E9] selection:text-[#113A2B] relative font-sans">
+    <main className="min-h-screen text-[#142921] selection:bg-[#E8F5E9] selection:text-[#113A2B] relative font-sans overflow-x-hidden">
       {/* 
         High-performance background canvas rendering all 300 frames 
         from start to finish as user scrolls through the entire page

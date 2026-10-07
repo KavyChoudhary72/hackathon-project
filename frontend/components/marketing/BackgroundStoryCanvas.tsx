@@ -3,10 +3,13 @@
 import React, { useEffect, useRef } from "react";
 
 const TOTAL_FRAMES = 300;
+// Milestone keyframe step: 60 evenly spaced frames across the whole 300-frame sequence
+const KEYFRAME_STEP = 5;
 
 export const BackgroundStoryCanvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imagesRef = useRef<(HTMLImageElement | null)[]>(new Array(TOTAL_FRAMES).fill(null));
+  const loadingSetRef = useRef<Set<number>>(new Set());
   const targetProgressRef = useRef<number>(0);
   const currentProgressRef = useRef<number>(0);
   const lastDrawnIndexRef = useRef<number>(-1);
@@ -16,46 +19,77 @@ export const BackgroundStoryCanvas: React.FC = () => {
     if (!canvas) return;
 
     const images = imagesRef.current;
+    const loadingSet = loadingSetRef.current;
     let isMounted = true;
     let hasDrawnInitial = false;
 
-    // 1. Prioritized 2-stage frame loader (Keyframes first, then remaining frames in small batches)
-    const loadFrame = (index: number): Promise<void> => {
+    // Fast frame loader with deduplication
+    const loadFrame = (index: number): Promise<HTMLImageElement | null> => {
+      const clamped = Math.max(0, Math.min(TOTAL_FRAMES - 1, index));
+      if (!isMounted || images[clamped]) {
+        return Promise.resolve(images[clamped]);
+      }
+      if (loadingSet.has(clamped)) {
+        return Promise.resolve(null);
+      }
+      loadingSet.add(clamped);
+
       return new Promise((resolve) => {
-        if (!isMounted || images[index]) {
-          resolve();
-          return;
-        }
         const img = new Image();
-        const numStr = String(index + 1).padStart(3, "0");
+        const numStr = String(clamped + 1).padStart(3, "0");
         img.onload = () => {
-          if (!isMounted) return;
-          images[index] = img;
-          if (index === 0 && !hasDrawnInitial) {
+          loadingSet.delete(clamped);
+          if (!isMounted) return resolve(null);
+          images[clamped] = img;
+
+          if (clamped === 0 && !hasDrawnInitial) {
             hasDrawnInitial = true;
             draw(0);
-          } else if (index === Math.round(currentProgressRef.current * (TOTAL_FRAMES - 1))) {
-            draw(index);
+          } else {
+            const currentIdx = Math.round(currentProgressRef.current * (TOTAL_FRAMES - 1));
+            if (Math.abs(clamped - currentIdx) <= 2) {
+              draw(currentIdx);
+            }
           }
-          resolve();
+          resolve(img);
         };
-        img.onerror = () => resolve();
+        img.onerror = () => {
+          loadingSet.delete(clamped);
+          resolve(null);
+        };
         img.src = `/assets/ezgif-frame-${numStr}.jpg`;
       });
     };
 
-    // Fast initial burst: Load first frame and keyframes (every 6th frame)
-    const preloadSequence = async () => {
+    // On-demand proximity loader: immediately loads a localized window of frames near current scroll
+    const loadNearbyFrames = (centerIndex: number) => {
+      if (!isMounted) return;
+      const windowOffsets = [0, 1, 2, -1, 3, -2, 4];
+      for (const offset of windowOffsets) {
+        const idx = centerIndex + offset;
+        if (idx >= 0 && idx < TOTAL_FRAMES && !images[idx]) {
+          loadFrame(idx);
+        }
+      }
+    };
+
+    // Fast Initial Keyframe Grid: loads 60 milestone frames spread evenly across 0% to 100%
+    const preloadKeyframeGrid = async () => {
+      // 1. Immediately load & render frame 0
       await loadFrame(0);
-      
-      // Load milestone keyframes with concurrency 4
+
+      // 2. Preload milestones: 0, 5, 10, 15, ..., 295, 299
       const keyIndices: number[] = [];
-      for (let i = 1; i < TOTAL_FRAMES; i += 6) {
-        keyIndices.push(i);
+      for (let i = 0; i < TOTAL_FRAMES; i += KEYFRAME_STEP) {
+        if (i !== 0) keyIndices.push(i);
+      }
+      if (!keyIndices.includes(TOTAL_FRAMES - 1)) {
+        keyIndices.push(TOTAL_FRAMES - 1);
       }
 
+      // Concurrency worker queue (3 workers prevent mobile network congestion)
       const queue = [...keyIndices];
-      const activeWorkers = 4;
+      const activeWorkers = 3;
       const worker = async () => {
         while (queue.length > 0 && isMounted) {
           const nextIdx = queue.shift();
@@ -66,42 +100,25 @@ export const BackgroundStoryCanvas: React.FC = () => {
       };
 
       await Promise.all(Array.from({ length: activeWorkers }, worker));
-
-      // Fill in remaining frames during idle time
-      if (!isMounted) return;
-      const remainingIndices: number[] = [];
-      for (let i = 0; i < TOTAL_FRAMES; i++) {
-        if (!images[i]) remainingIndices.push(i);
-      }
-
-      const fillQueue = [...remainingIndices];
-      const fillWorker = async () => {
-        while (fillQueue.length > 0 && isMounted) {
-          const nextIdx = fillQueue.shift();
-          if (nextIdx !== undefined) {
-            await loadFrame(nextIdx);
-          }
-        }
-      };
-
-      Promise.all(Array.from({ length: 3 }, fillWorker));
     };
 
-    preloadSequence();
+    preloadKeyframeGrid();
 
+    // Outward search to guarantee an instant valid frame without blank flash
     const getLoadedImage = (index: number): HTMLImageElement | null => {
       if (images[index]) return images[index];
-      // Search outward for closest loaded frame
+      // Search outward for closest loaded keyframe
       for (let offset = 1; offset < TOTAL_FRAMES; offset++) {
-        if (index - offset >= 0 && images[index - offset]) return images[index - offset];
-        if (index + offset < TOTAL_FRAMES && images[index + offset]) return images[index + offset];
+        const left = index - offset;
+        const right = index + offset;
+        if (left >= 0 && images[left]) return images[left];
+        if (right < TOTAL_FRAMES && images[right]) return images[right];
       }
       return null;
     };
 
     /**
-     * Crystal-clear hardware-accelerated draw.
-     * Uses discrete, sharp frames at integer pixel alignment.
+     * Hardware-accelerated Canvas Render with Integer Pixel Alignment
      */
     const draw = (frameIndex: number) => {
       if (!canvas) return;
@@ -110,7 +127,7 @@ export const BackgroundStoryCanvas: React.FC = () => {
 
       if (!img || !img.naturalWidth) return;
 
-      const ctx = canvas.getContext("2d", { alpha: false, desynchronized: true });
+      const ctx = canvas.getContext("2d", { alpha: false });
       if (!ctx) return;
 
       const cw = canvas.width;
@@ -118,18 +135,17 @@ export const BackgroundStoryCanvas: React.FC = () => {
       const iw = img.naturalWidth || 1920;
       const ih = img.naturalHeight || 1080;
 
-      // Exact cover-fit math maintaining true aspect ratio without stretching
+      // Cover-fit math maintaining true aspect ratio
       const scale = Math.max(cw / iw, ch / ih);
       const dw = Math.round(iw * scale);
       const dh = Math.round(ih * scale);
       const dx = Math.round((cw - dw) * 0.5);
       const dy = Math.round((ch - dh) * 0.5);
 
+      const isMobile = window.innerWidth < 768;
       ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = "high";
+      ctx.imageSmoothingQuality = isMobile ? "medium" : "high";
 
-      // Draw pure frame
-      ctx.globalAlpha = 1.0;
       ctx.drawImage(img, dx, dy, dw, dh);
       lastDrawnIndexRef.current = clampedIndex;
     };
@@ -139,12 +155,12 @@ export const BackgroundStoryCanvas: React.FC = () => {
 
     const resizeCanvas = (force = false) => {
       if (!canvas) return;
-      const currentWidth = window.innerWidth;
-      const currentHeight = window.innerHeight;
+      const currentWidth = window.innerWidth || document.documentElement.clientWidth;
+      const currentHeight = window.innerHeight || document.documentElement.clientHeight;
 
-      // Ignore minor height changes (mobile browser URL bar show/hide) unless width changed or forced
+      // Mobile address bar protection: ignore small vertical height oscillations (< 120px)
       const widthChanged = Math.abs(currentWidth - lastWidth) > 5;
-      const heightChangedSignificantly = Math.abs(currentHeight - lastHeight) > 120; // e.g. Orientation change
+      const heightChangedSignificantly = Math.abs(currentHeight - lastHeight) > 120;
 
       if (!force && !widthChanged && !heightChangedSignificantly && lastWidth > 0) {
         return;
@@ -153,8 +169,8 @@ export const BackgroundStoryCanvas: React.FC = () => {
       lastWidth = currentWidth;
       lastHeight = currentHeight;
 
-      // On phones, clamp DPR to 1.25 to prevent memory spikes & lag, 1.5 on desktop
       const isMobile = currentWidth < 768;
+      // Clamp DPR to 1.25 on phones to save GPU memory and prevent lag; 1.5 on desktop
       const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.25 : 1.5);
       const w = Math.round(currentWidth * dpr);
       const h = Math.round(currentHeight * dpr);
@@ -169,7 +185,7 @@ export const BackgroundStoryCanvas: React.FC = () => {
 
     resizeCanvas(true);
 
-    // High-efficiency on-demand render loop (only runs when active, 0% CPU when idle!)
+    // High-performance render loop with adaptive mobile touch lerp
     let rafId: number | null = null;
     let isLoopRunning = false;
 
@@ -187,8 +203,10 @@ export const BackgroundStoryCanvas: React.FC = () => {
 
       const diff = targetProgressRef.current - currentProgressRef.current;
       if (Math.abs(diff) > 0.0001) {
-        // Snappy responsive interpolation (0.10 for silky smooth tracking on mobile & desktop)
-        currentProgressRef.current += diff * 0.10;
+        // Mobile phones benefit from a snappier lerp (0.30) that tracks touch swipes without lag
+        const isMobile = window.innerWidth < 768;
+        const lerpFactor = isMobile ? 0.30 : 0.14;
+        currentProgressRef.current += diff * lerpFactor;
 
         if (Math.abs(targetProgressRef.current - currentProgressRef.current) < 0.0002) {
           currentProgressRef.current = targetProgressRef.current;
@@ -206,14 +224,18 @@ export const BackgroundStoryCanvas: React.FC = () => {
       }
     };
 
-    // Passive scroll & touchmove listener that activates loop on demand
+    // Passive touch and scroll listener
     const handleScroll = () => {
       const scrollY = window.pageYOffset || window.scrollY || document.documentElement.scrollTop;
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      if (maxScroll <= 0) return;
-
+      const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
       const progress = Math.max(0, Math.min(1, scrollY / maxScroll));
+
       targetProgressRef.current = progress;
+      const targetFrame = Math.round(progress * (TOTAL_FRAMES - 1));
+
+      // Trigger on-demand proximity load for nearby frames
+      loadNearbyFrames(targetFrame);
+
       startLoop();
     };
 
@@ -236,7 +258,6 @@ export const BackgroundStoryCanvas: React.FC = () => {
     <div
       aria-hidden="true"
       className="fixed inset-0 w-full h-[100dvh] -z-10 pointer-events-none select-none overflow-hidden bg-[#0A1612]"
-      style={{ touchAction: "none" }}
     >
       {/* Hardware-accelerated High-Fidelity Canvas */}
       <canvas
@@ -248,7 +269,7 @@ export const BackgroundStoryCanvas: React.FC = () => {
         className="w-full h-full block"
       />
 
-      {/* Balanced Cinematic Scrim (Subtle, leaves anime vibrant & crystal-clear) */}
+      {/* Balanced Cinematic Scrim */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/25 to-black/65 pointer-events-none" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_45%,rgba(0,0,0,0.45)_100%)] pointer-events-none" />
     </div>

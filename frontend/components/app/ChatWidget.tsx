@@ -401,12 +401,12 @@ Question: ${textToSend}`,
             boxShadow: "0 12px 36px rgba(14, 59, 46, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.4)",
             border: "1.5px solid rgba(255, 255, 255, 0.3)",
           }}
-          className="fixed bottom-5 right-5 z-40 w-14 h-14 rounded-full text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all cursor-pointer"
+          className="fixed bottom-20 right-4 lg:bottom-5 lg:right-5 z-40 w-12 h-12 lg:w-14 lg:h-14 rounded-full text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-xl"
           aria-label="Open AI Assistant"
         >
           <div className="relative">
-            <MessageSquare className="w-6 h-6 text-white" />
-            <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-[#F2622E] ring-2 ring-[#0E3B2E] animate-pulse shadow-sm" />
+            <MessageSquare className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
+            <span className="absolute -top-1 -right-1 w-3 h-3 lg:w-3.5 lg:h-3.5 rounded-full bg-[#F2622E] ring-2 ring-[#0E3B2E] animate-pulse shadow-sm" />
           </div>
         </button>
       )}
@@ -421,7 +421,7 @@ Question: ${textToSend}`,
             boxShadow: "0 24px 60px rgba(0, 0, 0, 0.18), inset 0 1.5px 2px rgba(255, 255, 255, 0.9), inset 0 -1px 2px rgba(0, 0, 0, 0.05)",
             border: "1.5px solid rgba(255, 255, 255, 0.7)",
           }}
-          className="fixed bottom-5 right-4 sm:right-6 z-50 w-[92vw] sm:w-[410px] h-[470px] max-h-[calc(100vh-120px)] rounded-[26px] overflow-hidden flex flex-col animate-in slide-in-from-bottom-5 duration-150"
+          className="fixed bottom-20 right-3 sm:right-6 lg:bottom-5 z-50 w-[92vw] sm:w-[410px] h-[470px] max-h-[calc(100vh-140px)] rounded-[26px] overflow-hidden flex flex-col animate-in slide-in-from-bottom-5 duration-150"
         >
           {/* Frosted Glass Header with Language Selector & Voice Toggle */}
           <div

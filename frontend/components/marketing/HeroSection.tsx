@@ -16,13 +16,13 @@ export const HeroSection: React.FC = () => {
           </div>
 
           {/* Heading - Centered */}
-          <h1 className="text-5xl sm:text-6xl lg:text-[74px] font-black text-white tracking-[-0.035em] leading-[1.06] mb-6 text-center drop-shadow-2xl">
+          <h1 className="text-3xl sm:text-5xl lg:text-[74px] font-black text-white tracking-[-0.035em] leading-[1.1] mb-6 text-center drop-shadow-2xl">
             Turn Surplus Food <br />
             Into{" "}
             <span className="text-[#F9683A] relative inline-block">
               Real Impact.
               {/* Three orange radiant sparks */}
-              <span className="absolute -top-1 -right-8 text-[#F9683A] select-none pointer-events-none">
+              <span className="absolute -top-1 -right-3 sm:-right-8 text-[#F9683A] select-none pointer-events-none scale-75 sm:scale-100">
                 <svg
                   className="w-8 h-8"
                   viewBox="0 0 28 28"

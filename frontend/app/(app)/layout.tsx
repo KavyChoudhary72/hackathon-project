@@ -1,7 +1,6 @@
 import React from "react";
 import { Sidebar } from "@/components/app/Sidebar";
 import { AppNavbar } from "@/components/app/AppNavbar";
-import { DemoBar } from "@/components/app/DemoBar";
 import { ChatWidget } from "@/components/app/ChatWidget";
 
 export default function AppLayout({
@@ -23,7 +22,6 @@ export default function AppLayout({
       </div>
 
       {/* Interactive Overlays */}
-      <DemoBar />
       <ChatWidget />
     </div>
   );
