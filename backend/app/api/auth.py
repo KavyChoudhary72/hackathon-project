@@ -2,7 +2,7 @@ import logging
 import secrets
 from typing import Optional, List, Dict, Any
 from datetime import datetime, timezone
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
@@ -152,7 +152,7 @@ class LoginRequest(BaseModel):
 
 
 class RegisterRequest(BaseModel):
-    email: EmailStr
+    email: str = Field(min_length=3, description="User email address")
     password: str = Field(min_length=6)
     name: str = Field(min_length=2)
     role: str = Field(description="SUPER_ADMIN, MESS, DONOR, SHELTER, or DRIVER")
