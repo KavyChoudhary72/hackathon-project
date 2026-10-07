@@ -12,9 +12,11 @@ class Settings(BaseSettings):
     WHATSAPP_PHONE_NUMBER_ID: str = "mock_phone_id"
 
     CORS_ORIGINS: List[str] = [
+        "https://hackathon-project-yy5i.onrender.com",
         "http://localhost:3000",
         "http://localhost:5173",
-        "https://surplus2shelter.vercel.app"
+        "https://surplus2shelter.vercel.app",
+        "*"
     ]
 
     # Feature Flags

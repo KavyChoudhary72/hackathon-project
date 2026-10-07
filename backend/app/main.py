@@ -57,8 +57,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="SURPLUS2SHELTER — AI-Powered Real-Time Food Rescue & Redistribution API",
-    description="Deterministic 3-tier rescue engine, event-driven feature framework, and CSR proof ledger.",
+    title="FoodLink — AI-Powered Real-Time Surplus Food Rescue & Redistribution API",
+    description="FoodLink deterministic 3-tier rescue engine, event-driven feature framework, and statutory CSR tax proof ledger.",
     version="1.0.0",
     lifespan=lifespan
 )
@@ -93,7 +93,7 @@ async def health_check():
     """Health check endpoint for deployment monitoring."""
     return {
         "status": "healthy",
-        "service": "Surplus2Shelter Backend Core",
+        "service": "FoodLink Backend Core",
         "version": "1.0.0",
         "features": {
             "rewards": settings.ENABLE_REWARDS,
