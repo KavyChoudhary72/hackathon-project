@@ -103,23 +103,23 @@ export const DemoBar: React.FC = () => {
                 <ShieldAlert className="w-4 h-4 text-amber-400" />
                 <div className="flex flex-col min-w-0">
                   <span className="text-[12px] truncate leading-tight">Super Admin</span>
-                  <span className="text-[9px] opacity-70 truncate">City Ops & Audit</span>
+                  <span className="text-[9px] opacity-70 truncate">Kavy Choudhary</span>
                 </div>
               </button>
 
               <button
                 type="button"
-                onClick={() => handleRoleSelect("DONOR")}
+                onClick={() => handleRoleSelect("MESS")}
                 className={`p-2.5 rounded-xl text-left font-bold transition-all flex items-center gap-2 ${
-                  activeRole === "DONOR"
+                  activeRole === "MESS"
                     ? "bg-[#0E3B2E] text-white shadow-xs"
                     : "bg-[#F6F5F1] text-[#13231C] hover:bg-[#EEEDE6]"
                 }`}
               >
                 <Building2 className="w-4 h-4 text-emerald-400" />
                 <div className="flex flex-col min-w-0">
-                  <span className="text-[12px] truncate leading-tight">Hotel Clarks</span>
-                  <span className="text-[9px] opacity-70 truncate">Commercial Donor</span>
+                  <span className="text-[12px] truncate leading-tight">MNIT Mess</span>
+                  <span className="text-[9px] opacity-70 truncate">Student Dining</span>
                 </div>
               </button>
 

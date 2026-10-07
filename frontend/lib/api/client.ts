@@ -17,17 +17,25 @@ const USE_MOCK =
   process.env.NEXT_PUBLIC_USE_MOCK === "true" ||
   process.env.NEXT_PUBLIC_USE_MOCK === undefined;
 
+function getAuthHeaders(): Record<string, string> {
+  const token = typeof window !== "undefined" ? localStorage.getItem("foodlink_jwt_token") : null;
+  return {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
+
 export const apiClient = {
   // Donations
   async getDonations(): Promise<Donation[]> {
     if (USE_MOCK) return mockEngine.getDonations();
-    const res = await fetch("/api/donations");
+    const res = await fetch("/api/donations", { headers: getAuthHeaders() });
     return res.json();
   },
 
   async getDonation(id: string): Promise<Donation | undefined> {
     if (USE_MOCK) return mockEngine.getDonationById(id);
-    const res = await fetch(`/api/donations/${id}`);
+    const res = await fetch(`/api/donations/${id}`, { headers: getAuthHeaders() });
     return res.json();
   },
 
@@ -35,7 +43,7 @@ export const apiClient = {
     if (USE_MOCK) return mockEngine.createDonation(data);
     const res = await fetch("/api/donations", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders(),
       body: JSON.stringify(data),
     });
     return res.json();
@@ -44,7 +52,7 @@ export const apiClient = {
   // Shelters
   async getShelters(): Promise<Shelter[]> {
     if (USE_MOCK) return mockEngine.getShelters();
-    const res = await fetch("/api/shelters");
+    const res = await fetch("/api/shelters", { headers: getAuthHeaders() });
     return res.json();
   },
 
@@ -52,7 +60,7 @@ export const apiClient = {
     if (USE_MOCK) return mockEngine.updateShelterCapacity(id, capacity);
     await fetch(`/api/shelters/${id}/capacity`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ capacity }),
     });
   },
@@ -61,7 +69,7 @@ export const apiClient = {
     if (USE_MOCK) return mockEngine.acceptShelterOffer(donationId, shelterId);
     const res = await fetch(`/api/donations/${donationId}/accept`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ shelterId }),
     });
     return res.ok;
@@ -71,7 +79,7 @@ export const apiClient = {
     if (USE_MOCK) return mockEngine.declineShelterOffer(donationId, shelterId);
     const res = await fetch(`/api/donations/${donationId}/decline`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ shelterId }),
     });
     return res.ok;
@@ -82,7 +90,7 @@ export const apiClient = {
     if (USE_MOCK) return mockEngine.verifyPickupOtp(donationId, otp);
     const res = await fetch(`/api/donations/${donationId}/verify-pickup`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ otp }),
     });
     return res.ok;
@@ -92,7 +100,7 @@ export const apiClient = {
     if (USE_MOCK) return mockEngine.verifyDeliveryOtp(donationId, otp);
     const res = await fetch(`/api/donations/${donationId}/verify-delivery`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ otp }),
     });
     return res.ok;
@@ -101,7 +109,7 @@ export const apiClient = {
   // Deals
   async getDeals(): Promise<Deal[]> {
     if (USE_MOCK) return mockEngine.getDeals();
-    const res = await fetch("/api/deals");
+    const res = await fetch("/api/deals", { headers: getAuthHeaders() });
     return res.json();
   },
 
@@ -109,7 +117,7 @@ export const apiClient = {
     if (USE_MOCK) return mockEngine.claimDeal(dealId, qty);
     const res = await fetch(`/api/deals/${dealId}/claim`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ quantity: qty }),
     });
     return res.json();
@@ -118,7 +126,7 @@ export const apiClient = {
   // Diversion
   async getDiversions(): Promise<DiversionOffer[]> {
     if (USE_MOCK) return mockEngine.getDiversions();
-    const res = await fetch("/api/diversions");
+    const res = await fetch("/api/diversions", { headers: getAuthHeaders() });
     return res.json();
   },
 
@@ -126,7 +134,7 @@ export const apiClient = {
     if (USE_MOCK) return mockEngine.completeDiversion(id, actualKg);
     await fetch(`/api/diversions/${id}/complete`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ actualKg }),
     });
   },
@@ -134,21 +142,21 @@ export const apiClient = {
   // Impact
   async getImpact(): Promise<ImpactData> {
     if (USE_MOCK) return mockEngine.getImpactData();
-    const res = await fetch("/api/impact");
+    const res = await fetch("/api/impact", { headers: getAuthHeaders() });
     return res.json();
   },
 
   // Rewards
   async getRewards(): Promise<RewardsProfile> {
     if (USE_MOCK) return mockEngine.getRewardsProfile();
-    const res = await fetch("/api/rewards");
+    const res = await fetch("/api/rewards", { headers: getAuthHeaders() });
     return res.json();
   },
 
   // Features
   async getFeatureFlags(): Promise<FeatureFlags> {
     if (USE_MOCK) return mockEngine.getFeatureFlags();
-    const res = await fetch("/api/features");
+    const res = await fetch("/api/features", { headers: getAuthHeaders() });
     return res.json();
   },
 
@@ -225,9 +233,9 @@ export const apiClient = {
     }
 
     try {
-      const res = await fetch("http://localhost:8000/api/ai/parse-photo", {
+      const res = await fetch("/api/ai/parse-photo", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           photo_url: payload.photoUrl,
           image_base64: payload.imageBase64,
@@ -249,7 +257,7 @@ export const apiClient = {
   async getPlatformRules(): Promise<PlatformRules> {
     if (USE_MOCK) return mockEngine.getPlatformRules();
     try {
-      const res = await fetch("/api/rewards/rules");
+      const res = await fetch("/api/rewards/rules", { headers: getAuthHeaders() });
       if (res.ok) {
         const json = await res.json();
         return json.data?.rules || mockEngine.getPlatformRules();
@@ -263,7 +271,7 @@ export const apiClient = {
     try {
       const res = await fetch("/api/rewards/rules", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders(),
         body: JSON.stringify(rules),
       });
       if (res.ok) {
@@ -305,5 +313,3 @@ export const apiClient = {
     return mockEngine.cancelDonation(donationId, reason);
   },
 };
-
-

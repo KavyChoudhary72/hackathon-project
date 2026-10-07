@@ -34,7 +34,7 @@ export const Sidebar: React.FC = () => {
   const getNavLinks = () => {
     const isHi = locale === "hi";
 
-    if (role === "DONOR") {
+    if (role === "DONOR" || role === "MESS") {
       return [
         {
           href: "/donor",
@@ -215,7 +215,7 @@ export const Sidebar: React.FC = () => {
             className={`p-3 rounded-[16px] border flex flex-col gap-1 text-left ${
               role === "SUPER_ADMIN"
                 ? "bg-amber-50/80 border-amber-200/80 text-amber-950"
-                : role === "DONOR"
+                : role === "MESS" || role === "DONOR"
                 ? "bg-emerald-50/80 border-emerald-200/80 text-emerald-950"
                 : role === "SHELTER"
                 ? "bg-blue-50/80 border-blue-200/80 text-blue-950"
@@ -226,6 +226,8 @@ export const Sidebar: React.FC = () => {
               <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-white shadow-2xs">
                 {role === "SUPER_ADMIN"
                   ? "👑 Super Admin"
+                  : role === "MESS"
+                  ? (locale === "hi" ? "🍲 मेस / कैटरिंग" : "🍲 Mess / Dining")
                   : role === "DONOR"
                   ? (locale === "hi" ? "🏨 होटल / मेस" : "🏨 Hotel / Mess")
                   : role === "SHELTER"

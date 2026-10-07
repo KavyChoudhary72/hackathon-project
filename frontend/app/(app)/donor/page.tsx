@@ -24,13 +24,16 @@ import {
 } from "lucide-react";
 import { APP_IMAGES } from "@/lib/images";
 import { useI18n } from "@/lib/i18n";
+import { useAuth } from "@/lib/auth/AuthContext";
 import { DonorCertificateModal } from "@/components/donor/DonorCertificateModal";
 
 export default function DonorDashboardPage() {
   const { locale, t } = useI18n();
+  const { user } = useAuth();
   const [hasUnread, setHasUnread] = useState(true);
   const [isCertOpen, setIsCertOpen] = useState(false);
   const isHi = locale === "hi";
+  const donorName = user?.organizationName || user?.name || "Shree Ram Marriage Garden";
 
   return (
     <div className="flex flex-col gap-6">
@@ -74,11 +77,11 @@ export default function DonorDashboardPage() {
               className="w-10 h-10 rounded-full object-cover flex-shrink-0 border border-[#ECE9E1]"
             />
             <div className="flex flex-col pr-2 text-left">
-              <span className="text-[14px] font-bold text-[#13231C] leading-snug">
-                Shree Ram Marriage Garden
+              <span className="text-[14px] font-bold text-[#13231C] leading-snug truncate max-w-[200px]">
+                {donorName}
               </span>
               <span className="text-[12px] font-medium text-[#5B6661]">
-                {isHi ? "सेवा साथी" : "Seva Sathi"}
+                {isHi ? "सत्यापित दाता" : "Verified Stakeholder"}
               </span>
             </div>
           </div>
@@ -93,7 +96,7 @@ export default function DonorDashboardPage() {
           </span>
           <h1 className="font-outfit text-3xl sm:text-4xl lg:text-[46px] font-extrabold text-[#0E3B2E] tracking-tight leading-tight">
             {isHi ? "स्वागत है, " : "Welcome back, "}
-            <span className="text-[#F2622E]">Shree Ram.</span>
+            <span className="text-[#F2622E]">{donorName.split(" ")[0]}.</span>
           </h1>
           <span className="text-[15px] font-medium text-[#5B6661]">
             {isHi

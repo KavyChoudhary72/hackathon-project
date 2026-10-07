@@ -1,9 +1,9 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
-export type UserRole = "SUPER_ADMIN" | "DONOR" | "SHELTER" | "DRIVER";
+export type UserRole = "SUPER_ADMIN" | "MESS" | "DONOR" | "SHELTER" | "DRIVER";
 
 export interface AuthUser {
   userId: string;
@@ -15,6 +15,10 @@ export interface AuthUser {
   locationCity: string;
   permissions: string[];
   avatarUrl?: string;
+  donorType?: string;
+  fssaiLicence?: string;
+  capacityMeals?: number;
+  vehicleType?: string;
 }
 
 export interface DemoAccount {
@@ -30,27 +34,36 @@ export interface DemoAccount {
 export const DEMO_ACCOUNTS: DemoAccount[] = [
   {
     role: "SUPER_ADMIN",
-    email: "admin@surplus2shelter.org",
-    password: "Admin@2026",
-    name: "Jaipur City Ops Command",
-    organizationName: "Jaipur Municipal & Food Rescue Ops",
-    badgeLabel: "Super Admin",
+    email: "kavychoudhary27@gmail.com",
+    password: "Superadmin@12345",
+    name: "Kavy Choudhary",
+    organizationName: "Jaipur Food Commission & Municipal Operations",
+    badgeLabel: "Super Admin (City Ops)",
     iconName: "ShieldAlert",
+  },
+  {
+    role: "MESS",
+    email: "mess.mnit@jaipur.ac.in",
+    password: "Mess@12345",
+    name: "MNIT Central Mess & Catering",
+    organizationName: "MNIT Jaipur Student Dining",
+    badgeLabel: "Mess / Dining Hall",
+    iconName: "UtensilsCrossed",
   },
   {
     role: "DONOR",
     email: "hotel.clarks@jaipur.com",
-    password: "Donor@2026",
-    name: "Chef Vikas (Banquet Ops)",
+    password: "Mess@12345",
+    name: "Hotel Clarks Amer (Chef & Banquet)",
     organizationName: "Hotel Clarks Amer Jaipur",
-    badgeLabel: "Hotel / Mess Donor",
+    badgeLabel: "Hotel / Banquet Donor",
     iconName: "Building2",
   },
   {
     role: "SHELTER",
-    email: "akshaya.patra@jaipur.org",
-    password: "Shelter@2026",
-    name: "Sunita Sharma (Intake Coordinator)",
+    email: "shelter.akshaya@jaipur.org",
+    password: "Shelter@12345",
+    name: "Sunita Sharma (Intake Director)",
     organizationName: "Akshaya Patra Foundation Jaipur",
     badgeLabel: "Shelter / NGO",
     iconName: "Home",
@@ -58,35 +71,52 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
   {
     role: "DRIVER",
     email: "driver.ramesh@logistics.in",
-    password: "Driver@2026",
-    name: "Ramesh Kumar",
-    organizationName: "Volunteer Green Fleet",
+    password: "Driver@12345",
+    name: "Ramesh Kumar (Fleet Lead)",
+    organizationName: "Jaipur Green Logistics Volunteer Fleet",
     badgeLabel: "Logistics Driver",
     iconName: "Truck",
   },
 ];
+
+export interface RegisterPayload {
+  name: string;
+  email: string;
+  password: string;
+  role: UserRole;
+  organizationName?: string;
+  phone?: string;
+  locationCity?: string;
+  donorType?: string;
+  fssaiLicence?: string;
+  capacityMeals?: number;
+  vehicleType?: string;
+  vehicleNumber?: string;
+}
 
 interface AuthContextType {
   user: AuthUser;
   role: UserRole;
   token: string | null;
   isAuthenticated: boolean;
-  login: (email: string, password?: string) => Promise<boolean>;
-  loginWithRole: (role: UserRole) => void;
+  isLoading: boolean;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  register: (payload: RegisterPayload) => Promise<{ success: boolean; error?: string }>;
+  loginWithRole: (role: UserRole) => Promise<void>;
   logout: () => void;
-  switchRole: (role: UserRole) => void;
+  switchRole: (role: UserRole) => Promise<void>;
   demoAccounts: DemoAccount[];
 }
 
 const DEFAULT_SUPER_ADMIN: AuthUser = {
-  userId: "usr_admin_01",
-  name: "Jaipur City Ops Command",
-  email: "admin@surplus2shelter.org",
+  userId: "usr_superadmin_kavy",
+  name: "Kavy Choudhary",
+  email: "kavychoudhary27@gmail.com",
   role: "SUPER_ADMIN",
-  organizationName: "Jaipur Municipal & Food Rescue Ops",
+  organizationName: "Jaipur Food Commission & Municipal Operations",
   phone: "+91-98290-00001",
   locationCity: "Jaipur, Rajasthan",
-  permissions: ["all", "audit_decisions", "fssai_arbitration", "feature_flags", "master_analytics"],
+  permissions: ["all", "audit_decisions", "fssai_arbitration", "feature_flags", "master_analytics", "manage_users"],
   avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&q=80",
 };
 
@@ -95,93 +125,288 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [user, setUser] = useState<AuthUser>(DEFAULT_SUPER_ADMIN);
-  const [token, setToken] = useState<string | null>("jwt_s2s_super_admin");
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Initialize from LocalStorage
-  useEffect(() => {
-    try {
-      const storedRole = localStorage.getItem("s2s_auth_role") as UserRole | null;
-      const storedUser = localStorage.getItem("s2s_auth_user");
-      if (storedRole) {
-        const matched = DEMO_ACCOUNTS.find((a) => a.role === storedRole);
-        if (matched) {
-          setUser({
-            userId: `usr_${matched.role.toLowerCase()}`,
-            name: matched.name,
-            email: matched.email,
-            role: matched.role,
-            organizationName: matched.organizationName,
-            phone: "+91-98290-00000",
-            locationCity: "Jaipur, Rajasthan",
-            permissions: matched.role === "SUPER_ADMIN" ? ["all"] : [matched.role.toLowerCase()],
-          });
-        }
-      } else if (storedUser) {
-        setUser(JSON.parse(storedUser));
-      }
-    } catch {
-      // Ignore parse errors
-    } finally {
-      setIsLoaded(true);
+  const getRedirectPathForRole = useCallback((role: UserRole): string => {
+    switch (role) {
+      case "SUPER_ADMIN":
+        return "/admin";
+      case "MESS":
+      case "DONOR":
+        return "/donor";
+      case "SHELTER":
+        return "/shelter";
+      case "DRIVER":
+        return "/driver";
+      default:
+        return "/donor";
     }
   }, []);
 
-  const switchRole = (newRole: UserRole) => {
-    const matched = DEMO_ACCOUNTS.find((a) => a.role === newRole);
+  // Restore authenticated session on mount
+  useEffect(() => {
+    let isMounted = true;
+
+    async function restoreSession() {
+      try {
+        const storedToken = localStorage.getItem("foodlink_jwt_token");
+        const storedUserJson = localStorage.getItem("foodlink_auth_user");
+
+        if (storedToken && storedUserJson) {
+          const parsedUser = JSON.parse(storedUserJson) as AuthUser;
+          if (isMounted) {
+            setToken(storedToken);
+            setUser(parsedUser);
+          }
+
+          // Verify token against backend in background
+          try {
+            const res = await fetch("/api/auth/me", {
+              headers: { Authorization: `Bearer ${storedToken}` },
+            });
+            if (res.ok) {
+              const resJson = await res.json();
+              if (resJson.success && resJson.data && isMounted) {
+                const refreshedUser: AuthUser = {
+                  userId: resJson.data.user_id,
+                  name: resJson.data.name,
+                  email: resJson.data.email,
+                  role: resJson.data.role as UserRole,
+                  organizationName: resJson.data.organization_name,
+                  phone: resJson.data.phone,
+                  locationCity: resJson.data.location_city,
+                  permissions: resJson.data.permissions || [],
+                  avatarUrl: resJson.data.avatar_url,
+                  donorType: resJson.data.donor_type,
+                  fssaiLicence: resJson.data.fssai_licence,
+                  capacityMeals: resJson.data.capacity_meals,
+                  vehicleType: resJson.data.vehicle_type,
+                };
+                setUser(refreshedUser);
+                localStorage.setItem("foodlink_auth_user", JSON.stringify(refreshedUser));
+              }
+            }
+          } catch {
+            // Keep cached user if offline
+          }
+        } else {
+          // Initialize default Super Admin demo profile in local storage for instant demo readiness
+          const defaultAdmin = DEFAULT_SUPER_ADMIN;
+          const fallbackToken = "jwt_foodlink_kavychoudhary27_superadmin";
+          if (isMounted) {
+            setUser(defaultAdmin);
+            setToken(fallbackToken);
+          }
+          localStorage.setItem("foodlink_jwt_token", fallbackToken);
+          localStorage.setItem("foodlink_auth_user", JSON.stringify(defaultAdmin));
+        }
+      } catch {
+        // Fallback default
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    restoreSession();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const login = async (
+    email: string,
+    password: string
+  ): Promise<{ success: boolean; error?: string }> => {
+    const cleanEmail = email.trim().toLowerCase();
+
+    try {
+      // 1. Attempt API Login to FastAPI Backend
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: cleanEmail, password }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success && data.data) {
+        const receivedToken = data.data.token;
+        const u = data.data.user;
+        const authUser: AuthUser = {
+          userId: u.user_id,
+          name: u.name,
+          email: u.email,
+          role: u.role as UserRole,
+          organizationName: u.organization_name,
+          phone: u.phone,
+          locationCity: u.location_city,
+          permissions: u.permissions || [],
+          avatarUrl: u.avatar_url,
+          donorType: u.donor_type,
+          fssaiLicence: u.fssai_licence,
+          capacityMeals: u.capacity_meals,
+          vehicleType: u.vehicle_type,
+        };
+
+        setToken(receivedToken);
+        setUser(authUser);
+        localStorage.setItem("foodlink_jwt_token", receivedToken);
+        localStorage.setItem("foodlink_auth_user", JSON.stringify(authUser));
+
+        router.push(getRedirectPathForRole(authUser.role));
+        return { success: true };
+      } else {
+        // Check for specific error message
+        const errMsg = data.detail || data.error || "Invalid email or password.";
+
+        // 2. Check offline demo accounts fallback if backend is unreachable
+        const demoAcc = DEMO_ACCOUNTS.find(
+          (a) => a.email.toLowerCase() === cleanEmail && a.password === password
+        );
+        if (demoAcc) {
+          const fallbackToken = `jwt_s2s_${demoAcc.role.toLowerCase()}_${Date.now()}`;
+          const fallbackUser: AuthUser = {
+            userId: `usr_${demoAcc.role.toLowerCase()}`,
+            name: demoAcc.name,
+            email: demoAcc.email,
+            role: demoAcc.role,
+            organizationName: demoAcc.organizationName,
+            phone: "+91-98290-00000",
+            locationCity: "Jaipur, Rajasthan",
+            permissions: demoAcc.role === "SUPER_ADMIN" ? ["all"] : [demoAcc.role.toLowerCase()],
+          };
+          setToken(fallbackToken);
+          setUser(fallbackUser);
+          localStorage.setItem("foodlink_jwt_token", fallbackToken);
+          localStorage.setItem("foodlink_auth_user", JSON.stringify(fallbackUser));
+          router.push(getRedirectPathForRole(demoAcc.role));
+          return { success: true };
+        }
+
+        return { success: false, error: errMsg };
+      }
+    } catch {
+      // Backend offline fallback for demo accounts
+      const demoAcc = DEMO_ACCOUNTS.find(
+        (a) => a.email.toLowerCase() === cleanEmail && a.password === password
+      );
+      if (demoAcc) {
+        const fallbackToken = `jwt_s2s_${demoAcc.role.toLowerCase()}_${Date.now()}`;
+        const fallbackUser: AuthUser = {
+          userId: `usr_${demoAcc.role.toLowerCase()}`,
+          name: demoAcc.name,
+          email: demoAcc.email,
+          role: demoAcc.role,
+          organizationName: demoAcc.organizationName,
+          phone: "+91-98290-00000",
+          locationCity: "Jaipur, Rajasthan",
+          permissions: demoAcc.role === "SUPER_ADMIN" ? ["all"] : [demoAcc.role.toLowerCase()],
+        };
+        setToken(fallbackToken);
+        setUser(fallbackUser);
+        localStorage.setItem("foodlink_jwt_token", fallbackToken);
+        localStorage.setItem("foodlink_auth_user", JSON.stringify(fallbackUser));
+        router.push(getRedirectPathForRole(demoAcc.role));
+        return { success: true };
+      }
+
+      return {
+        success: false,
+        error: "Unable to reach authentication server. Please verify backend status.",
+      };
+    }
+  };
+
+  const register = async (
+    payload: RegisterPayload
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: payload.email.trim().toLowerCase(),
+          password: payload.password,
+          name: payload.name.trim(),
+          role: payload.role,
+          organization_name: payload.organizationName,
+          phone: payload.phone,
+          location_city: payload.locationCity || "Jaipur, Rajasthan",
+          donor_type: payload.donorType,
+          fssai_licence: payload.fssaiLicence,
+          capacity_meals: payload.capacityMeals,
+          vehicle_type: payload.vehicleType,
+          vehicle_number: payload.vehicleNumber,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success && data.data) {
+        const receivedToken = data.data.token;
+        const u = data.data.user;
+        const authUser: AuthUser = {
+          userId: u.user_id,
+          name: u.name,
+          email: u.email,
+          role: u.role as UserRole,
+          organizationName: u.organization_name,
+          phone: u.phone,
+          locationCity: u.location_city,
+          permissions: u.permissions || [],
+          avatarUrl: u.avatar_url,
+          donorType: u.donor_type,
+          fssaiLicence: u.fssai_licence,
+          capacityMeals: u.capacity_meals,
+          vehicleType: u.vehicle_type,
+        };
+
+        setToken(receivedToken);
+        setUser(authUser);
+        localStorage.setItem("foodlink_jwt_token", receivedToken);
+        localStorage.setItem("foodlink_auth_user", JSON.stringify(authUser));
+
+        router.push(getRedirectPathForRole(authUser.role));
+        return { success: true };
+      } else {
+        return {
+          success: false,
+          error: data.detail || data.error || "Registration failed. Please check inputs.",
+        };
+      }
+    } catch (e: any) {
+      return {
+        success: false,
+        error: e.message || "Failed to register account with backend service.",
+      };
+    }
+  };
+
+  const switchRole = async (targetRole: UserRole) => {
+    const matched = DEMO_ACCOUNTS.find((a) => a.role === targetRole);
     if (!matched) return;
 
-    const newUser: AuthUser = {
-      userId: `usr_${matched.role.toLowerCase()}`,
-      name: matched.name,
-      email: matched.email,
-      role: matched.role,
-      organizationName: matched.organizationName,
-      phone: "+91-98290-00000",
-      locationCity: "Jaipur, Rajasthan",
-      permissions: matched.role === "SUPER_ADMIN" ? ["all"] : [matched.role.toLowerCase()],
-    };
-
-    setUser(newUser);
-    setToken(`jwt_s2s_${newRole.toLowerCase()}`);
-    localStorage.setItem("s2s_auth_role", newRole);
-    localStorage.setItem("s2s_auth_user", JSON.stringify(newUser));
-
-    // Redirect to relevant root dashboard based on role
-    if (newRole === "DONOR") {
-      router.push("/donor");
-    } else if (newRole === "SHELTER") {
-      router.push("/shelter");
-    } else if (newRole === "DRIVER") {
-      router.push("/driver");
-    } else if (newRole === "SUPER_ADMIN") {
-      router.push("/admin");
-    }
+    // Use full credentials login
+    await login(matched.email, matched.password);
   };
 
-  const login = async (email: string, password?: string): Promise<boolean> => {
-    const cleanEmail = email.trim().toLowerCase();
-    const matched = DEMO_ACCOUNTS.find((a) => a.email.toLowerCase() === cleanEmail);
-
-    if (matched) {
-      switchRole(matched.role);
-      return true;
-    }
-
-    // Default fallback to Super Admin
-    switchRole("SUPER_ADMIN");
-    return true;
-  };
-
-  const loginWithRole = (targetRole: UserRole) => {
-    switchRole(targetRole);
+  const loginWithRole = async (targetRole: UserRole) => {
+    await switchRole(targetRole);
   };
 
   const logout = () => {
-    localStorage.removeItem("s2s_auth_role");
-    localStorage.removeItem("s2s_auth_user");
+    try {
+      fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
+    } catch {}
+
+    localStorage.removeItem("foodlink_jwt_token");
+    localStorage.removeItem("foodlink_auth_user");
+    setToken(null);
     setUser(DEFAULT_SUPER_ADMIN);
-    router.push("/");
+    router.push("/login");
   };
 
   return (
@@ -190,8 +415,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         role: user.role,
         token,
-        isAuthenticated: true,
+        isAuthenticated: Boolean(token),
+        isLoading,
         login,
+        register,
         loginWithRole,
         logout,
         switchRole,

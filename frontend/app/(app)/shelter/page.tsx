@@ -20,11 +20,14 @@ import {
   Info,
 } from "lucide-react";
 import { APP_IMAGES } from "@/lib/images";
+import { useAuth } from "@/lib/auth/AuthContext";
 
 export default function ShelterAppPage() {
-  const [capacity, setCapacity] = useState(60);
+  const { user } = useAuth();
+  const [capacity, setCapacity] = useState(user?.capacityMeals || 60);
   const [isAccepted, setIsAccepted] = useState(false);
   const [lang, setLang] = useState<"EN" | "HI">("EN");
+  const shelterName = user?.organizationName || (lang === "EN" ? "Akshaya Patra Jaipur" : "अक्षय पात्र जयपुर");
 
   const handleAccept = () => {
     setIsAccepted(true);
@@ -48,7 +51,7 @@ export default function ShelterAppPage() {
           <div className="flex flex-col gap-0.5">
             <div className="flex items-center gap-2.5 flex-wrap">
               <h1 className="font-outfit text-2xl sm:text-3xl font-extrabold text-[#0E3B2E] tracking-tight">
-                {lang === "EN" ? "Asha Shelter" : "आशा आश्रय गृह"}
+                {shelterName}
               </h1>
               <span className="ui-chip bg-[#DCF5E4] text-[#166534] text-[12px] font-bold">
                 <span className="w-2 h-2 rounded-full bg-[#16A34A] animate-pulse" />

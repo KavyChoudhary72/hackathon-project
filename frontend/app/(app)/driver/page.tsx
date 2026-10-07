@@ -18,8 +18,14 @@ import {
   Sparkles,
 } from "lucide-react";
 import { APP_IMAGES } from "@/lib/images";
+import { useAuth } from "@/lib/auth/AuthContext";
 
 export default function DriverMissionPage() {
+  const { user } = useAuth();
+  const driverName = user?.name || "Ramesh Kumar";
+  const vehicleInfo = user?.vehicleType
+    ? `Vehicle: ${user.vehicleType.toUpperCase()}`
+    : "Vehicle: Motorcycle (RJ-14-EA-4821)";
   const [otp, setOtp] = useState<string[]>([]);
   const [isConfirmed, setIsConfirmed] = useState(false);
 
@@ -70,14 +76,14 @@ export default function DriverMissionPage() {
           <div className="flex flex-col gap-0.5">
             <div className="flex items-center gap-2.5 flex-wrap">
               <h1 className="font-outfit text-2xl sm:text-3xl font-extrabold text-[#0E3B2E] tracking-tight">
-                Hi Ravi Kumar
+                Hi {driverName}
               </h1>
               <span className="ui-chip bg-[#DCF5E4] text-[#166534] text-[12px] font-bold">
                 <span className="w-2 h-2 rounded-full bg-[#16A34A] animate-pulse" />
                 <span>On Duty · Ready for Dispatch</span>
               </span>
               <span className="ui-chip bg-[#F1F0EB] text-[#5B6661] text-[12px] hidden md:inline-flex">
-                Vehicle: Motorcycle (RJ-14-EA-2024)
+                {vehicleInfo}
               </span>
             </div>
             <span className="text-[14px] text-[#5B6661]">
