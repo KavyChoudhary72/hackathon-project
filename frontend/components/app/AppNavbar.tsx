@@ -17,6 +17,7 @@ import {
   KeyRound,
   ShieldCheck,
   CheckCircle2,
+  Clock,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { Input } from "@/components/ui/Input";
@@ -24,7 +25,7 @@ import { useAuth, UserRole } from "@/lib/auth/AuthContext";
 
 export const AppNavbar: React.FC = () => {
   const { locale, setLocale } = useI18n();
-  const { user, role, logout, switchRole, demoAccounts } = useAuth();
+  const { user, role, logout, switchRole, demoAccounts, sessionRemainingSeconds } = useAuth();
   const [hasUnread, setHasUnread] = useState(true);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -95,6 +96,17 @@ export const AppNavbar: React.FC = () => {
           </button>
         </div>
 
+        {/* 15-Minute Session Expiry Live Badge */}
+        <div
+          className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200/80 text-amber-900 text-[11px] font-bold shadow-2xs select-none"
+          title="Session validity (auto-expires after 15 min max for security)"
+        >
+          <Clock className="w-3.5 h-3.5 text-amber-600 animate-pulse flex-shrink-0" />
+          <span>
+            {Math.floor(sessionRemainingSeconds / 60)}:{(sessionRemainingSeconds % 60).toString().padStart(2, "0")}
+          </span>
+        </div>
+
         {/* Notification Bell */}
         <button
           onClick={() => setHasUnread(false)}
@@ -133,7 +145,7 @@ export const AppNavbar: React.FC = () => {
           {dropdownOpen && (
             <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-[#ECE9E1] p-3 text-xs space-y-3 z-50 animate-in fade-in slide-in-from-top-2">
               {/* Profile Header */}
-              <div className="p-3 bg-[#F6F5F1] rounded-xl border border-[#ECE9E1] flex flex-col gap-1">
+              <div className="p-3 bg-[#F6F5F1] rounded-xl border border-[#ECE9E1] flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
                   <span className="font-extrabold text-[13px] text-[#0E3B2E] truncate">
                     {user.name}
@@ -146,9 +158,18 @@ export const AppNavbar: React.FC = () => {
                 <span className="text-[11px] text-[#5B6661] truncate">
                   {user.email}
                 </span>
-                <span className="text-[11px] font-semibold text-[#13231C] truncate pt-0.5">
+                <span className="text-[11px] font-semibold text-[#13231C] truncate">
                   🏢 {user.organizationName}
                 </span>
+                <div className="flex items-center justify-between pt-1 border-t border-[#ECE9E1] text-[10px] text-amber-900 font-bold">
+                  <span className="flex items-center gap-1">
+                    <Clock className="w-3 h-3 text-amber-600" />
+                    <span>Session Expiry:</span>
+                  </span>
+                  <span className="font-mono">
+                    {Math.floor(sessionRemainingSeconds / 60)}:{(sessionRemainingSeconds % 60).toString().padStart(2, "0")} remaining
+                  </span>
+                </div>
               </div>
 
               {/* Quick Persona Switcher */}

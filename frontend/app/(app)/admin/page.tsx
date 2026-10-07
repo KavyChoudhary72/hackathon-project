@@ -71,13 +71,17 @@ export default function SuperAdminCommandCenter() {
       {/* HEADER WITH BADGE */}
       <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 pt-1">
         <div className="flex flex-col gap-1.5">
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 flex-wrap">
             <span className="ui-chip bg-amber-100 text-amber-900 font-extrabold text-[12px] uppercase tracking-wider px-2.5 py-1">
               {isHi ? "सुपर एडमिन कमांड" : "Super Admin Command"}
             </span>
             <span className="flex items-center gap-1.5 text-[13px] text-[#1E9E5A] font-semibold bg-[#E3F5EA] px-2.5 py-0.5 rounded-full">
               <span className="w-2 h-2 rounded-full bg-[#1E9E5A] animate-pulse" />
               {isHi ? "लाइव जयपुर नेटवर्क" : "Live Jaipur Network"}
+            </span>
+            <span className="flex items-center gap-1.5 text-[12px] text-[#0E3B2E] font-bold bg-white border border-[#ECE9E1] px-3 py-0.5 rounded-full shadow-2xs">
+              <span>👑 {user.name}</span>
+              <span className="text-[#5B6661] text-[11px] font-normal hidden md:inline">({user.organizationName})</span>
             </span>
           </div>
           <h1 className="font-outfit text-3xl sm:text-4xl lg:text-[42px] font-extrabold text-[#0E3B2E] tracking-tight leading-tight">

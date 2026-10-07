@@ -111,8 +111,8 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Login Button */}
           <Link
-            href="/donor"
-            className="hidden sm:inline-flex px-5 py-2 rounded-full border border-neutral-200/90 text-[14px] font-bold text-[#142921] hover:bg-neutral-50 transition-all active:scale-[0.98]"
+            href="/login"
+            className="inline-flex px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-full border border-neutral-200/90 text-[12px] sm:text-[14px] font-bold text-[#142921] hover:bg-neutral-50 transition-all active:scale-[0.98]"
           >
             Login
           </Link>
@@ -120,10 +120,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Primary CTA: Donate Now */}
           <Link
             href="/donor/new"
-            className="bg-[#113A2B] hover:bg-[#1B4332] text-white px-5 sm:px-6 py-2.5 rounded-full text-[14px] font-bold flex items-center gap-1.5 shadow-[0_2px_10px_rgba(17,58,43,0.15)] transition-all active:scale-[0.98]"
+            className="bg-[#113A2B] hover:bg-[#1B4332] text-white px-3.5 sm:px-6 py-1.5 sm:py-2.5 rounded-full text-[12px] sm:text-[14px] font-bold flex items-center gap-1.5 shadow-[0_2px_10px_rgba(17,58,43,0.15)] transition-all active:scale-[0.98]"
           >
             <span>Donate Now</span>
-            <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+            <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
           </Link>
         </div>
       </header>

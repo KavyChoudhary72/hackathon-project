@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { I18nProvider } from "@/lib/i18n";
 import { ToastProvider } from "@/components/ui/Toast";
@@ -8,6 +8,12 @@ export const metadata: Metadata = {
   title: "FoodLink | Turn Surplus Food Into Real Impact",
   description:
     "Hyperlocal food surplus rescue and redistribution connecting banquets, shelters, and communities in Jaipur, Rajasthan.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({

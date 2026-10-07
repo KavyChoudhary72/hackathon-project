@@ -13,7 +13,7 @@ from app.core.config import settings
 # Security Configuration
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "foodlink-enterprise-production-jwt-secret-key-2026-v1")
 JWT_ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_SECONDS = 60 * 60 * 24 * 7  # 7 days
+ACCESS_TOKEN_EXPIRE_SECONDS = 15 * 60  # 15 minutes maximum session duration
 
 security_bearer = HTTPBearer(auto_error=False)
 

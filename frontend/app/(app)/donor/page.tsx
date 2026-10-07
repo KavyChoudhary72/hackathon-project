@@ -41,7 +41,7 @@ export default function DonorDashboardPage() {
       <DonorCertificateModal
         isOpen={isCertOpen}
         onClose={() => setIsCertOpen(false)}
-        defaultDonorName="Shree Ram Marriage Garden"
+        defaultDonorName={donorName}
       />
 
       {/* TOP BAR: Search + Notifications + Profile Chip */}
@@ -72,8 +72,8 @@ export default function DonorDashboardPage() {
           {/* User Profile Pill */}
           <div className="h-[52px] bg-white border border-[#ECE9E1] rounded-full flex items-center gap-3 px-4.5 pl-1.5 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
             <img
-              src={APP_IMAGES.marriageGarden}
-              alt="Shree Ram Garden"
+              src={user?.avatarUrl || APP_IMAGES.marriageGarden}
+              alt={donorName}
               className="w-10 h-10 rounded-full object-cover flex-shrink-0 border border-[#ECE9E1]"
             />
             <div className="flex flex-col pr-2 text-left">

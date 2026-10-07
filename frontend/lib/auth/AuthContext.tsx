@@ -94,16 +94,19 @@ export interface RegisterPayload {
   vehicleNumber?: string;
 }
 
+export const SESSION_LIFETIME_MS = 15 * 60 * 1000; // 15 minutes maximum session duration
+
 interface AuthContextType {
   user: AuthUser;
   role: UserRole;
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  sessionRemainingSeconds: number;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (payload: RegisterPayload) => Promise<{ success: boolean; error?: string }>;
   loginWithRole: (role: UserRole) => Promise<void>;
-  logout: () => void;
+  logout: (expired?: boolean) => void;
   switchRole: (role: UserRole) => Promise<void>;
   demoAccounts: DemoAccount[];
 }
@@ -127,6 +130,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser>(DEFAULT_SUPER_ADMIN);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [sessionRemainingSeconds, setSessionRemainingSeconds] = useState<number>(15 * 60);
 
   const getRedirectPathForRole = useCallback((role: UserRole): string => {
     switch (role) {
@@ -144,7 +148,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Restore authenticated session on mount
+  const logout = useCallback((expired?: boolean | unknown) => {
+    try {
+      fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
+    } catch {}
+
+    localStorage.removeItem("foodlink_jwt_token");
+    localStorage.removeItem("foodlink_auth_user");
+    localStorage.removeItem("foodlink_session_start");
+    setToken(null);
+    setUser(DEFAULT_SUPER_ADMIN);
+    setSessionRemainingSeconds(0);
+
+    if (expired === true) {
+      router.push("/login?session_expired=true");
+    } else {
+      router.push("/login");
+    }
+  }, [router]);
+
+  // Restore authenticated session on mount with strict 15-min check
   useEffect(() => {
     let isMounted = true;
 
@@ -152,12 +175,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const storedToken = localStorage.getItem("foodlink_jwt_token");
         const storedUserJson = localStorage.getItem("foodlink_auth_user");
+        const storedSessionStart = localStorage.getItem("foodlink_session_start");
 
         if (storedToken && storedUserJson) {
+          const sessionStart = storedSessionStart ? parseInt(storedSessionStart, 10) : 0;
+          const elapsed = Date.now() - sessionStart;
+
+          // Check if session has exceeded 15 minutes max
+          if (!sessionStart || elapsed > SESSION_LIFETIME_MS) {
+            localStorage.removeItem("foodlink_jwt_token");
+            localStorage.removeItem("foodlink_auth_user");
+            localStorage.removeItem("foodlink_session_start");
+            if (isMounted) {
+              setToken(null);
+              setUser(DEFAULT_SUPER_ADMIN);
+              setSessionRemainingSeconds(0);
+            }
+            // If on a protected route, route to login
+            if (
+              typeof window !== "undefined" &&
+              !window.location.pathname.startsWith("/login") &&
+              !window.location.pathname.startsWith("/signup") &&
+              window.location.pathname !== "/"
+            ) {
+              router.push("/login?session_expired=true");
+            }
+            return;
+          }
+
           const parsedUser = JSON.parse(storedUserJson) as AuthUser;
+          const remaining = Math.max(0, Math.floor((SESSION_LIFETIME_MS - elapsed) / 1000));
           if (isMounted) {
             setToken(storedToken);
             setUser(parsedUser);
+            setSessionRemainingSeconds(remaining);
           }
 
           // Verify token against backend in background
@@ -191,15 +242,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             // Keep cached user if offline
           }
         } else {
-          // Initialize default Super Admin demo profile in local storage for instant demo readiness
-          const defaultAdmin = DEFAULT_SUPER_ADMIN;
-          const fallbackToken = "jwt_foodlink_kavychoudhary27_superadmin";
+          // No stored credentials: initialize default demo state
           if (isMounted) {
-            setUser(defaultAdmin);
-            setToken(fallbackToken);
+            setUser(DEFAULT_SUPER_ADMIN);
+            setToken(null);
+            setSessionRemainingSeconds(0);
           }
-          localStorage.setItem("foodlink_jwt_token", fallbackToken);
-          localStorage.setItem("foodlink_auth_user", JSON.stringify(defaultAdmin));
         }
       } catch {
         // Fallback default
@@ -215,13 +263,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [router]);
+
+  // Active 1-second Interval Countdown Timer for 15-Minute Session Expiration
+  useEffect(() => {
+    if (!token) return;
+
+    const interval = setInterval(() => {
+      const storedSessionStart = localStorage.getItem("foodlink_session_start");
+      if (!storedSessionStart) {
+        logout(true);
+        return;
+      }
+      const sessionStart = parseInt(storedSessionStart, 10);
+      const elapsed = Date.now() - sessionStart;
+      const remainingSec = Math.max(0, Math.floor((SESSION_LIFETIME_MS - elapsed) / 1000));
+      setSessionRemainingSeconds(remainingSec);
+
+      if (remainingSec <= 0) {
+        clearInterval(interval);
+        logout(true);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [token, logout]);
 
   const login = async (
     email: string,
     password: string
   ): Promise<{ success: boolean; error?: string }> => {
     const cleanEmail = email.trim().toLowerCase();
+    const nowMs = Date.now().toString();
 
     try {
       // 1. Attempt API Login to FastAPI Backend
@@ -254,21 +327,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         setToken(receivedToken);
         setUser(authUser);
+        setSessionRemainingSeconds(15 * 60);
         localStorage.setItem("foodlink_jwt_token", receivedToken);
         localStorage.setItem("foodlink_auth_user", JSON.stringify(authUser));
+        localStorage.setItem("foodlink_session_start", nowMs);
 
         router.push(getRedirectPathForRole(authUser.role));
         return { success: true };
       } else {
-        // Check for specific error message
         const errMsg = data.detail || data.error || "Invalid email or password.";
 
-        // 2. Check offline demo accounts fallback if backend is unreachable
+        // 2. Offline fallback for demo accounts
         const demoAcc = DEMO_ACCOUNTS.find(
           (a) => a.email.toLowerCase() === cleanEmail && a.password === password
         );
         if (demoAcc) {
-          const fallbackToken = `jwt_s2s_${demoAcc.role.toLowerCase()}_${Date.now()}`;
+          const fallbackToken = `jwt_foodlink_${demoAcc.role.toLowerCase()}_${Date.now()}`;
           const fallbackUser: AuthUser = {
             userId: `usr_${demoAcc.role.toLowerCase()}`,
             name: demoAcc.name,
@@ -281,8 +355,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           };
           setToken(fallbackToken);
           setUser(fallbackUser);
+          setSessionRemainingSeconds(15 * 60);
           localStorage.setItem("foodlink_jwt_token", fallbackToken);
           localStorage.setItem("foodlink_auth_user", JSON.stringify(fallbackUser));
+          localStorage.setItem("foodlink_session_start", nowMs);
           router.push(getRedirectPathForRole(demoAcc.role));
           return { success: true };
         }
@@ -295,7 +371,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         (a) => a.email.toLowerCase() === cleanEmail && a.password === password
       );
       if (demoAcc) {
-        const fallbackToken = `jwt_s2s_${demoAcc.role.toLowerCase()}_${Date.now()}`;
+        const fallbackToken = `jwt_foodlink_${demoAcc.role.toLowerCase()}_${Date.now()}`;
         const fallbackUser: AuthUser = {
           userId: `usr_${demoAcc.role.toLowerCase()}`,
           name: demoAcc.name,
@@ -308,8 +384,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         };
         setToken(fallbackToken);
         setUser(fallbackUser);
+        setSessionRemainingSeconds(15 * 60);
         localStorage.setItem("foodlink_jwt_token", fallbackToken);
         localStorage.setItem("foodlink_auth_user", JSON.stringify(fallbackUser));
+        localStorage.setItem("foodlink_session_start", nowMs);
         router.push(getRedirectPathForRole(demoAcc.role));
         return { success: true };
       }
@@ -324,6 +402,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = async (
     payload: RegisterPayload
   ): Promise<{ success: boolean; error?: string }> => {
+    const nowMs = Date.now().toString();
+
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
@@ -366,8 +446,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         setToken(receivedToken);
         setUser(authUser);
+        setSessionRemainingSeconds(15 * 60);
         localStorage.setItem("foodlink_jwt_token", receivedToken);
         localStorage.setItem("foodlink_auth_user", JSON.stringify(authUser));
+        localStorage.setItem("foodlink_session_start", nowMs);
 
         router.push(getRedirectPathForRole(authUser.role));
         return { success: true };
@@ -397,18 +479,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await switchRole(targetRole);
   };
 
-  const logout = () => {
-    try {
-      fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
-    } catch {}
-
-    localStorage.removeItem("foodlink_jwt_token");
-    localStorage.removeItem("foodlink_auth_user");
-    setToken(null);
-    setUser(DEFAULT_SUPER_ADMIN);
-    router.push("/login");
-  };
-
   return (
     <AuthContext.Provider
       value={{
@@ -417,6 +487,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         token,
         isAuthenticated: Boolean(token),
         isLoading,
+        sessionRemainingSeconds,
         login,
         register,
         loginWithRole,

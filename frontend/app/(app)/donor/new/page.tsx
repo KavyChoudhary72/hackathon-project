@@ -23,6 +23,7 @@ import { apiClient } from "@/lib/api/client";
 import { APP_IMAGES } from "@/lib/images";
 import { VisionContainerItem } from "@/lib/api/types";
 import { LiveCameraScannerModal } from "@/components/donor/LiveCameraScannerModal";
+import { useAuth } from "@/lib/auth/AuthContext";
 
 const DEMO_PHOTO_PRESETS = [
   {
@@ -57,7 +58,12 @@ const DEMO_PHOTO_PRESETS = [
 
 export default function PostSurplusFoodPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const defaultAddress = user?.organizationName
+    ? `${user.organizationName}, ${user.locationCity || "Jaipur, Rajasthan"}`
+    : "Shree Ram Marriage Garden, Malviya Nagar, Jaipur";
 
   // Form State
   const [foodName, setFoodName] = useState("Dal Makhani & Steamed Basmati Rice");
@@ -68,7 +74,7 @@ export default function PostSurplusFoodPage() {
   const [preparedAt, setPreparedAt] = useState("8:30 PM");
   const [safeUntil, setSafeUntil] = useState("+3 hr");
   const [isConfirmed, setIsConfirmed] = useState(true);
-  const [pickupAddress, setPickupAddress] = useState("Shree Ram Marriage Garden, Malviya Nagar, Jaipur");
+  const [pickupAddress, setPickupAddress] = useState(defaultAddress);
 
   // Vision AI State
   const [selectedImage, setSelectedImage] = useState<string>(APP_IMAGES.dalChawal);

@@ -14,15 +14,25 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useI18n } from "@/lib/i18n";
+import { useAuth } from "@/lib/auth/AuthContext";
 import { ACHIEVER_DONORS } from "@/components/donor/DonorCertificateModal";
-
 
 export default function CertificatePage() {
   const { locale, t } = useI18n();
-  const [donorName, setDonorName] = useState("Hotel Clarks Amer Jaipur");
+  const { user } = useAuth();
+  const currentFormattedDate = new Date().toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+  const currentYear = new Date().getFullYear();
+
+  const [donorName, setDonorName] = useState(
+    user?.organizationName || user?.name || "Hotel Clarks Amer Jaipur"
+  );
   const [donorType, setDonorType] = useState("Hotel / Mess / Restaurant / Food Business");
-  const [certDate, setCertDate] = useState("25 September 2026");
-  const [certId, setCertId] = useState("JFR-2026-0841");
+  const [certDate, setCertDate] = useState(currentFormattedDate);
+  const [certId, setCertId] = useState(`JFR-${currentYear}-0841`);
   const certRef = useRef<HTMLDivElement>(null);
 
   const handlePrint = () => {

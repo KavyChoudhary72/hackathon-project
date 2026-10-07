@@ -69,8 +69,8 @@ export default function DriverMissionPage() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white border border-[#ECE9E1] rounded-[24px] p-5 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
         <div className="flex items-center gap-4">
           <img
-            src={APP_IMAGES.deliveryDriver}
-            alt="Ravi Kumar"
+            src={user?.avatarUrl || APP_IMAGES.deliveryDriver}
+            alt={driverName}
             className="w-14 h-14 rounded-2xl object-cover flex-shrink-0 shadow-xs border border-[#CDE8D6]"
           />
           <div className="flex flex-col gap-0.5">
@@ -87,7 +87,7 @@ export default function DriverMissionPage() {
               </span>
             </div>
             <span className="text-[14px] text-[#5B6661]">
-              Jaipur Central Logistics Hub · Verified Volunteer Driver
+              {user?.organizationName || "Jaipur Logistics Volunteer Fleet"} · Verified Volunteer Driver
             </span>
           </div>
         </div>

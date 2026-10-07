@@ -443,7 +443,7 @@ async def register(req: RegisterRequest):
         "data": {
             "token": token,
             "token_type": "Bearer",
-            "expires_in": 604800,  # 7 days in seconds
+            "expires_in": 900,  # 15 minutes session maximum
             "user": {
                 "user_id": user_dict["user_id"],
                 "name": user_dict["name"],
@@ -523,7 +523,7 @@ async def login(req: LoginRequest):
         "data": {
             "token": token,
             "token_type": "Bearer",
-            "expires_in": 604800,  # 7 days
+            "expires_in": 900,  # 15 minutes session maximum
             "user": {
                 "user_id": user["user_id"],
                 "name": user["name"],

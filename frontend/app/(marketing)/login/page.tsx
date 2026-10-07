@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   ShieldAlert,
   Building2,
@@ -23,8 +23,32 @@ import {
   Building,
   Check,
   Zap,
+  Clock,
 } from "lucide-react";
 import { useAuth, DEMO_ACCOUNTS, UserRole } from "@/lib/auth/AuthContext";
+
+function SessionExpiredBanner() {
+  const searchParams = useSearchParams();
+  const isExpired =
+    searchParams?.get("session_expired") === "true" || searchParams?.get("expired") === "true";
+
+  if (!isExpired) return null;
+
+  return (
+    <div className="p-4 rounded-2xl bg-amber-50 border border-amber-300 flex items-start gap-3 text-amber-900 text-[13px] animate-in fade-in">
+      <Clock className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+      <div className="flex flex-col gap-0.5">
+        <span className="font-extrabold text-[14px] text-amber-950">
+          Security Session Expired (15-min limit)
+        </span>
+        <span className="text-amber-800">
+          Your session reached the maximum 15-minute security lifetime and was securely logged out.
+          Please sign in again with your verified credentials or use 1-Click Launch.
+        </span>
+      </div>
+    </div>
+  );
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -146,10 +170,10 @@ export default function LoginPage() {
             ← Back to Home
           </Link>
           <Link
-            href="/donor"
+            href="/signup"
             className="text-[13px] font-bold text-[#0E3B2E] bg-white border border-[#DCD9D0] px-4 py-2 rounded-full hover:bg-[#EEEDE6] transition-all shadow-xs"
           >
-            Guest Demo Portal →
+            Register Stakeholder →
           </Link>
         </div>
       </div>
@@ -161,7 +185,7 @@ export default function LoginPage() {
           <div className="flex flex-col gap-2.5 text-center max-w-xl mx-auto">
             <div className="inline-flex items-center justify-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E7F7EE] border border-[#BDECD2] text-[12px] font-extrabold text-[#166534] mx-auto shadow-2xs">
               <Sparkles className="w-3.5 h-3.5 text-[#1E9E5A]" />
-              Enterprise Role-Based Access Control (RBAC)
+              Enterprise Role-Based Access Control (RBAC) · 15-Min Protected Session
             </div>
             <h1 className="font-outfit text-3xl sm:text-4xl font-extrabold text-[#0E3B2E] tracking-tight">
               {authMode === "login" ? "Welcome Back to FoodLink" : "Create Enterprise Account"}
@@ -204,6 +228,11 @@ export default function LoginPage() {
               </button>
             </div>
           </div>
+
+          {/* Session Expired Banner */}
+          <Suspense fallback={null}>
+            <SessionExpiredBanner />
+          </Suspense>
 
           {/* Error Banner */}
           {errorMessage && (

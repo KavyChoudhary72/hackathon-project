@@ -44,8 +44,8 @@ export default function ShelterAppPage() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white border border-[#ECE9E1] rounded-[24px] p-5 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
         <div className="flex items-center gap-4">
           <img
-            src={APP_IMAGES.ashaShelter}
-            alt="Asha Shelter"
+            src={user?.avatarUrl || APP_IMAGES.ashaShelter}
+            alt={shelterName}
             className="w-14 h-14 rounded-2xl object-cover flex-shrink-0 shadow-xs border border-[#CDE8D6]"
           />
           <div className="flex flex-col gap-0.5">
@@ -58,12 +58,12 @@ export default function ShelterAppPage() {
                 <span>{lang === "EN" ? "Open & Accepting" : "खुला है · भोजन स्वीकार्य"}</span>
               </span>
               <span className="ui-chip bg-[#F1F0EB] text-[#5B6661] text-[12px] hidden md:inline-flex">
-                FSSAI Reg: RJ-SHELTER-2024
+                FSSAI Reg: {user?.fssaiLicence || "RJ-SHELTER-2024"}
               </span>
             </div>
             <span className="text-[14px] text-[#5B6661] flex items-center gap-1.5">
               <MapPin className="w-4 h-4 text-[#C2410C]" />
-              <span>Sector 4, Malviya Nagar, Jaipur · Capacity: {capacity} meals</span>
+              <span>{user?.locationCity || "Malviya Nagar, Jaipur"} · Capacity: {capacity} meals</span>
             </span>
           </div>
         </div>

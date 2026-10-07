@@ -33,11 +33,23 @@ export function DonorCertificateModal({
   onClose,
   defaultDonorName = "Hotel Clarks Amer Jaipur",
 }: DonorCertificateModalProps) {
+  const currentDateStr = new Date().toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+  const currentYear = new Date().getFullYear();
   const [donorName, setDonorName] = useState(defaultDonorName);
   const [donorType, setDonorType] = useState("Hotel / Mess / Restaurant / Food Business");
-  const [certDate, setCertDate] = useState("25 September 2026");
-  const [certId, setCertId] = useState("JFR-2026-1025");
+  const [certDate, setCertDate] = useState(currentDateStr);
+  const [certId, setCertId] = useState(`JFR-${currentYear}-1025`);
   const certRef = useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (defaultDonorName) {
+      setDonorName(defaultDonorName);
+    }
+  }, [defaultDonorName]);
 
   if (!isOpen) return null;
 

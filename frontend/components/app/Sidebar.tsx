@@ -286,7 +286,8 @@ export const Sidebar: React.FC = () => {
               <span>{locale === "hi" ? "भूमिका स्विचर पोर्टल" : "Role Switcher Portal"}</span>
             </Link>
             <button
-              onClick={logout}
+              type="button"
+              onClick={() => logout()}
               className="h-8 flex items-center gap-2 hover:text-rose-700 text-left transition-colors cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />

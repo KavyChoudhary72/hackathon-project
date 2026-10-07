@@ -134,11 +134,30 @@ export const BackgroundStoryCanvas: React.FC = () => {
       lastDrawnIndexRef.current = clampedIndex;
     };
 
-    const resizeCanvas = () => {
+    let lastWidth = 0;
+    let lastHeight = 0;
+
+    const resizeCanvas = (force = false) => {
       if (!canvas) return;
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-      const w = Math.round(window.innerWidth * dpr);
-      const h = Math.round(window.innerHeight * dpr);
+      const currentWidth = window.innerWidth;
+      const currentHeight = window.innerHeight;
+
+      // Ignore minor height changes (mobile browser URL bar show/hide) unless width changed or forced
+      const widthChanged = Math.abs(currentWidth - lastWidth) > 5;
+      const heightChangedSignificantly = Math.abs(currentHeight - lastHeight) > 120; // e.g. Orientation change
+
+      if (!force && !widthChanged && !heightChangedSignificantly && lastWidth > 0) {
+        return;
+      }
+
+      lastWidth = currentWidth;
+      lastHeight = currentHeight;
+
+      // On phones, clamp DPR to 1.25 to prevent memory spikes & lag, 1.5 on desktop
+      const isMobile = currentWidth < 768;
+      const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.25 : 1.5);
+      const w = Math.round(currentWidth * dpr);
+      const h = Math.round(currentHeight * dpr);
 
       if (canvas.width !== w || canvas.height !== h) {
         canvas.width = w;
@@ -148,7 +167,7 @@ export const BackgroundStoryCanvas: React.FC = () => {
       }
     };
 
-    resizeCanvas();
+    resizeCanvas(true);
 
     // High-efficiency on-demand render loop (only runs when active, 0% CPU when idle!)
     let rafId: number | null = null;
@@ -168,7 +187,8 @@ export const BackgroundStoryCanvas: React.FC = () => {
 
       const diff = targetProgressRef.current - currentProgressRef.current;
       if (Math.abs(diff) > 0.0001) {
-        currentProgressRef.current += diff * 0.08;
+        // Snappy responsive interpolation (0.10 for silky smooth tracking on mobile & desktop)
+        currentProgressRef.current += diff * 0.10;
 
         if (Math.abs(targetProgressRef.current - currentProgressRef.current) < 0.0002) {
           currentProgressRef.current = targetProgressRef.current;
@@ -186,9 +206,9 @@ export const BackgroundStoryCanvas: React.FC = () => {
       }
     };
 
-    // Passive scroll listener that activates loop on demand
+    // Passive scroll & touchmove listener that activates loop on demand
     const handleScroll = () => {
-      const scrollY = window.scrollY;
+      const scrollY = window.pageYOffset || window.scrollY || document.documentElement.scrollTop;
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
       if (maxScroll <= 0) return;
 
@@ -198,7 +218,8 @@ export const BackgroundStoryCanvas: React.FC = () => {
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("resize", resizeCanvas, { passive: true });
+    window.addEventListener("touchmove", handleScroll, { passive: true });
+    window.addEventListener("resize", () => resizeCanvas(false), { passive: true });
 
     handleScroll();
 
@@ -206,14 +227,16 @@ export const BackgroundStoryCanvas: React.FC = () => {
       isMounted = false;
       if (rafId !== null) cancelAnimationFrame(rafId);
       window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", resizeCanvas);
+      window.removeEventListener("touchmove", handleScroll);
+      window.removeEventListener("resize", () => resizeCanvas(false));
     };
   }, []);
 
   return (
     <div
       aria-hidden="true"
-      className="fixed inset-0 w-screen h-screen -z-10 pointer-events-none select-none overflow-hidden bg-[#0A1612]"
+      className="fixed inset-0 w-full h-[100dvh] -z-10 pointer-events-none select-none overflow-hidden bg-[#0A1612]"
+      style={{ touchAction: "none" }}
     >
       {/* Hardware-accelerated High-Fidelity Canvas */}
       <canvas
