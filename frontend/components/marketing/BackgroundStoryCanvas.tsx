@@ -15,6 +15,11 @@ export const BackgroundStoryCanvas: React.FC = () => {
   const lastDrawnIndexRef = useRef<number>(-1);
 
   useEffect(() => {
+    // For mobile phones, disable animation and skip frame loading entirely
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      return;
+    }
+
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -257,7 +262,7 @@ export const BackgroundStoryCanvas: React.FC = () => {
   return (
     <div
       aria-hidden="true"
-      className="fixed inset-0 w-full h-[100dvh] -z-10 pointer-events-none select-none overflow-hidden bg-[#0A1612]"
+      className="hidden md:block fixed inset-0 w-full h-[100dvh] -z-10 pointer-events-none select-none overflow-hidden bg-[#0A1612]"
     >
       {/* Hardware-accelerated High-Fidelity Canvas */}
       <canvas

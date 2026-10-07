@@ -6,7 +6,18 @@ import { Heart, ArrowRight } from "lucide-react";
 
 export const HeroSection: React.FC = () => {
   return (
-    <section id="hero" className="relative z-10 w-full min-h-[110vh] flex flex-col justify-center pt-36 sm:pt-40 lg:pt-44 pb-28 sm:pb-36">
+    <section id="hero" className="relative z-10 w-full min-h-[92vh] sm:min-h-[100vh] lg:min-h-[110vh] flex flex-col justify-center pt-28 sm:pt-40 lg:pt-44 pb-20 sm:pb-36">
+      {/* Mobile-Only Static Hero Background Image (Resized for Phone) */}
+      <div className="absolute inset-0 -z-10 md:hidden overflow-hidden pointer-events-none select-none">
+        <img
+          src="/assets/mobile-hero-bg.png"
+          alt="Hero Background Sky"
+          className="w-full h-full object-cover object-top"
+        />
+        {/* Balanced scrim gradient for optimal text contrast and seamless bottom transition */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0A1612]/50 via-[#0A1612]/20 to-[#0A1612]" />
+      </div>
+
       <div className="max-w-[1340px] px-6 sm:px-8 mx-auto">
         <div className="max-w-3xl mx-auto flex flex-col items-center text-center">
           {/* Pill Tag */}
